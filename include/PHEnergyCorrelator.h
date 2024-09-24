@@ -1,5 +1,5 @@
 /// ============================================================================
-/*! \file    PHEnergyCorrelatorr.h
+/*! \file    PHEnergyCorrelator.h
  *  \authors Derek Anderson
  *  \date    09.21.2024
  *
@@ -12,7 +12,9 @@
 #define PHENERGYCORRELATOR_H
 
 // analysis components
+#include "PHCorrelationBins.h"
 #include "PHCorrelationCalculator.h"
+#include "PHCorrelationManager.h"
 #include "PHCorrelationTools.h"
 #include "PHCorrelationTypes.h"
 
