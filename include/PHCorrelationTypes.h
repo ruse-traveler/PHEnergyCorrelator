@@ -22,7 +22,6 @@ namespace PHEnergyCorrelator {
     /* TODO fill in */
 
   }   // end Const namespace
-
 }  // end PHEnergyCorrelator namespace
 
 #endif
