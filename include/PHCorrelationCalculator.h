@@ -12,6 +12,7 @@
 #define PHCORRELATIONCALCULATOR_H
 
 // c++ utilities
+#include <utility>
 #include <vector>
 // root libraries
 #include <TLorentzVector.h>
@@ -26,17 +27,33 @@ namespace PHEnergyCorrelator {
   // ==========================================================================
   class Calculator {
 
+    private:
+
+      // data members
+      std::vector<std::pair<float, float>> m_ptjet_bins;
+      std::vector<std::pair<float, float>> m_cfjet_bins;
+      std::vector<std::pair<float, float>> m_spin_bins;
+
+      /* TODO
+       *   - add flags
+       *   - GetPtJetIndex()
+       *   - GetCFJetIndex()
+       *   - GetSpinIndex()
+       *   - GetEnergyWeight()
+       */
+
     public:
 
       // default ctor/dtor
       Calculator()  {};
       ~Calculator() {};
 
-      /* TODO fill in */
-
-    private:
-
-      /* TODO fill in */
+      /* TODO
+       *   - DoEECCalc(jet, {cst, cst})
+       *   - DoE3CCalc(jet, {cst, cst, cst})
+       *   - DoLECCalc(jet, {lambda, cst})
+       *   - FindLambda({cst...})
+       */
 
   };  // end PHEnergyCorrelator::Calculator
 
