@@ -1,5 +1,5 @@
 /// ============================================================================
-/*! \file    PHCorrelationCalculator.h
+/*! \file    PHCorrelatorCalculator.h
  *  \authors Derek Anderson, Alex Clarke
  *  \date    09.21.2024
  *
@@ -8,8 +8,8 @@
  */
 /// ============================================================================
 
-#ifndef PHCORRELATIONCALCULATOR_H
-#define PHCORRELATIONCALCULATOR_H
+#ifndef PHCORRELATORCALCULATOR_H
+#define PHCORRELATORCALCULATOR_H
 
 // c++ utilities
 #include <utility>

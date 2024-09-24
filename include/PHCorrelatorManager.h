@@ -4,7 +4,7 @@
  *  \date    09.24.2024
  *
  *  Class to manage histograms to be filled during
- *  EEC calculations.
+ *  ENC calculations.
  */
 /// ============================================================================
 
@@ -19,6 +19,8 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TH3.h>
+// analysis components
+#include "PHCorrelatorBins.h"
 
 
 
