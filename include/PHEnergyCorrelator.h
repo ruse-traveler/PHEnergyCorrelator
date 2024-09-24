@@ -13,6 +13,7 @@
 
 // analysis components
 #include "PHCorrelationCalculator.h"
+#include "PHCorrelationTools.h"
 #include "PHCorrelationTypes.h"
 
 // alias for convenience
