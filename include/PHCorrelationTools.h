@@ -25,6 +25,9 @@ namespace PHEnergyCorrelator {
   // ==========================================================================
   namespace Tools {
 
+    // ------------------------------------------------------------------------
+    //! Get constituent 4-vector in lab frame from 3-momenta in jet frame
+    // ------------------------------------------------------------------------
     TLorentzVector GetCstPxPyPz(
       const TVector3 pjet,
       const float z,
@@ -37,7 +40,7 @@ namespace PHEnergyCorrelator {
       TVector3 pcst = z * pjet;
 
       // calculate momentum components in lab frame
-      const float ptot = std::hypot(jt, pcst.Mag());
+      const float ptot = hypot(jt, pcst.Mag());
       const float px   = ptot * std::cosh(eta) * std::cos(phi);
       const float py   = ptot * std::cosh(eta) * std::sin(phi);
       const float pz   = ptot * std::sinh(eta);
