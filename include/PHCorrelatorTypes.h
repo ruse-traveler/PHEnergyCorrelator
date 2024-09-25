@@ -19,7 +19,8 @@ namespace PHEnergyCorrelator {
   // ==========================================================================
   namespace Type {
 
-    /* TODO fill in */
+    //! Types of binning
+    enum Axis {Log, Norm};
 
   }  // end Type namespace
 

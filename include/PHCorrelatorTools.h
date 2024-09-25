@@ -12,11 +12,14 @@
 
 // c++ utilities
 #include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <vector>
 // root libraries
 #include <TLorentzVector.h>
 #include <TVector3.h>
+// analysis components
+#include "PHCorrelatorTypes.h"
 
 
 
@@ -30,16 +33,45 @@ namespace PHEnergyCorrelator {
     // ------------------------------------------------------------------------
     //! Divide a range into a certain number of bins
     // ------------------------------------------------------------------------
-    /* TODO add flag for log vs. not */
     std::vector<double> GetBinEdges(
       const uint32_t num,
       const double start,
-      const double stop
+      const double stop,
+      const Type::Axis axis = Type::Axis::Norm
     ) {
 
+      // throw error if start/stop are out of order
+      // or if num is zero
+      if (num <= 0)     assert(num > 0);
+      if (start > stop) assert(start <= stop);
+
+      // set start/stop, calculate bin steps
+      const double start_use = (axis == Type::Axis::Log) ? std::log10(start) : start;
+      const double stop_use  = (axis == Type::Axis::Log) ? std::log10(stop)  : stop;
+      const double step      = (stop_use - start_use) / num;
+ 
+      // instantiate vector to hold bins
       std::vector<double> bins;
 
-      /* TODO calculations go here */
+      // and fill vector
+      double edge = start_use;
+      for (uint32_t inum = 0; inum < num; ++inum) {
+        bins.push_back( edge );
+        edge += step;
+      }
+      bins.push_back( edge );
+
+      // if need be, transform back from log
+      if (axis == Type::Axis::Log) {
+        std::transform(
+          bins.begin(),
+          bins.end(),
+          bins.begin(),
+          [](const double edge) {
+            return std::pow(10., edge);
+          }
+        ); 
+      }
       return bins;
 
     }  // end 'GetBinEdges(uint32_t, double, double)'

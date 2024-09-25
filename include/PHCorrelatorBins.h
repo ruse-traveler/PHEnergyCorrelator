@@ -66,14 +66,19 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       //! ctor accepting uniform parameters
       // ----------------------------------------------------------------------
-      /* TODO add flag to set log bins vs. not */ 
-      Binning(const uint32_t num, const double start, const double stop) {
+      Binning(
+        const uint32_t num,
+        const double start,
+        const double stop,
+        const Type::Axis axis = Type::Axis::Norm
+      ) {
 
         m_num   = num;
         m_start = start;
         m_stop  = stop;
+        m_bins  = Tools::GetBinEdges(m_num, m_start, m_stop, axis);
 
-      }  // end ctor(uint32_t, double, double)
+      }  // end ctor(uint32_t, double, double, Type::Axis)
 
       // ----------------------------------------------------------------------
       //! ctor accepting non-uniform parameters
@@ -103,13 +108,14 @@ namespace PHEnergyCorrelator {
     private:
 
       /* TODO
-       *  - Add R_{L/S/M}
        *  - Add cos(angle)
        *  - Add angle
        *  - Add xi
        */
       std::map<std::string, Binning> m_bins = {
-        { "energy", {202, -1., 100.} }
+        { "energy",  {202, -1., 100.} },
+        { "side",    {75, 1e-5, 1., Type::Axis::Log} },
+        { "logside", {75, -5., 0.} }
       };
 
     public:
