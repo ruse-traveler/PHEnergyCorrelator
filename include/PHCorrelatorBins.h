@@ -38,9 +38,9 @@ namespace PHEnergyCorrelator {
     private:
 
       // data members
-      uint32_t            m_num;
       double              m_start;
       double              m_stop;
+      std::size_t         m_num;
       std::vector<double> m_bins;
 
     public:
@@ -48,9 +48,9 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       //! Uniform bin getters
       //-----------------------------------------------------------------------
-      uint32_t GetNum()   const {return m_num;}
-      double   GetStart() const {return m_start;}
-      double   GetStop()  const {return m_stop;}
+      double      GetStart() const {return m_start;}
+      double      GetStop()  const {return m_stop;}
+      std::size_t GetNum()   const {return m_num;}
 
       // ----------------------------------------------------------------------
       //! Variable bin getter
@@ -67,10 +67,10 @@ namespace PHEnergyCorrelator {
       //! ctor accepting uniform parameters
       // ----------------------------------------------------------------------
       Binning(
-        const uint32_t num,
+        const std::size_t num,
         const double start,
         const double stop,
-        const Type::Axis axis = Type::Axis::Norm
+        const Type::Axis axis = Type::Norm
       ) {
 
         m_num   = num;
@@ -107,16 +107,8 @@ namespace PHEnergyCorrelator {
 
     private:
 
-      /* TODO
-       *  - Add cos(angle)
-       *  - Add angle
-       *  - Add xi
-       */
-      std::map<std::string, Binning> m_bins = {
-        { "energy",  {202, -1., 100.} },
-        { "side",    {75, 1e-5, 1., Type::Axis::Log} },
-        { "logside", {75, -5., 0.} }
-      };
+      // data members
+      std::map<std::string, Binning> m_bins;
 
     public:
 
@@ -131,7 +123,7 @@ namespace PHEnergyCorrelator {
         }
 
         // otherwise insert new binning
-        m_bins.insert( {name, binning} );
+        m_bins[name] = binning;
         return;
 
       }  // end 'Add(std::string&, Binning&)'
@@ -168,9 +160,24 @@ namespace PHEnergyCorrelator {
       }  // end 'Get(std::string&)'
 
       // ----------------------------------------------------------------------
-      //! default ctor/dtor
+      //! default ctor
       // ----------------------------------------------------------------------
-      Bins()  {};
+      Bins() {
+
+        /* TODO
+         *  - Add cos(angle)
+         *  - Add angle
+         *  - Add xi
+         */
+        m_bins["energy"]  = Binning(202, -1., 100.);
+        m_bins["side"]    = Binning(75, 1e-5, 1., Type::Log);
+        m_bins["logside"] = Binning(75, -5., 0.);
+
+      }  // end 'ctor()'
+
+      // ----------------------------------------------------------------------
+      //! default dtor
+      // ----------------------------------------------------------------------
       ~Bins() {};
 
   };  // end Bins

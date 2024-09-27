@@ -33,10 +33,9 @@ void PHEnergyCorrelatorTest() {
   PHEC::Bins bins;
 
   // loop over R_{L/S/M} bin edges and print them
-  std::size_t iedge = 0;
-  for (const double edge : bins.Get("side").GetBins()) {
-    std::cout << "      --- R_{L}: edge[" << iedge << "] = " << edge << std::endl;
-    ++iedge;
+  const std::vector<double> edges = bins.Get("side").GetBins();
+  for (std::size_t iedge = 0; iedge < edges.size(); ++iedge) {
+    std::cout << "      --- R_{L}: edge[" << iedge << "] = " << edges[iedge] << std::endl;
   }
 
   // --------------------------------------------------------------------------
