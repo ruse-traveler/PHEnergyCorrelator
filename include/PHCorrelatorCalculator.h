@@ -3,7 +3,7 @@
  *  \authors Derek Anderson, Alex Clarke
  *  \date    09.21.2024
  *
- *  Driver class to run n-point energy-energy correlator
+ *  Cclass to run n-point energy-energy correlator
  *  calculations on inputs.
  */
 /// ============================================================================
@@ -30,9 +30,9 @@ namespace PHEnergyCorrelator {
     private:
 
       // data members
-      std::vector<std::pair<float, float>> m_ptjet_bins;
-      std::vector<std::pair<float, float>> m_cfjet_bins;
-      std::vector<std::pair<float, float>> m_spin_bins;
+      std::vector< std::pair<float, float> > m_ptjet_bins;
+      std::vector< std::pair<float, float> > m_cfjet_bins;
+      std::vector< std::pair<float, float> > m_spin_bins;
 
       /* TODO
        *   - add flags

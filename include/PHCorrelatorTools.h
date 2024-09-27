@@ -31,13 +31,35 @@ namespace PHEnergyCorrelator {
   namespace Tools {
 
     // ------------------------------------------------------------------------
+    //! Wrapper function for std::pow
+    // ------------------------------------------------------------------------
+    double Exponentiate(const double arg) {
+
+      return std::pow(Const::Base(), arg);
+
+    }  // end 'Exponentiate(double&)'
+
+
+
+    // ------------------------------------------------------------------------
+    //! Wrapper function for log
+    // ------------------------------------------------------------------------
+    double Log(const double arg) {
+
+      return std::log10(arg) / std::log10(Const::Base());
+
+    }  // end 'Log(double&)'
+
+
+
+    // ------------------------------------------------------------------------
     //! Divide a range into a certain number of bins
     // ------------------------------------------------------------------------
     std::vector<double> GetBinEdges(
-      const uint32_t num,
+      const std::size_t num,
       const double start,
       const double stop,
-      const Type::Axis axis = Type::Axis::Norm
+      const Type::Axis axis = Type::Log
     ) {
 
       // throw error if start/stop are out of order
@@ -46,8 +68,8 @@ namespace PHEnergyCorrelator {
       if (start > stop) assert(start <= stop);
 
       // set start/stop, calculate bin steps
-      const double start_use = (axis == Type::Axis::Log) ? std::log10(start) : start;
-      const double stop_use  = (axis == Type::Axis::Log) ? std::log10(stop)  : stop;
+      const double start_use = (axis == Type::Log) ? Log(start) : start;
+      const double stop_use  = (axis == Type::Log) ? Log(stop)  : stop;
       const double step      = (stop_use - start_use) / num;
  
       // instantiate vector to hold bins
@@ -55,21 +77,19 @@ namespace PHEnergyCorrelator {
 
       // and fill vector
       double edge = start_use;
-      for (uint32_t inum = 0; inum < num; ++inum) {
+      for (std::size_t inum = 0; inum < num; ++inum) {
         bins.push_back( edge );
         edge += step;
       }
       bins.push_back( edge );
 
       // if need be, transform back from log
-      if (axis == Type::Axis::Log) {
+      if (axis == Type::Log) {
         std::transform(
           bins.begin(),
           bins.end(),
           bins.begin(),
-          [](const double edge) {
-            return std::pow(10., edge);
-          }
+          Exponentiate
         ); 
       }
       return bins;

@@ -19,7 +19,9 @@ namespace PHEnergyCorrelator {
   // ==========================================================================
   namespace Type {
 
+    // ------------------------------------------------------------------------
     //! Types of binning
+    // -----------------------------------------------------------------------
     enum Axis {Log, Norm};
 
   }  // end Type namespace
@@ -32,7 +34,13 @@ namespace PHEnergyCorrelator {
   /* FIXME might want to move to its own header */
   namespace Const {
 
-    /* TODO fill in */
+    // ------------------------------------------------------------------------
+    //! Base for log axes
+    // ------------------------------------------------------------------------
+    inline double const& Base() {
+       static double base = 10.;
+       return base;
+    }
 
   }   // end Const namespace
 }  // end PHEnergyCorrelator namespace
