@@ -19,6 +19,7 @@
 #include <TLorentzVector.h>
 #include <TVector3.h>
 // analysis components
+#include "PHCorrelatorConstants.h"
 #include "PHCorrelatorTypes.h"
 
 

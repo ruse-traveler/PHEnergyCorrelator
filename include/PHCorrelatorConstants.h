@@ -1,31 +1,34 @@
 /// ============================================================================
-/*! \file    PHCorrelatorTypes.h
+/*! \file    PHCorrelatorConstants.h
  *  \authors Derek Anderson
- *  \date    09.21.2024
+ *  \date    09.27.2024
  *
- *  Namespace to collect types used in PHENIX
+ *  Namespace to collect constants in PHENIX
  *  ENC analyses.
  */
 /// ============================================================================
 
-#ifndef PHCORRELATORTYPES_H
-#define PHCORRELATORTYPES_H
+#ifndef PHCORRELATORCONSTANTS_H
+#define PHCORRELATORCONSTANTS_H
 
 
 
 namespace PHEnergyCorrelator {
 
   // ==========================================================================
-  //! PHEnergyCorrelator Types
+  //! PHEnergyCorrelator Constants
   // ==========================================================================
-  namespace Type {
+  namespace Const {
 
     // ------------------------------------------------------------------------
-    //! Types of binning
-    // -----------------------------------------------------------------------
-    enum Axis {Log, Norm};
+    //! Base for log axes
+    // ------------------------------------------------------------------------
+    inline double const& Base() {
+       static double base = 10.;
+       return base;
+    }
 
-  }  // end Type namespace
+  }   // end Const namespace
 }  // end PHEnergyCorrelator namespace
 
 #endif

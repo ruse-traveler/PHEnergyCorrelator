@@ -12,8 +12,10 @@
 #define PHENERGYCORRELATOR_H
 
 // analysis components
+#include "PHCorrelatorBinning.h"
 #include "PHCorrelatorBins.h"
 #include "PHCorrelatorCalculator.h"
+#include "PHCorrelatorConstants.h"
 #include "PHCorrelatorManager.h"
 #include "PHCorrelatorTools.h"
 #include "PHCorrelatorTypes.h"
