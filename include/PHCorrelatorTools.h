@@ -17,6 +17,7 @@
 #include <vector>
 // root libraries
 #include <TLorentzVector.h>
+#include <TString.h>
 #include <TVector3.h>
 // analysis components
 #include "PHCorrelatorConstants.h"
@@ -50,6 +51,18 @@ namespace PHEnergyCorrelator {
       return std::log10(arg) / std::log10(Const::Base());
 
     }  // end 'Log(double&)'
+
+
+
+    // ------------------------------------------------------------------------
+    //! Convert an index to a string
+    // ------------------------------------------------------------------------
+    std::string StringifyIndex(const std::size_t index) {
+
+      TString str((Ssiz_t) index);
+      return str.Data();
+
+    }  // end 'StringifyIndex(std::size_t)'
 
 
 
