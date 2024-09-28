@@ -113,12 +113,23 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       void GenerateEECHists() {
 
+        // axis title vectors
+        std::vector<std::string> side_titles;
+        side_titles.push_back("R_{L}");
+
+        // bin vectors
+        std::vector<Binning> side_bins;
+        side_bins.push_back(m_bins.Get("side"));
+
+        std::vector<Binning> logside_bins;
+        logside_bins.push_back(m_bins.Get("logside"));
+
         // 1d histogram definitions
         std::vector<Histogram> def_1d;
-        def_1d.push_back( Histogram("EECStat",     "", {"R_{L}"}, {m_bins.Get("side")})    );
-        def_1d.push_back( Histogram("EECWidth",    "", {"R_{L}"}, {m_bins.Get("side")})    );
-        def_1d.push_back( Histogram("LogEECStat",  "", {"R_{L}"}, {m_bins.Get("logside")}) );
-        def_1d.push_back( Histogram("LogEECWidth", "", {"R_{L}"}, {m_bins.Get("logside")}) );
+        def_1d.push_back( Histogram("EECStat",     "", side_titles, side_bins)    );
+        def_1d.push_back( Histogram("EECWidth",    "", side_titles, side_bins)    );
+        def_1d.push_back( Histogram("LogEECStat",  "", side_titles, logside_bins) );
+        def_1d.push_back( Histogram("LogEECWidth", "", side_titles, logside_bins) );
 
         // create histograms
         for (std::size_t ihist = 0; ihist < def_1d.size(); ++ihist) {
