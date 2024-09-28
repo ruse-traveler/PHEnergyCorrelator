@@ -16,6 +16,7 @@
 #include "PHCorrelatorBins.h"
 #include "PHCorrelatorCalculator.h"
 #include "PHCorrelatorConstants.h"
+#include "PHCorrelatorHistogram.h"
 #include "PHCorrelatorManager.h"
 #include "PHCorrelatorTools.h"
 #include "PHCorrelatorTypes.h"
