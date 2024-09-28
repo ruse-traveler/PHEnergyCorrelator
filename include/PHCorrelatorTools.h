@@ -59,8 +59,13 @@ namespace PHEnergyCorrelator {
     // ------------------------------------------------------------------------
     std::string StringifyIndex(const std::size_t index) {
 
-      TString str((Ssiz_t) index);
-      return str.Data();
+      // create TString, add index
+      TString tstr;
+      tstr += index;
+
+      // create std::string and return
+      const std::string sstr(tstr.Data());
+      return sstr;
 
     }  // end 'StringifyIndex(std::size_t)'
 

@@ -39,8 +39,33 @@ void PHEnergyCorrelatorTest() {
   }
 
   // --------------------------------------------------------------------------
+  // Test histogram manager
+  // --------------------------------------------------------------------------
+  /* TODO fold this test in with calculation tests once ready
+   */
+  std::cout << "    Case [1]: test histogram manager" << std::endl;
+
+  // instantiate histogram manaager
+  PHEC::Manager manager(true);
+  manager.DoPtJetBins(3);
+  manager.DoCFJetBins(2);
+  manager.GenerateHists();
+  std::cout << "      --- Num. histograms = " << manager.GetNHists() << std::endl;
+
+  // create output file
+  TFile* output = new TFile("test.root", "recreate");
+
+  // save histograms to output
+  manager.SaveHists(output);
+
+  // --------------------------------------------------------------------------
   //! Tests complete
   // --------------------------------------------------------------------------
+
+  // close output file
+  output -> cd();
+  output -> Close();
+  std::cout << "    Output file closed." << std::endl;
 
   // announce end & exit
   std::cout << "  PHEnergyCorrelator test complete!\n" << std::endl;

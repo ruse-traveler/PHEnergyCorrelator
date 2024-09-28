@@ -12,6 +12,7 @@
 #define PHCORRELATORMANAGER_H
 
 // c++ utilities
+#include <algorithm>
 #include <cassert>
 #include <map>
 #include <string>
@@ -28,6 +29,8 @@
 #include "PHCorrelatorTools.h"
 #include "PHCorrelatorTypes.h"
 
+// TEST
+#include <iostream>
 
 
 namespace PHEnergyCorrelator {
@@ -86,6 +89,7 @@ namespace PHEnergyCorrelator {
         // by default, return empty string
         std::string tag = "";
 
+        // add appropriate indices
         if (m_do_pt_bins) tag += Const::PtTag() + Tools::StringifyIndex(index.pt);
         if (m_do_cf_bins) tag += Const::CFTag() + Tools::StringifyIndex(index.cf);
         if (m_do_sp_bins) tag += Const::SpinTag() + Tools::StringifyIndex(index.spin);
@@ -184,7 +188,7 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       void DoCFJetBins(const std::size_t nbins) {
 
-        m_nbins_pt   = nbins;
+        m_nbins_cf   = nbins;
         m_do_cf_bins = true;
         return;
 
@@ -200,6 +204,27 @@ namespace PHEnergyCorrelator {
         return;
 
       }  // end 'DoSpinBins(std::size_t)'
+
+      // ----------------------------------------------------------------------
+      //! Generate histograms
+      // ----------------------------------------------------------------------
+      void GenerateHists() {
+
+        // 1st make sure there'll be at least 1 index
+        m_nbins_pt = std::max(m_nbins_pt, (std::size_t) 1);
+        m_nbins_cf = std::max(m_nbins_cf, (std::size_t) 1);
+        m_nbins_sp = std::max(m_nbins_sp, (std::size_t) 1); 
+
+        // then create tags for each bin
+        CreateBinTags();
+
+        // finally generate appropriate histograms
+        if (m_do_eec_hist) GenerateEECHists();
+
+        /* TODO add others when ready */
+        return;
+
+      }  // end 'GenerateHists()'
 
       // ----------------------------------------------------------------------
       //! Save histograms to a file
@@ -268,6 +293,15 @@ namespace PHEnergyCorrelator {
       }  // end 'GetHist3D(std::string&)'
 
       // ----------------------------------------------------------------------
+      //! Get total number of histograms
+      // ----------------------------------------------------------------------
+      std::size_t GetNHists() const {
+
+        return m_hist_1d.size() + m_hist_2d.size() + m_hist_3d.size();
+
+      }  // end 'GetNHists()'
+
+      // ----------------------------------------------------------------------
       //! Get a histogram tag from a histogram index
       // ----------------------------------------------------------------------
       std::string GetTag(const Type::HistIndex& index) {
@@ -276,11 +310,23 @@ namespace PHEnergyCorrelator {
 
       }  // end 'GetTag(Type::HistIndex&)'
 
+
       // ----------------------------------------------------------------------
       //! default ctor/dtor
       // ----------------------------------------------------------------------
       Manager()  {};
       ~Manager() {};
+
+      // ----------------------------------------------------------------------
+      //! ctor accepting arguments
+      // ----------------------------------------------------------------------
+      Manager(const bool do_eec, const bool do_e3c = false, const bool do_lec = false) {
+
+        m_do_eec_hist = do_eec;
+        m_do_e3c_hist = do_e3c;
+        m_do_lec_hist = do_lec;
+
+      }  // end 'Manager(bool, bool, bool)'
 
   };  // end PHEnergyCorrelator::Manager
 
