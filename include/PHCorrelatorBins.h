@@ -78,7 +78,7 @@ namespace PHEnergyCorrelator {
 
         // throw error if binning doesn't exist
         if (m_bins.count(variable) == 0) {
-          assert(m_bins.count(variable) == 0);
+          assert(m_bins.count(variable) >= 1);
         }
 
         // otherwise return binning
