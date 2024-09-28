@@ -50,6 +50,18 @@ namespace PHEnergyCorrelator {
     public:
 
       // ----------------------------------------------------------------------
+      //! Getters
+      // ----------------------------------------------------------------------
+      std::string GetName()   const {return m_name;}
+      std::string GetTitle()  const {return m_title;}
+      std::string GetTitleX() const {return m_title_x;}
+      std::string GetTitleY() const {return m_title_y;}
+      std::string GetTitleZ() const {return m_title_z;}
+      Binning     GetBinsX()  const {return m_bins_x;}
+      Binning     GetBinsY()  const {return m_bins_y;}
+      Binning     GetBinsZ()  const {return m_bins_z;}
+
+      // ----------------------------------------------------------------------
       //! Set and modify histogram title/name
       // ----------------------------------------------------------------------
       void SetHistTitle(const std::string& title)   {m_title = title;}
