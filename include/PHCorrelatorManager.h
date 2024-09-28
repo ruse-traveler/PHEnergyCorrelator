@@ -32,6 +32,15 @@
 
 namespace PHEnergyCorrelator {
 
+  // -------------------------------------------------------------------------
+  //! Iterators for iterating over histogram maps
+  // -------------------------------------------------------------------------
+  typedef std::map<std::string, TH1D*>::iterator it_th1;
+  typedef std::map<std::string, TH2D*>::iterator it_th2;
+  typedef std::map<std::string, TH3D*>::iterator it_th3;
+
+
+
   // ==========================================================================
   //! ENC Histogram Manager
   // ==========================================================================
@@ -191,6 +200,27 @@ namespace PHEnergyCorrelator {
         return;
 
       }  // end 'DoSpinBins(std::size_t)'
+
+      // ----------------------------------------------------------------------
+      //! Save histograms to a file
+      // ----------------------------------------------------------------------
+      void SaveHists(TFile* file) {
+
+        // throw error if cd failed
+        const bool good_cd = file -> cd();
+        if (!good_cd) {
+          assert(good_cd);
+        }
+
+        // then save histograms
+        for (it_th1 it1d = m_hist_1d.begin(); it1d != m_hist_1d.end(); ++it1d) {
+          it1d -> second -> Write();
+        }
+
+        /* TODO add same for 2d & 3d histograms when there are some */
+        return;
+
+      }  // end 'SaveHists(TFile*)'
 
       // ----------------------------------------------------------------------
       //! Get a 1D histogram
