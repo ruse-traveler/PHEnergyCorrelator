@@ -11,6 +11,8 @@
 
 // c++ utilities
 #include <iostream>
+#include <utility>
+#include <vector>
 // analysis header
 #include "../include/PHEnergyCorrelator.h"
 
@@ -41,25 +43,48 @@ void PHEnergyCorrelatorTest() {
   // --------------------------------------------------------------------------
   // Test histogram manager
   // --------------------------------------------------------------------------
-  /* TODO fold this test in with calculation tests once ready
-   */
   std::cout << "    Case [1]: test histogram manager" << std::endl;
 
-  // instantiate histogram manaager
-  PHEC::Manager manager(true);
-  manager.DoPtJetBins(3);
-  manager.DoCFJetBins(2);
-  manager.GenerateHists();
-  std::cout << "      --- Num. histograms = " << manager.GetNHists() << std::endl;
+  // pt jet bins
+  std::vector< std::pair<float, float> > ptjetbins;
+  ptjetbins.push_back( std::make_pair(5., 10.) );
+  ptjetbins.push_back( std::make_pair(10., 15.) );
+  ptjetbins.push_back( std::make_pair(15., 20.) );
+
+  // cf jet bins
+  std::vector< std::pair<float, float> > cfjetbins;
+  cfjetbins.push_back( std::make_pair(0., 0.5) );
+  cfjetbins.push_back( std::make_pair(0.5, 1.) );
+
+  // instantiate calculator
+  PHEC::Calculator calc;
+  calc.SetPtJetBins(ptjetbins);
+  calc.SetCFJetBins(cfjetbins);
+
+  // check no. of bins
+  std::cout << "      --- N pt bins = " << calc.GetManager().GetNPtJetBins() << "\n"
+            << "      --- N CF bins = " << calc.GetManager().GetNCFJetBins()
+            << std::endl;
+
+  // create histograms
+  calc.Init(true);
+  std::cout << "      --- N tags    = " << calc.GetManager().GetNTags() << "\n"
+            << "      --- N hists   = " << calc.GetManager().GetNHists()
+            << std::endl;
+
+  // --------------------------------------------------------------------------
+  // Save histograms
+  // --------------------------------------------------------------------------
+  std::cout << "    Case [2]: test saving histograms" << std::endl;
 
   // create output file
   TFile* output = new TFile("test.root", "recreate");
 
   // save histograms to output
-  manager.SaveHists(output);
+  calc.GetManager().SaveHists(output);
 
   // --------------------------------------------------------------------------
-  //! Tests complete
+  // Tests complete
   // --------------------------------------------------------------------------
 
   // close output file
