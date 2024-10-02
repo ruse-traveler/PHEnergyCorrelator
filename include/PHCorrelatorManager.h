@@ -166,6 +166,18 @@ namespace PHEnergyCorrelator {
     public:
 
       // ----------------------------------------------------------------------
+      //! Getters
+      // ----------------------------------------------------------------------
+      std::size_t GetNPtJetBins() const {return m_nbins_pt;}
+      std::size_t GetNCFJetBins() const {return m_nbins_cf;}
+      std::size_t GetNSpinBins()  const {return m_nbins_sp;}
+      std::size_t GetNTags()      const {return m_index_tags.size();}
+      std::size_t GetNHist1D()    const {return m_hist_1d.size();}
+      std::size_t GetNHist2D()    const {return m_hist_2d.size();}
+      std::size_t GetNHist3D()    const {return m_hist_3d.size();}
+      std::size_t GetNHists()     const {return GetNHist1D() + GetNHist2D() + GetNHist3D();}
+
+      // ----------------------------------------------------------------------
       //! Set histogram options
       // ----------------------------------------------------------------------
       void DoEECHists(const bool dohists) {m_do_eec_hist = dohists;}
@@ -211,17 +223,16 @@ namespace PHEnergyCorrelator {
       void GenerateHists() {
 
         // 1st make sure there'll be at least 1 index
-        m_nbins_pt = std::max(m_nbins_pt, (std::size_t) 1);
-        m_nbins_cf = std::max(m_nbins_cf, (std::size_t) 1);
-        m_nbins_sp = std::max(m_nbins_sp, (std::size_t) 1); 
+        m_nbins_pt = m_do_pt_bins ? m_nbins_pt : (std::size_t) 1;
+        m_nbins_cf = m_do_cf_bins ? m_nbins_cf : (std::size_t) 1;
+        m_nbins_sp = m_do_sp_bins ? m_nbins_sp : (std::size_t) 1;
 
         // then create tags for each bin
         CreateBinTags();
 
         // finally generate appropriate histograms
+        //   - TODO add others when ready
         if (m_do_eec_hist) GenerateEECHists();
-
-        /* TODO add others when ready */
         return;
 
       }  // end 'GenerateHists()'
@@ -312,15 +323,6 @@ namespace PHEnergyCorrelator {
       }  // end 'GetHist3D(std::string&)'
 
       // ----------------------------------------------------------------------
-      //! Get total number of histograms
-      // ----------------------------------------------------------------------
-      std::size_t GetNHists() const {
-
-        return m_hist_1d.size() + m_hist_2d.size() + m_hist_3d.size();
-
-      }  // end 'GetNHists()'
-
-      // ----------------------------------------------------------------------
       //! Get a histogram tag from a histogram index
       // ----------------------------------------------------------------------
       std::string GetTag(const Type::HistIndex& index) {
@@ -329,11 +331,26 @@ namespace PHEnergyCorrelator {
 
       }  // end 'GetTag(Type::HistIndex&)'
 
+      // ----------------------------------------------------------------------
+      //! default ctor
+      // ----------------------------------------------------------------------
+      Manager()  {
+
+        m_do_eec_hist = false;
+        m_do_e3c_hist = false;
+        m_do_lec_hist = false;
+        m_do_pt_bins  = false;
+        m_do_cf_bins  = false;
+        m_do_sp_bins  = false;
+        m_nbins_pt    = 1;
+        m_nbins_cf    = 1;
+        m_nbins_sp    = 1;
+
+      }  // end default ctor
 
       // ----------------------------------------------------------------------
-      //! default ctor/dtor
+      //! default dtor
       // ----------------------------------------------------------------------
-      Manager()  {};
       ~Manager() {};
 
       // ----------------------------------------------------------------------
@@ -344,6 +361,12 @@ namespace PHEnergyCorrelator {
         m_do_eec_hist = do_eec;
         m_do_e3c_hist = do_e3c;
         m_do_lec_hist = do_lec;
+        m_do_pt_bins  = false;
+        m_do_cf_bins  = false;
+        m_do_sp_bins  = false;
+        m_nbins_pt    = 1;
+        m_nbins_cf    = 1;
+        m_nbins_sp    = 1;
 
       }  // end 'Manager(bool, bool, bool)'
 
