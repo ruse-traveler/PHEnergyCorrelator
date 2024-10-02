@@ -166,11 +166,15 @@ namespace PHEnergyCorrelator {
     public:
 
       /* TODO
-       *   - SetOptions()
-       *   - GenerateHists()
-       *   - SaveHists()
        *   - FillHists(Tag, Weight, RL, RM, RS)
        */
+
+      // ----------------------------------------------------------------------
+      //! Set histogram options
+      // ----------------------------------------------------------------------
+      void DoEECHists(const bool dohists) {m_do_eec_hist = dohists;}
+      void DoE3CHists(const bool dohists) {m_do_e3c_hist = dohists;}
+      void DoLECHists(const bool dohists) {m_do_lec_hist = dohists;}
 
       // ----------------------------------------------------------------------
       //! Bin on jet pt

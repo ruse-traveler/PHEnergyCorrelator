@@ -50,7 +50,7 @@ namespace PHEnergyCorrelator {
         pt   = ipt;
         cf   = icf;
         spin = isp;
-      }  // end ctor(std::size_t, std::size_t, std::size_t)'
+      }  // end ctor(std::size_t, std::size_t, std::size_t)
 
     };  // end HistIndex
 
@@ -77,10 +77,10 @@ namespace PHEnergyCorrelator {
       HistContent(
         const double w,
         const double l,
-        const double m = 0,
-        const double s = 0,
-        const double x = 0,
-        const double f = 0
+        const double m = 0.,
+        const double s = 0.,
+        const double x = 0.,
+        const double f = 0.
       ) {
         weight = w;
         rl     = l;
