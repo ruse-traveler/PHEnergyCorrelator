@@ -22,14 +22,84 @@ namespace PHEnergyCorrelator {
 
     // ------------------------------------------------------------------------
     //! Types of binning
-    // -----------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     enum Axis {Log, Norm};
 
 
 
     // ------------------------------------------------------------------------
+    //! Jet information
+    // ------------------------------------------------------------------------
+    struct Jet {
+
+      // data members
+      double cf;
+      double pt;
+      double eta;
+      double phi;
+      double spin;
+
+      //! default ctor/dtor
+      Jet()  {};
+      ~Jet() {};
+
+      //! ctor accepting arguments
+      Jet(
+        const double carg,
+        const double parg,
+        const double harg,
+        const double farg,
+        const double sarg
+      ) {
+        cf   = carg;
+        pt   = parg;
+        eta  = harg;
+        phi  = farg;
+        spin = sarg;
+      };
+
+    };  // end Jet
+
+
+
+    // ------------------------------------------------------------------------
+    //! Constituent information
+    // ------------------------------------------------------------------------
+    struct Cst {
+
+      // data members
+      double z;
+      double jt;
+      double eta;
+      double phi;
+      double chrg;
+
+      //! default ctor/dtor
+      Cst()  {};
+      ~Cst() {};
+
+      //! ctor accpeting arguments
+      Cst(
+        const double zarg,
+        const double jarg,
+        const double harg,
+        const double farg,
+        const double carg
+      ) {
+        z    = zarg;
+        jt   = jarg;
+        eta  = harg;
+        phi  = farg;
+        chrg = carg;
+      }  // end ctor(double x 5)
+
+    };  // end Cst
+
+
+
+    // ------------------------------------------------------------------------
     //! Histogram index
-    // -----------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     struct HistIndex {
 
       // data members

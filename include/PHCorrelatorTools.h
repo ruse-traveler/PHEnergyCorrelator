@@ -118,30 +118,45 @@ namespace PHEnergyCorrelator {
 
 
     // ------------------------------------------------------------------------
-    //! Get constituent 4-vector in lab frame from 3-momenta in jet frame
+    //! Get jet 4-vector from jet info
     // ------------------------------------------------------------------------
-    /* TODO might be good to collect (z, jt, eta, phi) into a struct */
-    TLorentzVector GetCstPxPyPz(
-      const TVector3 pjet,
-      const float z,
-      const float jt,
-      const float eta,
-      const float phi
-    ) {
+    TLorentzVector GetJetLorentz(const Type::Jet& jet) {
 
-      // get fractional momenta wrt jet
-      TVector3 pcst = z * pjet;
-
-      // calculate momentum components in lab frame
-      const float ptot = hypot(jt, pcst.Mag());
-      const float px   = ptot * std::cosh(eta) * std::cos(phi);
-      const float py   = ptot * std::cosh(eta) * std::sin(phi);
-      const float pz   = ptot * std::sinh(eta);
+      // calculate momentum components
+      const float theta = 2.0 * atan(exp( -1.0 * jet.eta ));
+      const float pz    = jet.pt / tan(theta);
+      const float py    = (pz / cos(theta)) * sin(jet.phi);
+      const float px    = (pz / cos(theta)) * cos(jet.phi);
+      const float ptot  = hypot(jet.pt, pz);
 
       // return 4-vector
       return TLorentzVector(px, py, pz, ptot);
 
-    }  // end 'GetCstpxPyPz(TVector3, float, float, float, float)'
+    }  // end 'GetJetLorentz(Type::Jet&)'
+
+
+
+    // ------------------------------------------------------------------------
+    //! Get constituent 4-vector in lab frame from 3-momenta in jet frame
+    // ------------------------------------------------------------------------
+    TLorentzVector GetCstLorentz(
+      const TVector3& pjet,
+      const Type::Cst& cst
+    ) {
+
+      // get fractional momenta wrt jet
+      TVector3 pcst = cst.z * pjet;
+
+      // calculate momentum components in lab frame
+      const float ptot = hypot(cst.jt, pcst.Mag());
+      const float px   = ptot * std::cosh(cst.eta) * std::cos(cst.phi);
+      const float py   = ptot * std::cosh(cst.eta) * std::sin(cst.phi);
+      const float pz   = ptot * std::sinh(cst.eta);
+
+      // return 4-vector
+      return TLorentzVector(px, py, pz, ptot);
+
+    }  // end 'GetCstLorentz(TVector3, Type::Cst&)'
 
   }  // end Tools namespace
 }  // end PHEnergyCorrelator namespace

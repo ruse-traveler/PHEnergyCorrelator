@@ -57,10 +57,47 @@ namespace PHEnergyCorrelator {
       // data member (hist manager)
       Manager m_manager;
 
+      // ----------------------------------------------------------------------
+      //! Get hist index
+      // ----------------------------------------------------------------------
+      Type::HistIndex GetHistIndex(const Type::Jet& jet) {
+
+        // by default return index = (0, 0, 0)
+        Type::HistIndex index(0, 0, 0);
+
+        // determine pt bin
+        if (m_do_pt_bins) {
+          for (std::size_t ipt = 0; ipt < m_ptjet_bins.size(); ++ipt) {
+            if ((jet.pt >= m_ptjet_bins[ipt].first) && (jet.pt < m_ptjet_bins[ipt].second)) {
+              index.pt = ipt;
+            }
+          }  // end pt bin loop
+        }
+
+        // determine cf bin
+        if (m_do_cf_bins) {
+          for (std::size_t icf = 0; icf < m_cfjet_bins.size(); ++icf) {
+            if ((jet.cf >= m_cfjet_bins[icf].first) && (jet.cf < m_cfjet_bins[icf].second)) {
+              index.cf = icf;
+            }
+          }  // end cf bin loop
+        }
+
+        // determine spin bin
+        if (m_do_sp_bins) {
+          for (std::size_t isp = 0; isp < m_spin_bins.size(); ++isp) {
+            if ((jet.spin >= m_spin_bins[isp].first) && (jet.spin < m_spin_bins[isp].second)) {
+              index.spin = isp;
+            }
+          }  // end spin bin loop
+        }
+        return index;
+
+      }  // end 'GetHistIndex(Type::Jet&)'
+
     public:
 
       /* TODO
-       *   - DoEECCalc(jet, {cst, cst})
        *   - DoE3CCalc(jet, {cst, cst, cst})
        *   - DoLECCalc(jet, {lambda, cst})
        *   - FindLambda({cst...})
@@ -143,6 +180,15 @@ namespace PHEnergyCorrelator {
         return;
 
       } // end 'Init(bool, bool, bool)'
+
+      // ----------------------------------------------------------------------
+      //! Do EEC calculation
+      // ----------------------------------------------------------------------
+      void CalcEEC(const Type::Jet& jet, const std::pair<Type::Cst, Type::Cst>& csts) {
+
+        /* TODO fill in */
+
+      }  // end 'CalcEEC(Type::Jet&, std::pair<Type::Cst, Type::Cst>&)'
 
       // ----------------------------------------------------------------------
       //! End calculations
