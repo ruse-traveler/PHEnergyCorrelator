@@ -165,10 +165,6 @@ namespace PHEnergyCorrelator {
 
     public:
 
-      /* TODO
-       *   - FillHists(Tag, Weight, RL, RM, RS)
-       */
-
       // ----------------------------------------------------------------------
       //! Set histogram options
       // ----------------------------------------------------------------------
@@ -231,9 +227,28 @@ namespace PHEnergyCorrelator {
       }  // end 'GenerateHists()'
 
       // ----------------------------------------------------------------------
+      //! Fill EEC histograms
+      // ----------------------------------------------------------------------
+      void FillEECHists(const Type::HistIndex& index, const Type::HistContent& content) {
+
+        // grab hist tag from index
+        const std::string tag = MakeTag(index);
+
+        // fill histograms
+        m_hist_1d["hEECStat_" + tag]     -> Fill( content.rl, content.weight );
+        m_hist_1d["hEECWidth_" + tag]    -> Fill( content.rl, content.weight );
+        m_hist_1d["hLogEECStat_" + tag]  -> Fill( Tools::Log(content.rl), content.weight );
+        m_hist_1d["hLogEECWidth_" + tag] -> Fill( Tools::Log(content.rl), content.weight );
+        return;
+
+      }  // end 'FillEECHists(Type::HistIndex&, Type::HistContent&)'
+
+      // ----------------------------------------------------------------------
       //! Save histograms to a file
       // ----------------------------------------------------------------------
       void SaveHists(TFile* file) {
+
+        /* TODO set error bar on 'width' histograms before saving */
 
         // throw error if cd failed
         const bool good_cd = file -> cd();
