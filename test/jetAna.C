@@ -21,8 +21,8 @@
 
 #include "bins.h"
 
-//#include "SpinDBOutput.hh"  // TEST
-//#include "SpinDBContent.hh"  // TEST
+#include "SpinDBOutput.hh"
+#include "SpinDBContent.hh"
 
 #ifdef __CINT__ 
 #pragma link C++ nestedclasses;
@@ -31,7 +31,9 @@
 #pragma link C++ class std::vector<std::vector<int> >+;
 #endif
 
-// TEST
+// ----------------------------------------------------------------------------
+// EEC Calculation
+// ----------------------------------------------------------------------------
 #include "../include/PHEnergyCorrelator.h"
 
 const int maxRecoJets = 100;
@@ -623,7 +625,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
   float ypolIndexed[120] = {0.0}; 
   float Rweight = 1.0; 
   float RweightEO[2] = {1.0,1.0}; 
-  //SpinDBOutput spin_out("phnxrc");   // TEST
+  SpinDBOutput spin_out("phnxrc");
 
   int tMu_runnum = 0;
   double meannum = 0;
@@ -705,17 +707,15 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 
      // Update polarization values 
 
-      //SpinDBContent spin_cont;  // TEST
+      SpinDBContent spin_cont;
  
-      //int storedbcont = spin_out.StoreDBContent(r_runNumber, r_runNumber);  // TEST
-      int storedbcont = 1; 
+      int storedbcont = spin_out.StoreDBContent(r_runNumber, r_runNumber);
       if(storedbcont != 1) {
 	cout << "ERROR: StoreDBContent failed for run = " << r_runNumber << endl;      
 	return; 
       }
 
-      //int getdbcontstore = spin_out.GetDBContentStore(spin_cont,r_runNumber);  // TEST
-      int getdbcontstore = 1; 
+      int getdbcontstore = spin_out.GetDBContentStore(spin_cont,r_runNumber);
       if( getdbcontstore != 1) {
 	cout << "ERROR: GetDBContentStore failed for run =  " << r_runNumber << endl;      
 	continue; 
@@ -724,8 +724,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
       for(int ip12_clock_cross = 0; ip12_clock_cross<120; ip12_clock_cross++){
 
 	double bpol, bpol_err; 
-	//int getbluepol = spin_cont.GetPolarizationBlue(ip12_clock_cross, bpol, bpol_err);   // TEST
-	int getbluepol = 1; 
+	int getbluepol = spin_cont.GetPolarizationBlue(ip12_clock_cross, bpol, bpol_err);
 	if((getbluepol==1)&&(bpol<0.7)){ // eliminate unusually high blue polarization values
 	  bpolIndexed[ip12_clock_cross] = bpol; 
 	  BluePol->Fill(ip12_clock_cross,bpol); 
@@ -736,8 +735,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 	}
 
 	double ypol, ypol_err; 
-	//int getpolyellow = spin_cont.GetPolarizationYellow(ip12_clock_cross, ypol, ypol_err);  // TEST 
-	int getpolyellow = 1; 
+	int getpolyellow = spin_cont.GetPolarizationYellow(ip12_clock_cross, ypol, ypol_err);
 	if(getpolyellow==1){
 	  ypolIndexed[ip12_clock_cross] = ypol; 
 	  YellowPol->Fill(ip12_clock_cross,ypol); 
@@ -767,10 +765,8 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 
 	int even_odd = ip12_clock_cross%2; 
 
-	//int bspin = spin_cont.GetSpinPatternBlue(ip12_clock_cross);  // TEST
-	//int yspin = spin_cont.GetSpinPatternYellow(ip12_clock_cross);  // TEST
-	int bspin = 1;
-	int yspin = 1;
+	int bspin = spin_cont.GetSpinPatternBlue(ip12_clock_cross);
+	int yspin = spin_cont.GetSpinPatternYellow(ip12_clock_cross);
 
 	int spinPattern = GetSpinPattern(bspin, yspin);
 
@@ -778,8 +774,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 	  R_lumi[even_odd][spinPattern] += (double)(ss_bbcnovtxlive[ip12_clock_cross]);
 	}
 	else{
-	  //R_lumi[even_odd][spinPattern] += (double)spin_cont.GetScalerBbcNoCut(ip12_clock_cross);  // TEST
-	  R_lumi[even_odd][spinPattern] += 1.0;
+	  R_lumi[even_odd][spinPattern] += (double)spin_cont.GetScalerBbcNoCut(ip12_clock_cross);
 	}
       }
 
