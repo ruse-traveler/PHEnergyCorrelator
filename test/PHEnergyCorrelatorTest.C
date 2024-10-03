@@ -57,7 +57,7 @@ void PHEnergyCorrelatorTest() {
   cfjetbins.push_back( std::make_pair(0.5, 1.) );
 
   // instantiate calculator
-  PHEC::Calculator calc;
+  PHEC::Calculator calc(PHEC::Type::Pt);
   calc.SetPtJetBins(ptjetbins);
   calc.SetCFJetBins(cfjetbins);
 

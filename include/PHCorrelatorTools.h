@@ -44,13 +44,28 @@ namespace PHEnergyCorrelator {
 
 
     // ------------------------------------------------------------------------
-    //! Wrapper function for log
+    //! Wrapper function for std::log
     // ------------------------------------------------------------------------
     double Log(const double arg) {
 
       return std::log10(arg) / std::log10(Const::Base());
 
     }  // end 'Log(double&)'
+
+
+
+    // ------------------------------------------------------------------------
+    //! Get distance between 2 constituents
+    // ------------------------------------------------------------------------
+    double GetCstDist(const std::pair<Type::Cst, Type::Cst>& csts) {
+
+      const double dist = hypot(
+        csts.first.eta - csts.second.eta,
+        remainder(csts.first.phi - csts.second.phi, TMath::TwoPi())
+      );
+      return dist;
+
+    }  // end 'GetCstDist(std::pair<Type::Cst, Type::Cst>&)'
 
 
 

@@ -17,6 +17,7 @@
 #include <vector>
 // root libraries
 #include <TLorentzVector.h>
+#include <TMath.h>
 #include <TVector3.h>
 // analysis componenets
 #include "PHCorrelatorManager.h"
@@ -34,14 +35,11 @@ namespace PHEnergyCorrelator {
 
     private:
 
-      /* TODO
-       *   - GetPtJetIndex()
-       *   - GetCFJetIndex()
-       *   - GetSpinIndex()
-       *   - GetEnergyWeight()
-       */
+      // data members (calc options)
+      double       m_weight_power;
+      Type::Weight m_weight_type;
 
-      // data members (options)
+      // data members (hist options)
       bool m_do_eec_hist;
       bool m_do_e3c_hist;
       bool m_do_lec_hist;
@@ -56,6 +54,48 @@ namespace PHEnergyCorrelator {
 
       // data member (hist manager)
       Manager m_manager;
+
+      // ---------------------------------------------------------------------=
+      //! Get weight of a constituent
+      // ----------------------------------------------------------------------
+      double GetCstWeight(TLorentzVector& cst, TLorentzVector& jet) {
+
+        // grab relevant cst & jet values
+        double numer = 1.0;
+        double denom = 1.0;
+        switch (m_weight_type) {
+
+          case Type::E:
+            numer = cst.E();
+            denom = jet.E();
+            break;
+
+          case Type::Et:
+            numer = cst.Et();
+            denom = jet.Et();
+            break;
+
+          case Type::Pt:
+            numer = cst.Pt();
+            denom = jet.Pt();
+            break;
+
+          default:
+            numer = cst.Pt();
+            denom = jet.Pt();
+            break;
+
+        }  // end switch
+
+        // raise cst, jet values to specified value (defualt is 1.0)
+        numer = pow(numer, m_weight_power);
+        denom = pow(denom, m_weight_power);
+
+        // calculate weight and exit
+        const double weight = numer / denom;
+        return weight;
+
+      }  // end 'GetCstWeight(TLorentzVector&, TLorentzVector&)'
 
       // ----------------------------------------------------------------------
       //! Get hist index
@@ -107,6 +147,12 @@ namespace PHEnergyCorrelator {
       //! Getters
       // ----------------------------------------------------------------------
       Manager& GetManager() {return m_manager;}
+
+      // ----------------------------------------------------------------------
+      //! Setters
+      // ----------------------------------------------------------------------
+      void SetWeightPower(const double power)       {m_weight_power = power;}
+      void SetWeightType(const Type::Weight weight) {m_weight_type  = weight;}
 
       // ----------------------------------------------------------------------
       //! Set jet pt bins
@@ -186,7 +232,34 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       void CalcEEC(const Type::Jet& jet, const std::pair<Type::Cst, Type::Cst>& csts) {
 
-        /* TODO fill in */
+        // get jet 4-momenta
+        TLorentzVector jet_vec = Tools::GetJetLorentz(jet);
+
+        // get cst 4-momenta
+        std::pair<TLorentzVector, TLorentzVector> cst_vecs = std::make_pair(
+          Tools::GetCstLorentz(jet_vec.Vect(), csts.first),
+          Tools::GetCstLorentz(jet_vec.Vect(), csts.second)
+        );
+
+        // now get weights
+        std::pair<double, double> cst_weights = std::make_pair(
+          GetCstWeight(cst_vecs.first, jet_vec),
+          GetCstWeight(cst_vecs.second, jet_vec)
+        );
+
+        // calculate RL (dist b/n cst.s for EEC) 
+        const double dist   = Tools::GetCstDist(csts);
+        const double weight = cst_weights.first * cst_weights.second;
+
+        // bundle results for histogram filling
+        Type::HistContent content(weight, dist);
+
+        // fill histograms and exit
+        Type::HistIndex index = GetHistIndex(jet);
+        if (m_do_eec_hist) {
+          m_manager.FillEECHists(index, content);
+        }
+        return;
 
       }  // end 'CalcEEC(Type::Jet&, std::pair<Type::Cst, Type::Cst>&)'
 
@@ -206,12 +279,14 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       Calculator()  {
 
-        m_do_eec_hist = false;
-        m_do_e3c_hist = false;
-        m_do_lec_hist = false;
-        m_do_pt_bins  = false;
-        m_do_cf_bins  = false;
-        m_do_sp_bins  = false;
+        m_weight_power = 1.0;
+        m_weight_type  = Type::Pt;
+        m_do_eec_hist  = false;
+        m_do_e3c_hist  = false;
+        m_do_lec_hist  = false;
+        m_do_pt_bins   = false;
+        m_do_cf_bins   = false;
+        m_do_sp_bins   = false;
 
       }  // end default ctor
 
@@ -219,6 +294,22 @@ namespace PHEnergyCorrelator {
       //! default dtor
       // ----------------------------------------------------------------------
       ~Calculator() {};
+
+      // ----------------------------------------------------------------------
+      //! ctor accepting arguments
+      // ----------------------------------------------------------------------
+      Calculator(const Type::Weight weight, const double power = 1.0) {
+
+        m_weight_power = power;
+        m_weight_type  = weight;
+        m_do_eec_hist  = false;
+        m_do_e3c_hist  = false;
+        m_do_lec_hist  = false;
+        m_do_pt_bins   = false;
+        m_do_cf_bins   = false;
+        m_do_sp_bins   = false;
+
+      }  // end ctor(Type::Weight, double)'
 
   };  // end PHEnergyCorrelator::Calculator
 
