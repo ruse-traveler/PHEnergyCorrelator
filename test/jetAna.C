@@ -40,7 +40,7 @@
  */
 
 #include <utility>
-#include "../include/PHEnergyCorrelator.h"
+#include "./include/PHEnergyCorrelator.h"
 
 // ----------------------------------------------------------------------------
 
@@ -266,7 +266,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
   ptJetBins.push_back( std::make_pair(15., 20.) );
 
   // cf jet bins
-  std::vector< std::pair<float, float> > cfjetbins;
+  std::vector< std::pair<float, float> > cfJetBins;
   cfJetBins.push_back( std::make_pair(0., 0.5) );
   cfJetBins.push_back( std::make_pair(0.5, 1.) );
 
@@ -276,7 +276,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
   //   - and the 2nd argument is what power we're
   //     going to raise the weights to (by default
   //     it's set to 1.0, the usual EEC definition)
-  PHEC::Calculator calculator( PHEC::Type::Pt, 1.0 )
+  PHEC::Calculator calculator( PHEC::Type::Pt, 1.0 ); 
 
   // set bins (spin bins are set in a similar way)
   calculator.SetPtJetBins( ptJetBins );
