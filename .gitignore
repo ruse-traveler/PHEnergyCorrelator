@@ -1,4 +1,7 @@
 test/*
+!test/bins.h
+!test/SimStats.h
+!test/jetAna.C
 !test/PHEnergyCorrelatorTest.C
 !test/root-build
 !test/wipe-build
