@@ -237,7 +237,7 @@ namespace PHEnergyCorrelator {
       void CalcEEC(
         const Type::Jet& jet,
         const std::pair<Type::Cst, Type::Cst>& csts,
-        const double evtweight = 1.
+        const double evtweight = 1.0
       ) {
 
         // get jet 4-momenta
