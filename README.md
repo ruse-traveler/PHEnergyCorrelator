@@ -2,4 +2,4 @@
 
 A lightweight, header-only library to do EEC calculations in PHENIX analyses.
 
-`test/jetAna.C` and associated headers by John Lajoie.
+The macros `test/jetAna.C`, `test/JetAnaSim.C` and their associated headers are by John Lajoie.
