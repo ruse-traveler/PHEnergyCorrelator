@@ -1901,8 +1901,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
             );
 
             // run 2-point calculation for pair
-            //   - TODO add piping for event weights
-            calculator.CalcEEC( jet, std::make_pair(cstA, cstB) );
+            calculator.CalcEEC( jet, std::make_pair(cstA, cstB), evWeight );
 
           }  // end 2nd cst loop
         }  // end 1st cst loop
