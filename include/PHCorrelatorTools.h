@@ -16,6 +16,7 @@
 #include <cmath>
 #include <vector>
 // root libraries
+#include <TH1.h>
 #include <TLorentzVector.h>
 #include <TString.h>
 #include <TVector3.h>
@@ -66,6 +67,19 @@ namespace PHEnergyCorrelator {
       return dist;
 
     }  // end 'GetCstDist(std::pair<Type::Cst, Type::Cst>&)'
+
+
+
+    // ------------------------------------------------------------------------
+    //! Get variance from a standard error + counts
+    // ------------------------------------------------------------------------
+    double GetVariance(const double err, const double counts) {
+
+      const double sqvar = err * sqrt(counts);
+      const double var   = sqvar * sqvar;
+      return var;
+
+    }  // end 'GetVariance(double, double)'
 
 
 

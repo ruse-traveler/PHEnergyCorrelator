@@ -166,6 +166,22 @@ namespace PHEnergyCorrelator {
 
       }  // end 'MakeTH3()'
 
+      // -----------------------------------------------------------------------
+      //! Helper method to set 1d histogram errors to be variances
+      // -----------------------------------------------------------------------
+      static void SetHist1DErrToVar(TH1D* hist) {
+
+        for (int ibin = 1; ibin <= hist -> GetNbinsX(); ++ibin) {
+          const double var = Tools::GetVariance(
+            hist -> GetBinError(ibin),
+            hist -> GetBinContent(ibin)
+          );
+          hist -> SetBinError(ibin, var);
+        }  // end bin loop
+        return;
+
+      }  // end 'SetHist1DErrTOVar(TH1D*)'
+
       // ----------------------------------------------------------------------
       //! default ctor/dtor
       // ----------------------------------------------------------------------

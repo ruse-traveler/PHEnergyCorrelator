@@ -29,8 +29,6 @@
 #include "PHCorrelatorTools.h"
 #include "PHCorrelatorTypes.h"
 
-// TEST
-#include <iostream>
 
 
 namespace PHEnergyCorrelator {
@@ -163,6 +161,27 @@ namespace PHEnergyCorrelator {
 
       }  // end 'GenerateEECHists()'
 
+      // ----------------------------------------------------------------------
+      //! Set variances of relevant 2-point histograms
+      // ----------------------------------------------------------------------
+      void SetEECVariances() {
+
+        // names of EEC hists to set variances of
+        std::vector<std::string> to_set;
+        to_set.push_back( "hEECWidth_" );
+        to_set.push_back( "hLogEECWidth_" );
+
+        for (std::size_t index = 0; index < m_index_tags.size(); ++index) {
+          for (std::size_t iset = 0; iset < to_set.size(); ++iset) {
+            Histogram::SetHist1DErrToVar(
+              m_hist_1d[ to_set[iset] + m_index_tags[index] ]
+            );
+          }
+        }
+        return;
+
+      }  // end 'SetEECVariances()'
+
     public:
 
       // ----------------------------------------------------------------------
@@ -259,7 +278,9 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       void SaveHists(TFile* file) {
 
-        /* TODO set error bar on 'width' histograms before saving */
+        // set variances on relevant histograms
+        //   - TODO add others when ready
+        if (m_do_eec_hist) SetEECVariances();
 
         // throw error if cd failed
         const bool good_cd = file -> cd();
