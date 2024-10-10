@@ -47,6 +47,19 @@ namespace PHEnergyCorrelator {
       Binning     m_bins_y;
       Binning     m_bins_z;
 
+      // ----------------------------------------------------------------------
+      //! Make histogram title
+      // ----------------------------------------------------------------------
+      std::string MakeTitle() const {
+
+        std::string title = m_title;
+        title.append( ";" + m_title_x );
+        title.append( ";" + m_title_y );
+        title.append( ";" + m_title_z );
+        return title;
+
+      }  // end 'MakeTitle()'
+
     public:
 
       // ----------------------------------------------------------------------
@@ -98,13 +111,15 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       TH1D* MakeTH1() const {
 
+        // make hist + axis titles
+        const std::string title = MakeTitle();
+
         TH1D* hist = new TH1D(
           m_name.data(),
-          m_title.data(),
+          title.data(),
           m_bins_x.GetNum(),
           m_bins_x.GetBins().data()
         );
-        hist -> GetXaxis() -> SetTitle(m_title_x.data());
         return hist;
 
       }  // end 'MakeTH1()'
@@ -114,16 +129,17 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       TH2D* MakeTH2() const {
 
+        // make hist + axis titles
+        const std::string title = MakeTitle();
+
         TH2D* hist = new TH2D(
           m_name.data(),
-          m_title.data(),
+          title.data(),
           m_bins_x.GetNum(),
           m_bins_x.GetBins().data(),
           m_bins_y.GetNum(),
           m_bins_y.GetBins().data()
         );
-        hist -> GetXaxis() -> SetTitle(m_title_x.data());
-        hist -> GetYaxis() -> SetTitle(m_title_y.data());
         return hist;
 
       }  // end 'MakeTH2()'
@@ -133,9 +149,12 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       TH3D* MakeTH3() const {
 
+        // make hist + axis titles
+        const std::string title = MakeTitle();
+
         TH3D* hist = new TH3D(
           m_name.data(),
-          m_title.data(),
+          title.data(),
           m_bins_x.GetNum(),
           m_bins_x.GetBins().data(),
           m_bins_y.GetNum(),
@@ -143,12 +162,25 @@ namespace PHEnergyCorrelator {
           m_bins_z.GetNum(),
           m_bins_z.GetBins().data()
         );
-        hist -> GetXaxis() -> SetTitle(m_title_x.data());
-        hist -> GetYaxis() -> SetTitle(m_title_y.data());
-        hist -> GetZaxis() -> SetTitle(m_title_z.data());
         return hist;
 
       }  // end 'MakeTH3()'
+
+      // -----------------------------------------------------------------------
+      //! Helper method to set 1d histogram errors to be variances
+      // -----------------------------------------------------------------------
+      static void SetHist1DErrToVar(TH1D* hist) {
+
+        for (int ibin = 1; ibin <= hist -> GetNbinsX(); ++ibin) {
+          const double var = Tools::GetVariance(
+            hist -> GetBinError(ibin),
+            hist -> GetBinContent(ibin)
+          );
+          hist -> SetBinError(ibin, var);
+        }  // end bin loop
+        return;
+
+      }  // end 'SetHist1DErrTOVar(TH1D*)'
 
       // ----------------------------------------------------------------------
       //! default ctor/dtor
@@ -179,4 +211,3 @@ namespace PHEnergyCorrelator {
 #endif
 
 // end ========================================================================
-

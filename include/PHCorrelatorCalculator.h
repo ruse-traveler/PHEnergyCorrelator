@@ -230,7 +230,15 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       //! Do EEC calculation
       // ----------------------------------------------------------------------
-      void CalcEEC(const Type::Jet& jet, const std::pair<Type::Cst, Type::Cst>& csts) {
+      /*! Note that the optional third argument, `evtweight` is there
+       *  to allow for weighting by ckin, spin, etc. By default, it's
+       *  set to 1.
+       */ 
+      void CalcEEC(
+        const Type::Jet& jet,
+        const std::pair<Type::Cst, Type::Cst>& csts,
+        const double evtweight = 1.0
+      ) {
 
         // get jet 4-momenta
         TLorentzVector jet_vec = Tools::GetJetLorentz(jet);
@@ -249,7 +257,7 @@ namespace PHEnergyCorrelator {
 
         // calculate RL (dist b/n cst.s for EEC) 
         const double dist   = Tools::GetCstDist(csts);
-        const double weight = cst_weights.first * cst_weights.second;
+        const double weight = cst_weights.first * cst_weights.second * evtweight;
 
         // bundle results for histogram filling
         Type::HistContent content(weight, dist);
@@ -261,7 +269,7 @@ namespace PHEnergyCorrelator {
         }
         return;
 
-      }  // end 'CalcEEC(Type::Jet&, std::pair<Type::Cst, Type::Cst>&)'
+      }  // end 'CalcEEC(Type::Jet&, std::pair<Type::Cst, Type::Cst>&, double)'
 
       // ----------------------------------------------------------------------
       //! End calculations

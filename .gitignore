@@ -1,3 +1,7 @@
+*.d
+*.so
+*.pcm
+*.root
 test/*
 !test/bins.h
 !test/SimStats.h
