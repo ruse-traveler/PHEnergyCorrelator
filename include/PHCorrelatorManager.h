@@ -82,7 +82,7 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       //! Make a tag from a histogram index 
       // ----------------------------------------------------------------------
-      std::string MakeTag(const Type::HistIndex& index) {
+      std::string MakeIndexTag(const Type::HistIndex& index) {
 
         // by default, return empty string
         std::string tag = "";
@@ -93,12 +93,12 @@ namespace PHEnergyCorrelator {
         if (m_do_sp_bins) tag += Const::SpinTag() + Tools::StringifyIndex(index.spin);
         return tag;
 
-      }  // end 'GetTag(Type::HistIndex&)'
+      }  // end 'MakeIndexTag(Type::HistIndex&)'
 
       // ----------------------------------------------------------------------
       //! Create tags for bins
       // ----------------------------------------------------------------------
-      void CreateBinTags() {
+      void CreateIndexTags() {
 
         // build list of indices
         std::vector<Type::HistIndex> indices;
@@ -113,11 +113,11 @@ namespace PHEnergyCorrelator {
         // create tags and return
         m_index_tags.clear();
         for (std::size_t index = 0; index < indices.size(); ++index) {
-          m_index_tags.push_back( MakeTag(indices[index]) );
+          m_index_tags.push_back( MakeIndexTag(indices[index]) );
         }
         return;
 
-      }  // end 'CreateBinTags()'
+      }  // end 'CreateIndexTags()'
 
       // ----------------------------------------------------------------------
       //! Generate 2-point histograms
@@ -247,7 +247,7 @@ namespace PHEnergyCorrelator {
         m_nbins_sp = m_do_sp_bins ? m_nbins_sp : (std::size_t) 1;
 
         // then create tags for each bin
-        CreateBinTags();
+        CreateIndexTags();
 
         // finally generate appropriate histograms
         //   - TODO add others when ready
@@ -262,7 +262,7 @@ namespace PHEnergyCorrelator {
       void FillEECHists(const Type::HistIndex& index, const Type::HistContent& content) {
 
         // grab hist tag from index
-        const std::string tag = MakeTag(index);
+        const std::string tag = MakeIndexTag(index);
 
         // fill histograms
         m_hist_1d["hEECStat_" + tag]     -> Fill( content.rl, content.weight );
@@ -346,11 +346,11 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       //! Get a histogram tag from a histogram index
       // ----------------------------------------------------------------------
-      std::string GetTag(const Type::HistIndex& index) {
+      std::string GetIndexTag(const Type::HistIndex& index) {
 
-        return MakeTag(index);
+        return MakeIndexTag(index);
 
-      }  // end 'GetTag(Type::HistIndex&)'
+      }  // end 'GetIndexTag(Type::HistIndex&)'
 
       // ----------------------------------------------------------------------
       //! default ctor
