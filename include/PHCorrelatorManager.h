@@ -68,7 +68,9 @@ namespace PHEnergyCorrelator {
       std::size_t m_nbins_cf;
       std::size_t m_nbins_sp;
 
-      // data members (index tags)
+      // data members (tags)
+      std::string              m_hist_tag;
+      std::string              m_hist_pref;
       std::vector<std::string> m_index_tags;
 
       // data members (histograms)
@@ -82,7 +84,7 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       //! Make a tag from a histogram index 
       // ----------------------------------------------------------------------
-      std::string MakeIndexTag(const Type::HistIndex& index) {
+      std::string MakeIndexTag(const Type::HistIndex& index) const {
 
         // by default, return empty string
         std::string tag = "";
@@ -96,9 +98,27 @@ namespace PHEnergyCorrelator {
       }  // end 'MakeIndexTag(Type::HistIndex&)'
 
       // ----------------------------------------------------------------------
-      //! Create tags for bins
+      //! Make a histogram suffix from a tag
       // ----------------------------------------------------------------------
-      void CreateIndexTags() {
+      std::string MakeHistSuffix(const std::string& tag) const {
+
+        return "_" + tag;
+
+      }  // end 'MakeHistSuffix(std::string&)'
+
+      // ----------------------------------------------------------------------
+      //! Make a histogram name from a base and a tag
+      // ----------------------------------------------------------------------
+      std::string MakeHistName(const std::string& base, const std::string& tag) const {
+
+        return m_hist_pref + base + MakeHistSuffix(tag);
+
+      }  // end 'MakeHistName(std::string&, std::string&)'
+
+      // ----------------------------------------------------------------------
+      //! Generate tags for bins
+      // ----------------------------------------------------------------------
+      void GenerateIndexTags() {
 
         // build list of indices
         std::vector<Type::HistIndex> indices;
@@ -117,7 +137,17 @@ namespace PHEnergyCorrelator {
         }
         return;
 
-      }  // end 'CreateIndexTags()'
+      }  // end 'GenerateIndexTags()'
+
+      // ----------------------------------------------------------------------
+      //! Generate prefix for histograms
+      // ----------------------------------------------------------------------
+      void GenerateHistPrefix() {
+
+        m_hist_pref = "h" + m_hist_tag;
+        return;
+
+      }  // end 'GenerateHistPrefix()'
 
       // ----------------------------------------------------------------------
       //! Generate 2-point histograms
@@ -148,8 +178,8 @@ namespace PHEnergyCorrelator {
 
             // grab definition, adjust name
             Histogram hist = def_1d[ihist];
-            hist.PrependToName("h");
-            hist.AppendToName("_" + m_index_tags[index]);
+            hist.PrependToName( m_hist_pref );
+            hist.AppendToName( MakeHistSuffix(m_index_tags[index]) );
 
             // create histogram, set errors
             m_hist_1d[hist.GetName()] = hist.MakeTH1();
@@ -168,13 +198,13 @@ namespace PHEnergyCorrelator {
 
         // names of EEC hists to set variances of
         std::vector<std::string> to_set;
-        to_set.push_back( "hEECWidth_" );
-        to_set.push_back( "hLogEECWidth_" );
+        to_set.push_back( "EECWidth" );
+        to_set.push_back( "LogEECWidth" );
 
         for (std::size_t index = 0; index < m_index_tags.size(); ++index) {
           for (std::size_t iset = 0; iset < to_set.size(); ++iset) {
             Histogram::SetHist1DErrToVar(
-              m_hist_1d[ to_set[iset] + m_index_tags[index] ]
+              m_hist_1d[ MakeHistName(to_set[iset], m_index_tags[index]) ]
             );
           }
         }
@@ -187,14 +217,20 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       //! Getters
       // ----------------------------------------------------------------------
+      std::string GetHistTag()    const {return m_hist_tag;}
       std::size_t GetNPtJetBins() const {return m_nbins_pt;}
       std::size_t GetNCFJetBins() const {return m_nbins_cf;}
       std::size_t GetNSpinBins()  const {return m_nbins_sp;}
-      std::size_t GetNTags()      const {return m_index_tags.size();}
+      std::size_t GetNIndexTags() const {return m_index_tags.size();}
       std::size_t GetNHist1D()    const {return m_hist_1d.size();}
       std::size_t GetNHist2D()    const {return m_hist_2d.size();}
       std::size_t GetNHist3D()    const {return m_hist_3d.size();}
       std::size_t GetNHists()     const {return GetNHist1D() + GetNHist2D() + GetNHist3D();}
+
+      // ----------------------------------------------------------------------
+      //! Set hist tag
+      // ----------------------------------------------------------------------
+      void SetHistTag(const std::string& tag) {m_hist_tag = tag;}
 
       // ----------------------------------------------------------------------
       //! Set histogram options
@@ -246,8 +282,9 @@ namespace PHEnergyCorrelator {
         m_nbins_cf = m_do_cf_bins ? m_nbins_cf : (std::size_t) 1;
         m_nbins_sp = m_do_sp_bins ? m_nbins_sp : (std::size_t) 1;
 
-        // then create tags for each bin
-        CreateIndexTags();
+        // then create tags for each bin and histogrma prefixes
+        GenerateIndexTags();
+        GenerateHistPrefix();
 
         // finally generate appropriate histograms
         //   - TODO add others when ready
@@ -265,10 +302,10 @@ namespace PHEnergyCorrelator {
         const std::string tag = MakeIndexTag(index);
 
         // fill histograms
-        m_hist_1d["hEECStat_" + tag]     -> Fill( content.rl, content.weight );
-        m_hist_1d["hEECWidth_" + tag]    -> Fill( content.rl, content.weight );
-        m_hist_1d["hLogEECStat_" + tag]  -> Fill( Tools::Log(content.rl), content.weight );
-        m_hist_1d["hLogEECWidth_" + tag] -> Fill( Tools::Log(content.rl), content.weight );
+        m_hist_1d[ MakeHistName("EECStat", tag)     ] -> Fill( content.rl, content.weight );
+        m_hist_1d[ MakeHistName("EECWidth", tag)    ] -> Fill( content.rl, content.weight );
+        m_hist_1d[ MakeHistName("LogEECStat", tag)  ] -> Fill( Tools::Log(content.rl), content.weight );
+        m_hist_1d[ MakeHistName("LogEECWidth", tag) ] -> Fill( Tools::Log(content.rl), content.weight );
         return;
 
       }  // end 'FillEECHists(Type::HistIndex&, Type::HistContent&)'
@@ -366,6 +403,8 @@ namespace PHEnergyCorrelator {
         m_nbins_pt    = 1;
         m_nbins_cf    = 1;
         m_nbins_sp    = 1;
+        m_hist_tag    = "";
+        m_hist_pref   = "";
 
       }  // end default ctor
 
@@ -388,6 +427,8 @@ namespace PHEnergyCorrelator {
         m_nbins_pt    = 1;
         m_nbins_cf    = 1;
         m_nbins_sp    = 1;
+        m_hist_tag    = "";
+        m_hist_pref   = "";
 
       }  // end 'Manager(bool, bool, bool)'
 

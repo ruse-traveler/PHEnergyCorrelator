@@ -62,6 +62,7 @@ void PHEnergyCorrelatorTest() {
   PHEC::Calculator calc(PHEC::Type::Pt);
   calc.SetPtJetBins(ptjetbins);
   calc.SetCFJetBins(cfjetbins);
+  calc.SetHistTag("Test");
 
   // check no. of bins
   std::cout << "      --- N pt bins = " << calc.GetManager().GetNPtJetBins() << "\n"
@@ -70,7 +71,7 @@ void PHEnergyCorrelatorTest() {
 
   // create histograms
   calc.Init(true);
-  std::cout << "      --- N tags    = " << calc.GetManager().GetNTags() << "\n"
+  std::cout << "      --- N tags    = " << calc.GetManager().GetNIndexTags() << "\n"
             << "      --- N hists   = " << calc.GetManager().GetNHists()
             << std::endl;
 

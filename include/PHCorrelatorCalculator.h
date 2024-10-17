@@ -14,6 +14,7 @@
 // c++ utilities
 #include <algorithm>
 #include <utility>
+#include <string>
 #include <vector>
 // root libraries
 #include <TLorentzVector.h>
@@ -40,12 +41,13 @@ namespace PHEnergyCorrelator {
       Type::Weight m_weight_type;
 
       // data members (hist options)
-      bool m_do_eec_hist;
-      bool m_do_e3c_hist;
-      bool m_do_lec_hist;
-      bool m_do_pt_bins;
-      bool m_do_cf_bins;
-      bool m_do_sp_bins;
+      bool        m_do_eec_hist;
+      bool        m_do_e3c_hist;
+      bool        m_do_lec_hist;
+      bool        m_do_pt_bins;
+      bool        m_do_cf_bins;
+      bool        m_do_sp_bins;
+      std::string m_hist_tag;
 
       // data members (bins)
       std::vector< std::pair<float, float> > m_ptjet_bins;
@@ -151,6 +153,7 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       //! Setters
       // ----------------------------------------------------------------------
+      void SetHistTag(const std::string& tag)       {m_hist_tag     = tag;}
       void SetWeightPower(const double power)       {m_weight_power = power;}
       void SetWeightType(const Type::Weight weight) {m_weight_type  = weight;}
 
@@ -222,6 +225,7 @@ namespace PHEnergyCorrelator {
         m_manager.DoEECHists(m_do_eec_hist);
         m_manager.DoE3CHists(m_do_e3c_hist);
         m_manager.DoLECHists(m_do_lec_hist);
+        m_manager.SetHistTag(m_hist_tag);
         m_manager.GenerateHists();
         return;
 
@@ -230,7 +234,7 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       //! Do EEC calculation
       // ----------------------------------------------------------------------
-      /*! Note that the optional third argument, `evtweight` is there
+      /*! Note that the optional third argument, `evtweight`, is there
        *  to allow for weighting by ckin, spin, etc. By default, it's
        *  set to 1.
        */ 
