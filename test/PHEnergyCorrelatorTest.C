@@ -59,20 +59,20 @@ void PHEnergyCorrelatorTest() {
   cfjetbins.push_back( std::make_pair(0.5, 1.) );
 
   // instantiate calculator
-  PHEC::Calculator calc(PHEC::Type::Pt);
-  calc.SetPtJetBins(ptjetbins);
-  calc.SetCFJetBins(cfjetbins);
-  calc.SetHistTag("Test");
+  PHEC::Calculator calc_a(PHEC::Type::Pt);
+  calc_a.SetPtJetBins(ptjetbins);
+  calc_a.SetCFJetBins(cfjetbins);
+  calc_a.SetHistTag("FirstTest");
 
   // check no. of bins
-  std::cout << "      --- N pt bins = " << calc.GetManager().GetNPtJetBins() << "\n"
-            << "      --- N CF bins = " << calc.GetManager().GetNCFJetBins()
+  std::cout << "      --- N pt bins = " << calc_a.GetManager().GetNPtJetBins() << "\n"
+            << "      --- N CF bins = " << calc_a.GetManager().GetNCFJetBins()
             << std::endl;
 
   // create histograms
-  calc.Init(true);
-  std::cout << "      --- N tags    = " << calc.GetManager().GetNIndexTags() << "\n"
-            << "      --- N hists   = " << calc.GetManager().GetNHists()
+  calc_a.Init(true);
+  std::cout << "      --- N tags    = " << calc_a.GetManager().GetNIndexTags() << "\n"
+            << "      --- N hists   = " << calc_a.GetManager().GetNHists()
             << std::endl;
 
   // --------------------------------------------------------------------------
@@ -109,7 +109,36 @@ void PHEnergyCorrelatorTest() {
         if (icst_a == icst_b) continue;
 
         // do calculation
-        calc.CalcEEC(
+        calc_a.CalcEEC(
+          jets[ijet],
+          std::make_pair(csts[ijet][icst_a], csts[ijet][icst_b])
+        );
+      }
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // Test adding 2nd calculator
+  // --------------------------------------------------------------------------
+  std::cout << "    Case [3]: test adding a 2nd calculator" << std::endl;
+
+  // instantiate calculator
+  PHEC::Calculator calc_b(PHEC::Type::Pt);
+  calc_b.SetPtJetBins(ptjetbins);
+  calc_b.SetCFJetBins(cfjetbins);
+  calc_b.SetHistTag("SecondTest");
+  calc_b.Init(true);
+
+  // run calculations
+  for (std::size_t ijet = 0; ijet < jets.size(); ++ijet) {
+    for (std::size_t icst_a = 0; icst_a < csts[ijet].size(); ++icst_a) {
+      for (std::size_t icst_b = 0; icst_b < csts[ijet].size(); ++icst_b) {
+
+        // skip diagonal
+        if (icst_a == icst_b) continue;
+
+        // do calculation
+        calc_b.CalcEEC(
           jets[ijet],
           std::make_pair(csts[ijet][icst_a], csts[ijet][icst_b])
         );
@@ -120,13 +149,14 @@ void PHEnergyCorrelatorTest() {
   // --------------------------------------------------------------------------
   // Save histograms
   // --------------------------------------------------------------------------
-  std::cout << "    Case [3]: test saving histograms" << std::endl;
+  std::cout << "    Case [4]: test saving histograms" << std::endl;
 
   // create output file
   TFile* output = new TFile("test.root", "recreate");
 
   // save histograms to output
-  calc.End(output);
+  calc_a.End(output);
+  calc_b.End(output);
 
   // --------------------------------------------------------------------------
   // Tests complete
