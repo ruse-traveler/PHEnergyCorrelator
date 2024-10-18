@@ -32,7 +32,7 @@
 using namespace LHAPDF; 
 
 // ----------------------------------------------------------------------------
-// EEC Calculations
+// EEC calculations
 // ----------------------------------------------------------------------------
 /*  Make sure the EEC path is pointed to wherever
  *  the repo is located. We'll need <utility> for
@@ -796,7 +796,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 	       const int useML = 0, int AcceptFlag = -1, int halfstats = 0, int p_or_h_flag = 1, std::string inSuffix=""){
 
   // --------------------------------------------------------------------------
-  // EEC Calculations
+  // EEC calculations
   // --------------------------------------------------------------------------
 
 // define flags to turn off certain calculations
@@ -2643,7 +2643,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   hFFdROppPat_odd->Add(hFFdRSpinPat[1][2]);
 
   // --------------------------------------------------------------------------
-  // EEC Calculations
+  // EEC calculations
   // --------------------------------------------------------------------------
 
   if (doTrue && doAllTrueEEC) allTrueCalc.End( fOut );
