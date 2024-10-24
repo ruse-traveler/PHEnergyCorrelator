@@ -1948,7 +1948,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
       // ----------------------------------------------------------------------
       // EEC calculation over max pt truth jets
       // ----------------------------------------------------------------------
-      if (doTrue && doMaxTrueEEC) {
+      if (doTrue && doMaxTrueEEC && (max_truth_idx>=0)) {
 
         // collect jet information into a handy struct
         //   - TODO: calculate the actual charged fraction
