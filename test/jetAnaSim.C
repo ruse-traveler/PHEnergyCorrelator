@@ -811,8 +811,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 
   // cf jet bins
   std::vector< std::pair<float, float> > cfJetBins;
-  cfJetBins.push_back( std::make_pair(0., 0.5) );
-  cfJetBins.push_back( std::make_pair(0.5, 1.) );
+  cfJetBins.push_back( std::make_pair(0., 1.0) );
 
   // now declare calculators
   PHEC::Calculator trueEEC( PHEC::Type::Pt, 1.0 );
@@ -1881,17 +1880,18 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
       // ----------------------------------------------------------------------
       // EEC calculation over max pt truth jets
       // ----------------------------------------------------------------------
+      /* N.B. cuts on jet pt and eta are baked into the requirement
+       *   that max_truth_idx >= 0. A max truth jet has to satisfy
+       *   these cuts.
+       */
       if (doTrue && doTrueEEC && (max_truth_idx>=0)) {
 
         // collect jet information into a handy struct
-        //   - TODO: calculate the actual charged fraction
-        //     for the truth jets; for now it's just a
-        //     dummy value
         //   - NOTE: the spin for the bunch x-ing is
         //     bundled w/ the jets (the last argument)
         //   - For now, it's just a dummy value
         PHEC::Type::Jet jet(
-          0.51,
+          0.51,  // dummy value, not binning on cf
           t_pT[max_truth_idx],
           t_eta[max_truth_idx],
           t_phi[max_truth_idx],
@@ -1997,10 +1997,12 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
           // ------------------------------------------------------------------
           // EEC calculation over max pt reco jets
           // ------------------------------------------------------------------
+          /* N.B. cuts on jet pt, eta, and CNF are baked into the requirement
+           *   that indexMax >= 0. A max reco jet has to satisfy these cuts.
+           */
           if (doRecoEEC) {
 
             // collect jet information into a handy struct
-            //     dummy value
             //   - NOTE: the spin for the bunch x-ing is
             //     bundled w/ the jets (the last argument)
             //   - For now, it's just a dummy value

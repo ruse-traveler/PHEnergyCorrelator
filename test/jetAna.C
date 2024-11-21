@@ -270,8 +270,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 
   // cf jet bins
   std::vector< std::pair<float, float> > cfJetBins;
-  cfJetBins.push_back( std::make_pair(0., 0.5) );
-  cfJetBins.push_back( std::make_pair(0.5, 1.) );
+  cfJetBins.push_back( std::make_pair(0., 1.0) );
 
   // now declare calculators
   //   - the 1st argument is what's going to be used
@@ -991,12 +990,9 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
         // ---------------------------------------------------------------------
         // EEC calculations over max pt jet
         // ---------------------------------------------------------------------
-        /* Here we actually run the relevant calculations
-         * on the jets and their constituents. Note that
-         * if you haven't turned on histograms for a
-         * particular calculation (e.g. the 3-point), then
-         * the code won't try to fill the corresponding
-         * histograms.
+        /* N.B. cuts on jet pt and eta are baked into the requirement
+         *   that max_truth_idx >= 0. A max truth jet has to satisfy
+         *   these cuts.
          */
         if (doRecoEEC) {
 
