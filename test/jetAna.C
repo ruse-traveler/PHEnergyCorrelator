@@ -260,8 +260,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
    */ 
 
 // define flags to turn off certain calculations
-#define doAllJetEEC 1
-#define doMaxJetCalc 1
+#define doRecoEEC 1
 
   // pt jet bins
   std::vector< std::pair<float, float> > ptJetBins;
@@ -280,18 +279,14 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
   //   - and the 2nd argument is what power we're
   //     going to raise the weights to (by default
   //     it's set to 1.0, the usual EEC definition)
-  PHEC::Calculator allJetEEC( PHEC::Type::Pt, 1.0 ); 
-  PHEC::Calculator maxJetEEC( PHEC::Type::Pt, 1.0 );
+  PHEC::Calculator recoEEC( PHEC::Type::Pt, 1.0 );
 
   // set histogram tags
-  allJetEEC.SetHistTag( "AllJet" );
-  maxJetEEC.SetHistTag( "MaxJet" );
+  recoEEC.SetHistTag( "DataJet" );
 
   // set bins (spin bins are set in a similar way)
-  allJetEEC.SetPtJetBins( ptJetBins );
-  maxJetEEC.SetPtJetBins( ptJetBins );
-  allJetEEC.SetCFJetBins( cfJetBins );
-  maxJetEEC.SetCFJetBins( cfJetBins );
+  recoEEC.SetPtJetBins( ptJetBins );
+  recoEEC.SetCFJetBins( cfJetBins );
 
   // run initialization routine to generate 
   // desired histograms
@@ -301,8 +296,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
   //     histograms (TODO)
   //   - and the 3rd argument turns on/off
   //     lambda-tagged EEC histograms (TODO)
-  allJetEEC.Init(true, false, false);
-  maxJetEEC.Init(true, false, false);
+  recoEEC.Init(true, false, false);
 
   // --------------------------------------------------------------------------
  
@@ -880,66 +874,6 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 
       hVertexJets->Fill(r_vertex);
 
-      // ----------------------------------------------------------------------
-      // EEC calculation over all jets
-      // ----------------------------------------------------------------------
-      /* Here we actually run the relevant calculations
-       * on the jets and their constituents. Note that
-       * if you haven't turned on histograms for a
-       * particular calculation (e.g. the 3-point), then
-       * the code won't try to fill the corresponding
-       * histograms.
-       */
-      if (doAllJetEEC) {
-
-        // loop through jets
-        for (int iJet = 0; iJet < nRecoJets; ++iJet) {
-
-          // collect jet information into a handy struct
-          //   - NOTE: the spin for the bunch x-ing is
-          //     bundled w/ the jets (the last argument)
-          //   - For now, it's just a dummy value
-          PHEC::Type::Jet jet(
-            r_cf[iJet],
-            r_pT[iJet],
-            r_eta[iJet],
-            r_phi[iJet],
-            1.
-          );
-
-          // loop through pairs of constituents
-          for (std::size_t iCstA = 0; iCstA < re_cs_z->at(iJet).size(); ++iCstA) {
-            for (std::size_t iCstB = 0; iCstB < re_cs_z->at(iJet).size(); ++iCstB) {
-
-              // skip diagonal
-              if (iCstA == iCstB) continue;
-
-              // collect cst information into a handy struct
-              PHEC::Type::Cst cstA(
-                re_cs_z->at(iJet).at(iCstA),
-                re_cs_jT->at(iJet).at(iCstA),
-                re_cs_eta->at(iJet).at(iCstA),
-                re_cs_phi->at(iJet).at(iCstA),
-                re_cs_charge->at(iJet).at(iCstA)
-              );
-              PHEC::Type::Cst cstB(
-                re_cs_z->at(iJet).at(iCstB),
-                re_cs_jT->at(iJet).at(iCstB),
-                re_cs_eta->at(iJet).at(iCstB),
-                re_cs_phi->at(iJet).at(iCstB),
-                re_cs_charge->at(iJet).at(iCstB)
-              );
-
-              // run 2-point calculation for pair
-              allJetEEC.CalcEEC( jet, std::make_pair(cstA, cstB) );
-
-            }  // end 2nd cst loop
-          }  // end 1st cst loop
-        }  // end jet loop
-      }  // end all jet eec calculation
-
-      // ----------------------------------------------------------------------
-
       int indexMax = -1;
       if(useML)
         indexMax = GetMaxPtIndex(r_ml_pT, r_cf, r_phi, nRecoJets, RUNNUM, NPTBINS, PTBINS, AcceptFlag);
@@ -1102,7 +1036,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
               );
 
               // run 2-point calculation for pair
-              maxJetEEC.CalcEEC( jet, std::make_pair(cstA, cstB) );
+              recoEEC.CalcEEC( jet, std::make_pair(cstA, cstB) );
 
             }  // end 2nd cst loop
           }  // end 1st cst loop
@@ -1445,8 +1379,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
    *  method.
    */ 
 
-  if (doAllJetEEC) allJetEEC.End( fOut );
-  if (doMaxJetEEC) maxJetEEC.End( fOut );
+  if (doRecoEEC) recoEEC.End( fOut );
 
   // --------------------------------------------------------------------------
 

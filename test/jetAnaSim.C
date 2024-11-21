@@ -800,10 +800,8 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   // --------------------------------------------------------------------------
 
 // define flags to turn off certain calculations
-#define doAllTrueEEC 1
-#define doMaxTrueEEC 1
-#define doAllRecoEEC 1
-#define doMaxRecoEEC 1
+#define doTrueEEC 1
+#define doRecoEEC 1
 
   // pt jet bins
   std::vector< std::pair<float, float> > ptJetBins;
@@ -817,35 +815,25 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   cfJetBins.push_back( std::make_pair(0.5, 1.) );
 
   // now declare calculators
-  PHEC::Calculator allTrueCalc( PHEC::Type::Pt, 1.0 );
-  PHEC::Calculator maxTrueCalc( PHEC::Type::Pt, 1.0 );
-  PHEC::Calculator allRecoCalc( PHEC::Type::Pt, 1.0 );
-  PHEC::Calculator maxRecoCalc( PHEC::Type::Pt, 1.0 );
+  PHEC::Calculator trueEEC( PHEC::Type::Pt, 1.0 );
+  PHEC::Calculator recoEEC( PHEC::Type::Pt, 1.0 );
 
   // set histogram tags
-  allTrueCalc.SetHistTag( "AllTrue" );
-  maxTrueCalc.SetHistTag( "MaxTrue" );
-  allRecoCalc.SetHistTag( "AllReco" );
-  maxRecoCalc.SetHistTag( "MaxReco" );
+  trueEEC.SetHistTag( "TrueJet" );
+  recoEEC.SetHistTag( "RecoJet" );
 
   // set pt jet bins
-  allTrueCalc.SetPtJetBins( ptJetBins );
-  maxTrueCalc.SetPtJetBins( ptJetBins );
-  allRecoCalc.SetPtJetBins( ptJetBins );
-  maxRecoCalc.SetPtJetBins( ptJetBins );
+  trueEEC.SetPtJetBins( ptJetBins );
+  recoEEC.SetPtJetBins( ptJetBins );
 
   // set cf bins 
-  allTrueCalc.SetCFJetBins( cfJetBins );
-  maxTrueCalc.SetCFJetBins( cfJetBins );
-  allRecoCalc.SetCFJetBins( cfJetBins );
-  maxRecoCalc.SetCFJetBins( cfJetBins );
+  trueEEC.SetCFJetBins( cfJetBins );
+  recoEEC.SetCFJetBins( cfJetBins );
 
   // run initialization routine to generate 
   // desired histograms
-  allTrueCalc.Init(true, false, false);
-  maxTrueCalc.Init(true, false, false);
-  allRecoCalc.Init(true, false, false);
-  maxRecoCalc.Init(true, false, false);
+  trueEEC.Init(true, false, false);
+  recoEEC.Init(true, false, false);
 
   // --------------------------------------------------------------------------
 
@@ -1862,61 +1850,6 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 
 #define doTrue 1
 
-      // ----------------------------------------------------------------------
-      // EEC calculation over all truth jets
-      // ----------------------------------------------------------------------
-      if (doTrue && doAllTrueEEC) {
-
-        // loop through jets
-        for (int iTruthJet = 0; iTruthJet < nTruthJets; ++iTruthJet) {
-
-          // collect jet information into a handy struct
-          //   - TODO: calculate the actual charged fraction
-          //     for the truth jets; for now it's just a
-          //     dummy value
-          //   - NOTE: the spin for the bunch x-ing is
-          //     bundled w/ the jets (the last argument)
-          //   - For now, it's just a dummy value
-          PHEC::Type::Jet jet(
-            0.66,
-            t_pT[iTruthJet],
-            t_eta[iTruthJet],
-            t_phi[iTruthJet],
-            1.
-          );
-
-          // loop through pairs of constituents
-          for (std::size_t iTruthCstA = 0; iTruthCstA < tr_cs_z->at(iTruthJet).size(); ++iTruthCstA) {
-            for (std::size_t iTruthCstB = 0; iTruthCstB < tr_cs_z->at(iTruthJet).size(); ++iTruthCstB) {
-
-              // skip diagonal
-              if (iTruthCstA == iTruthCstB) continue;
-
-              // collect cst information into a handy struct
-              PHEC::Type::Cst cstA(
-                tr_cs_z->at(iTruthJet).at(iTruthCstA),
-                tr_cs_jT->at(iTruthJet).at(iTruthCstA),
-                tr_cs_eta->at(iTruthJet).at(iTruthCstA),
-                tr_cs_phi->at(iTruthJet).at(iTruthCstA),
-                tr_cs_charge->at(iTruthJet).at(iTruthCstA)
-              );
-              PHEC::Type::Cst cstB(
-                tr_cs_z->at(iTruthJet).at(iTruthCstB),
-                tr_cs_jT->at(iTruthJet).at(iTruthCstB),
-                tr_cs_eta->at(iTruthJet).at(iTruthCstB),
-                tr_cs_phi->at(iTruthJet).at(iTruthCstB),
-                tr_cs_charge->at(iTruthJet).at(iTruthCstB)
-              );
-
-              // run 2-point calculation for pair
-              allTrueCalc.CalcEEC( jet, std::make_pair(cstA, cstB), evWeight );
-
-            }  // end 2nd cst loop
-          }  // end 1st cst loop
-        }  // end truth jet loop
-      }  // end all truth jet eec calculation
-
-      // ----------------------------------------------------------------------
 
 	if(doTrue){
 
@@ -1948,7 +1881,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
       // ----------------------------------------------------------------------
       // EEC calculation over max pt truth jets
       // ----------------------------------------------------------------------
-      if (doTrue && doMaxTrueEEC && (max_truth_idx>=0)) {
+      if (doTrue && doTrueEEC && (max_truth_idx>=0)) {
 
         // collect jet information into a handy struct
         //   - TODO: calculate the actual charged fraction
@@ -1989,7 +1922,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
             );
 
             // run 2-point calculation for pair
-            maxTrueCalc.CalcEEC( jet, std::make_pair(cstA, cstB), evWeight );
+            trueEEC.CalcEEC( jet, std::make_pair(cstA, cstB), evWeight );
 
           }  // end 2nd cst loop
         }  // end 1st cst loop
@@ -2010,60 +1943,6 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 	if(nRecoJets > 0){
 
 	  hVertexJets->Fill(vertex,evWeight);
-
-          // ------------------------------------------------------------------
-          // EEC calculation over all reco jets
-          // ------------------------------------------------------------------
-          if (doAllRecoEEC) {
-
-            // loop through jets
-            for (int iRecoJet = 0; iRecoJet < nRecoJets; ++iRecoJet) {
-
-              // collect jet information into a handy struct
-              //     dummy value
-              //   - NOTE: the spin for the bunch x-ing is
-              //     bundled w/ the jets (the last argument)
-              //   - For now, it's just a dummy value
-              PHEC::Type::Jet jet(
-                r_cf[iRecoJet],
-                r_pT[iRecoJet],
-                r_eta[iRecoJet],
-                r_phi[iRecoJet],
-                1.
-              );
-
-              // loop through pairs of constituents
-              for (std::size_t iRecoCstA = 0; iRecoCstA < re_cs_z->at(iRecoJet).size(); ++iRecoCstA) {
-                for (std::size_t iRecoCstB = 0; iRecoCstB < re_cs_z->at(iRecoJet).size(); ++iRecoCstB) {
-
-                  // skip diagonal
-                  if (iRecoCstA == iRecoCstB) continue;
-
-                  // collect cst information into a handy struct
-                  PHEC::Type::Cst cstA(
-                    re_cs_z->at(iRecoJet).at(iRecoCstA),
-                    re_cs_jT->at(iRecoJet).at(iRecoCstA),
-                    re_cs_eta->at(iRecoJet).at(iRecoCstA),
-                    re_cs_phi->at(iRecoJet).at(iRecoCstA),
-                    re_cs_charge->at(iRecoJet).at(iRecoCstA)
-                  );
-                  PHEC::Type::Cst cstB(
-                    re_cs_z->at(iRecoJet).at(iRecoCstB),
-                    re_cs_jT->at(iRecoJet).at(iRecoCstB),
-                    re_cs_eta->at(iRecoJet).at(iRecoCstB),
-                    re_cs_phi->at(iRecoJet).at(iRecoCstB),
-                    re_cs_charge->at(iRecoJet).at(iRecoCstB)
-                  );
-
-                  // run 2-point calculation for pair
-                  allRecoCalc.CalcEEC( jet, std::make_pair(cstA, cstB), evWeight );
-
-                }  // end 2nd cst loop
-              }  // end 1st cst loop
-            }  // end reco jet loop
-          }  // end all reco jet eec calculation
-
-          // ------------------------------------------------------------------
 
 	  int indexMax = -1;
 	  if(useML)
@@ -2121,7 +2000,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
           // ------------------------------------------------------------------
           // EEC calculation over max pt reco jets
           // ------------------------------------------------------------------
-          if (doMaxRecoEEC) {
+          if (doRecoEEC) {
 
             // collect jet information into a handy struct
             //     dummy value
@@ -2160,7 +2039,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
                 );
 
                 // run 2-point calculation for pair
-                maxRecoCalc.CalcEEC( jet, std::make_pair(cstA, cstB), evWeight );
+                recoEEC.CalcEEC( jet, std::make_pair(cstA, cstB), evWeight );
 
               }  // end 2nd cst loop
             }  // end 1st cst loop
@@ -2646,10 +2525,8 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   // EEC calculations
   // --------------------------------------------------------------------------
 
-  if (doTrue && doAllTrueEEC) allTrueCalc.End( fOut );
-  if (doTrue && doMaxTrueEEC) maxTrueCalc.End( fOut );
-  if (doAllRecoEEC)           allRecoCalc.End( fOut );
-  if (doMaxRecoEEC)           maxRecoCalc.End( fOut );
+  if (doTrue && doTrueEEC) trueEEC.End( fOut );
+  if (doRecoEEC)           recoEEC.End( fOut );
 
   // --------------------------------------------------------------------------
 
