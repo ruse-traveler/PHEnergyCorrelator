@@ -142,19 +142,49 @@ namespace PHEnergyCorrelator {
       double rm;
       double rs;
       double xi;
+      double theta;
       double phi;
 
       //! default ctor/dtor
       HistContent()  {};
       ~HistContent() {};
 
-      //! ctor accepting arguments
+      //! ctor accepting only 2-point arguments
       HistContent(
         const double w,
         const double l,
+        const double f = 0.
+      ) {
+        weight = w;
+        rl     = l;
+        phi    = f;
+      }  // end ctor(double x 3)
+
+      //! ctor accepting only 3-point arguments
+      HistContent(
+        const double w,
+        const double x,
+        const double t,
+        const double l,
         const double m = 0.,
-        const double s = 0.,
-        const double x = 0.,
+        const double s = 0.
+      ) {
+        weight = w;
+        xi     = x;
+        theta  = t;
+        rl     = l;
+        rm     = m;
+        rs     = s;
+      }  // end ctor(double x 6)
+
+      //! ctor accepting all arguments
+      HistContent(
+        const double w,
+        const double l,
+        const double m,
+        const double s,
+        const double x,
+        const double t,
         const double f = 0.
       ) {
         weight = w;
@@ -162,8 +192,9 @@ namespace PHEnergyCorrelator {
         rm     = m;
         rs     = s;
         xi     = x;
+        theta  = t;
         phi    = f;
-      }  // end ctor(double x 6)
+      }  // end ctor(double x 7)
 
     };  // end HistContent
 

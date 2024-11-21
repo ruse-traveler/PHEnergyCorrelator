@@ -50,7 +50,6 @@ namespace PHEnergyCorrelator {
     private:
 
       /* TODO
-       *   - GenerateGenHists() (?) 
        *   - GenerateE3CHists()
        *   - GenerateLECHists()
        */
@@ -116,6 +115,43 @@ namespace PHEnergyCorrelator {
       }  // end 'MakeHistName(std::string&, std::string&)'
 
       // ----------------------------------------------------------------------
+      //! Make histograms out of a list of definitions
+      // ----------------------------------------------------------------------
+      void MakeHistograms(const std::vector<Histogram>& defs, const int dim) {
+
+        for (std::size_t ihist = 0; ihist < defs.size(); ++ihist) {
+          for (std::size_t index = 0; index < m_index_tags.size(); ++index) {
+
+            // grab definition, adjust name
+            Histogram hist = defs[ihist];
+            hist.PrependToName( m_hist_pref );
+            hist.AppendToName( MakeHistSuffix(m_index_tags[index]) );
+
+            // create histogram, set errors
+            switch (dim) {
+              case 1:
+                m_hist_1d[hist.GetName()] = hist.MakeTH1();
+                m_hist_1d[hist.GetName()] -> Sumw2();
+                break;
+              case 2:
+                m_hist_2d[hist.GetName()] = hist.MakeTH2();
+                m_hist_2d[hist.GetName()] -> Sumw2();
+                break;
+              case 3:
+                m_hist_3d[hist.GetName()] = hist.MakeTH3();
+                m_hist_3d[hist.GetName()] -> Sumw2();
+                break;
+              default:
+                assert((dim >= 1) && (dim <= 3));
+                break;
+            }
+          }
+        }
+        return;
+
+      }  // end 'MakeHistograms(std::vector<Histogram>&, uint32_t)'
+
+      // ----------------------------------------------------------------------
       //! Generate tags for bins
       // ----------------------------------------------------------------------
       void GenerateIndexTags() {
@@ -154,39 +190,42 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       void GenerateEECHists() {
 
-        // axis title vectors
-        std::vector<std::string> side_titles;
-        side_titles.push_back("R_{L}");
-
-        // bin vectors
-        std::vector<Binning> side_bins;
-        side_bins.push_back(m_bins.Get("side"));
-
-        std::vector<Binning> logside_bins;
-        logside_bins.push_back(m_bins.Get("logside"));
-
         // 1d histogram definitions
         std::vector<Histogram> def_1d;
-        def_1d.push_back( Histogram("EECStat",     "", side_titles, side_bins)    );
-        def_1d.push_back( Histogram("EECWidth",    "", side_titles, side_bins)    );
-        def_1d.push_back( Histogram("LogEECStat",  "", side_titles, logside_bins) );
-        def_1d.push_back( Histogram("LogEECWidth", "", side_titles, logside_bins) );
+        def_1d.push_back(Histogram("EECStat", "", "R_{L}", m_bins.Get("side")));
+        def_1d.push_back(Histogram("EECWidth", "", "R_{L}", m_bins.Get("side")));
+        def_1d.push_back(Histogram("LogEECStat", "", "log R_{L}", m_bins.Get("logside")));
+        def_1d.push_back(Histogram("LogEECWidth", "", "log R_{L}", m_bins.Get("logside")));
+        def_1d.push_back(Histogram("SpinPhiStat", "", "#varphi", m_bins.Get("angle")));
+
+        // vectors of binnings for 2d histograms
+        std::vector<Binning> spinside_bins;
+        std::vector<Binning> spinlogside_bins;
+        spinside_bins.push_back(m_bins.Get("side"));
+        spinside_bins.push_back(m_bins.Get("angle"));
+        spinlogside_bins.push_back(m_bins.Get("logside"));
+        spinlogside_bins.push_back(m_bins.Get("angle"));
+
+        // vectors of axis titles for 2d histograms
+        std::vector<std::string> spinside_titles;
+        std::vector<std::string> spinlogside_titles;
+        spinside_titles.push_back("R_{L}");
+        spinside_titles.push_back("#varphi");
+        spinlogside_titles.push_back("log R_{L}");
+        spinlogside_titles.push_back("#varphi");
+
+        // 2D histogram definitions
+        std::vector<Histogram> def_2d;
+        def_2d.push_back(
+          Histogram("EECPhiVsRStat", "", spinside_titles, spinside_bins)
+        );
+        def_2d.push_back(
+          Histogram("EECPhiVsLogRStat", "", spinlogside_titles, spinlogside_bins)
+        );
 
         // create histograms
-        for (std::size_t ihist = 0; ihist < def_1d.size(); ++ihist) {
-          for (std::size_t index = 0; index < m_index_tags.size(); ++index) {
-
-            // grab definition, adjust name
-            Histogram hist = def_1d[ihist];
-            hist.PrependToName( m_hist_pref );
-            hist.AppendToName( MakeHistSuffix(m_index_tags[index]) );
-
-            // create histogram, set errors
-            m_hist_1d[hist.GetName()] = hist.MakeTH1();
-            m_hist_1d[hist.GetName()] -> Sumw2();
-
-          }
-        }
+        MakeHistograms(def_1d, 1);
+        MakeHistograms(def_2d, 2);
         return;
 
       }  // end 'GenerateEECHists()'
@@ -301,11 +340,16 @@ namespace PHEnergyCorrelator {
         // grab hist tag from index
         const std::string tag = MakeIndexTag(index);
 
-        // fill histograms
-        m_hist_1d[ MakeHistName("EECStat", tag)     ] -> Fill( content.rl, content.weight );
-        m_hist_1d[ MakeHistName("EECWidth", tag)    ] -> Fill( content.rl, content.weight );
-        m_hist_1d[ MakeHistName("LogEECStat", tag)  ] -> Fill( Tools::Log(content.rl), content.weight );
-        m_hist_1d[ MakeHistName("LogEECWidth", tag) ] -> Fill( Tools::Log(content.rl), content.weight );
+        // fill 1d histograms
+        m_hist_1d[MakeHistName("EECStat", tag)] -> Fill(content.rl, content.weight);
+        m_hist_1d[MakeHistName("EECWidth", tag)] -> Fill(content.rl, content.weight);
+        m_hist_1d[MakeHistName("LogEECStat", tag)] -> Fill(Tools::Log(content.rl), content.weight);
+        m_hist_1d[MakeHistName("LogEECWidth", tag)] -> Fill(Tools::Log(content.rl), content.weight);
+        m_hist_1d[MakeHistName("SpinPhiStat", tag)] -> Fill(content.phi);
+
+        // fill 2d histograms
+        m_hist_2d[MakeHistName("EECPhiVsRStat", tag)] -> Fill(content.rl, content.phi, content.weight);
+        m_hist_2d[MakeHistName("EECPhiVsLogRStat", tag)] -> Fill(Tools::Log(content.rl), content.phi, content.weight);
         return;
 
       }  // end 'FillEECHists(Type::HistIndex&, Type::HistContent&)'
@@ -329,8 +373,12 @@ namespace PHEnergyCorrelator {
         for (it_th1 it1d = m_hist_1d.begin(); it1d != m_hist_1d.end(); ++it1d) {
           it1d -> second -> Write();
         }
-
-        /* TODO add same for 2d & 3d histograms when there are some */
+        for (it_th2 it2d = m_hist_2d.begin(); it2d != m_hist_2d.end(); ++it2d) {
+          it2d -> second -> Write();
+        }
+        for (it_th3 it3d = m_hist_3d.begin(); it3d != m_hist_3d.end(); ++it3d) {
+          it3d -> second -> Write();
+        }
         return;
 
       }  // end 'SaveHists(TFile*)'

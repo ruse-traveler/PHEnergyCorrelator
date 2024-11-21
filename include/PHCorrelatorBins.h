@@ -91,14 +91,12 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       Bins() {
 
-        /* TODO
-         *  - Add cos(angle)
-         *  - Add angle
-         *  - Add xi
-         */
-        m_bins["energy"]  = Binning(202, -1., 100.);
-        m_bins["side"]    = Binning(75, 1e-5, 1., Type::Log);
-        m_bins["logside"] = Binning(75, -5., 0.);
+        m_bins["energy"]   = Binning(202, -1., 100.);
+        m_bins["side"]     = Binning(75, 1e-5, 1., Type::Log);
+        m_bins["logside"]  = Binning(75, -5., 0.);
+        m_bins["angle"]    = Binning(180, -3.15, 3.15);
+        m_bins["cosangle"] = Binning(20, -1., 1.);
+        m_bins["xi"]       = Binning(100, 0., 1.);
 
       }  // end 'ctor()'
 

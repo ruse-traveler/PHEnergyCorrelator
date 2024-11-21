@@ -55,8 +55,7 @@ void PHEnergyCorrelatorTest() {
 
   // cf jet bins
   std::vector< std::pair<float, float> > cfjetbins;
-  cfjetbins.push_back( std::make_pair(0., 0.5) );
-  cfjetbins.push_back( std::make_pair(0.5, 1.) );
+  cfjetbins.push_back( std::make_pair(0.3, 0.6) );
 
   // instantiate calculator
   PHEC::Calculator calc_a(PHEC::Type::Pt);
