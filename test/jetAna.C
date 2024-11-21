@@ -998,7 +998,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
          * the code won't try to fill the corresponding
          * histograms.
          */
-        if (doMaxJetEEC) {
+        if (doRecoEEC) {
 
           // collect jet information into a handy struct
           //   - NOTE: the spin for the bunch x-ing is
@@ -1015,9 +1015,6 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
           // loop through pairs of constituents
           for (std::size_t iCstA = 0; iCstA < re_cs_z->at(indexMax).size(); ++iCstA) {
             for (std::size_t iCstB = 0; iCstB < re_cs_z->at(indexMax).size(); ++iCstB) {
-
-              // skip diagonal
-              if (iCstA == iCstB) continue;
 
               // collect cst information into a handy struct
               PHEC::Type::Cst cstA(

@@ -1902,9 +1902,6 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
         for (std::size_t iTruthCstA = 0; iTruthCstA < tr_cs_z->at(max_truth_idx).size(); ++iTruthCstA) {
           for (std::size_t iTruthCstB = 0; iTruthCstB < tr_cs_z->at(max_truth_idx).size(); ++iTruthCstB) {
 
-            // skip diagonal
-            if (iTruthCstA == iTruthCstB) continue;
-
             // collect cst information into a handy struct
             PHEC::Type::Cst cstA(
               tr_cs_z->at(max_truth_idx).at(iTruthCstA),
@@ -2018,9 +2015,6 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
             // loop through pairs of constituents
             for (std::size_t iRecoCstA = 0; iRecoCstA < re_cs_z->at(indexMax).size(); ++iRecoCstA) {
               for (std::size_t iRecoCstB = 0; iRecoCstB < re_cs_z->at(indexMax).size(); ++iRecoCstB) {
-
-                // skip diagonal
-                if (iRecoCstA == iRecoCstB) continue;
 
                 // collect cst information into a handy struct
                 PHEC::Type::Cst cstA(

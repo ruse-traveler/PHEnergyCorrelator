@@ -105,9 +105,6 @@ void PHEnergyCorrelatorTest() {
     for (std::size_t icst_a = 0; icst_a < csts[ijet].size(); ++icst_a) {
       for (std::size_t icst_b = 0; icst_b < csts[ijet].size(); ++icst_b) {
 
-        // skip diagonal
-        if (icst_a == icst_b) continue;
-
         // do calculation
         calc_a.CalcEEC(
           jets[ijet],
@@ -133,9 +130,6 @@ void PHEnergyCorrelatorTest() {
   for (std::size_t ijet = 0; ijet < jets.size(); ++ijet) {
     for (std::size_t icst_a = 0; icst_a < csts[ijet].size(); ++icst_a) {
       for (std::size_t icst_b = 0; icst_b < csts[ijet].size(); ++icst_b) {
-
-        // skip diagonal
-        if (icst_a == icst_b) continue;
 
         // do calculation
         calc_b.CalcEEC(
