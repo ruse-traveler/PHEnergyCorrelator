@@ -13,8 +13,9 @@
 
 // c++ utilities
 #include <algorithm>
-#include <utility>
+#include <cmath>
 #include <string>
+#include <utility>
 #include <vector>
 // root libraries
 #include <TLorentzVector.h>
@@ -52,7 +53,6 @@ namespace PHEnergyCorrelator {
       // data members (bins)
       std::vector< std::pair<float, float> > m_ptjet_bins;
       std::vector< std::pair<float, float> > m_cfjet_bins;
-      std::vector< std::pair<float, float> > m_spin_bins;
 
       // data member (hist manager)
       Manager m_manager;
@@ -100,18 +100,19 @@ namespace PHEnergyCorrelator {
       }  // end 'GetCstWeight(TLorentzVector&, TLorentzVector&)'
 
       // ----------------------------------------------------------------------
-      //! Get hist index
+      //! Get hist index/indices
       // ----------------------------------------------------------------------
-      Type::HistIndex GetHistIndex(const Type::Jet& jet) {
+      std::vector<Type::HistIndex> GetHistIndices(const Type::Jet& jet) {
 
-        // by default return index = (0, 0, 0)
-        Type::HistIndex index(0, 0, 0);
+        // for pt and cf, index will correspond to what bin
+        // the jet falls in
+        Type::HistIndex iptcf(0, 0, 0);
 
         // determine pt bin
         if (m_do_pt_bins) {
           for (std::size_t ipt = 0; ipt < m_ptjet_bins.size(); ++ipt) {
             if ((jet.pt >= m_ptjet_bins[ipt].first) && (jet.pt < m_ptjet_bins[ipt].second)) {
-              index.pt = ipt;
+              iptcf.pt = ipt;
             }
           }  // end pt bin loop
         }
@@ -120,22 +121,58 @@ namespace PHEnergyCorrelator {
         if (m_do_cf_bins) {
           for (std::size_t icf = 0; icf < m_cfjet_bins.size(); ++icf) {
             if ((jet.cf >= m_cfjet_bins[icf].first) && (jet.cf < m_cfjet_bins[icf].second)) {
-              index.cf = icf;
+              iptcf.cf = icf;
             }
           }  // end cf bin loop
         }
 
-        // determine spin bin
-        if (m_do_sp_bins) {
-          for (std::size_t isp = 0; isp < m_spin_bins.size(); ++isp) {
-            if ((jet.spin >= m_spin_bins[isp].first) && (jet.spin < m_spin_bins[isp].second)) {
-              index.spin = isp;
-            }
-          }  // end spin bin loop
-        }
-        return index;
+        // but for spin, we'll have 2 indices
+        // for each spin pattern
+        //   - pattern = 1 --> spin indices = {0, 3}
+        //   - pattern = 2 --> spin indices = {1, 2}
+        //   - pattern = 3 --> spin indices = {1, 3}
+        //   - pattern = 4 --> spin indices = {0, 2}
+        // plus the index for integrating over
+        // spins (sp = 4)
+        std::vector<Type::HistIndex> indices;
 
-      }  // end 'GetHistIndex(Type::Jet&)'
+        // determine spin bins
+        if (m_do_sp_bins) {
+            switch (jet.pattern) {
+
+              // blue up, yellow down
+              case 1:
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 0) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 3) );
+                break;
+
+              // blue down, yellow up
+              case 2:
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 1) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 2) );
+                break;
+
+              // blue down, yellow down
+              case 3:
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 1) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 3) );
+                break;
+
+              // blue up, yellow up
+              case 4:
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 0) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 2) );
+                break;
+
+              // by default, only add integrated
+              default:
+                break;
+          }
+        }
+        indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 4) );
+        return indices;
+
+      }  // end 'GetHistIndices(Type::Jet&)'
 
     public:
 
@@ -194,22 +231,18 @@ namespace PHEnergyCorrelator {
       }  // end 'SetCFJetBins(std::vector<std::pair<float, float>>&)'
 
       // ----------------------------------------------------------------------
-      //! Set spin bins
+      //! Turn on/off spin binning
       // ----------------------------------------------------------------------
-      void SetSpinBins(const std::vector< std::pair<float, float> >& bins) {
+      void SetDoSpinBins(const bool spin) {
 
-        // turn on spin binning
-        m_do_sp_bins = true;
+        // set spin binning for calculator
+        m_do_sp_bins = spin;
 
-        // copy bins to member
-        m_spin_bins.resize( bins.size() );
-        std::copy(bins.begin(), bins.end(), m_spin_bins.begin());
-
-        // update hist manager and exit
-        m_manager.DoSpinBins( m_spin_bins.size() );
+        // and set corresponding flag in manager
+        m_manager.DoSpinBins(spin);
         return;
 
-      }  // end 'SetCFJetBins(std::vector<std::pair<float, float>>&)'
+      }  // end 'SetDoSpinBins(bool)'
 
       // ----------------------------------------------------------------------
       //! Initialize calculator
@@ -241,7 +274,7 @@ namespace PHEnergyCorrelator {
       void CalcEEC(
         const Type::Jet& jet,
         const std::pair<Type::Cst, Type::Cst>& csts,
-        const double evtweight = 1.0
+        const double evt_weight = 1.0
       ) {
 
         // get jet 4-momenta
@@ -253,23 +286,50 @@ namespace PHEnergyCorrelator {
           Tools::GetCstLorentz(jet_vec.Vect(), csts.second)
         );
 
+        // get vector distance b/n average of cst.s and spin direction
+        TLorentzVector cst_avg = Tools::GetWeightedAvgLorentz(
+          cst_vecs.first,
+          cst_vecs.second
+        );
+
         // now get weights
         std::pair<double, double> cst_weights = std::make_pair(
           GetCstWeight(cst_vecs.first, jet_vec),
           GetCstWeight(cst_vecs.second, jet_vec)
         );
 
-        // calculate RL (dist b/n cst.s for EEC) 
-        const double dist   = Tools::GetCstDist(csts);
-        const double weight = cst_weights.first * cst_weights.second * evtweight;
+        // calculate RL (dist b/n cst.s for EEC), EEC, and
+        // angle b/n the cst average and spin
+        const double dist    = Tools::GetCstDist(csts);
+        const double weight  = cst_weights.first * cst_weights.second * evt_weight;
+        const double dphiblu = remainder(cst_avg.Phi() - jet.phiblu, TMath::TwoPi());
+        const double dphiyel = remainder(cst_avg.Phi() - jet.phiyel, TMath::TwoPi());
 
         // bundle results for histogram filling
-        Type::HistContent content(weight, dist);
+        Type::HistContent content_int(weight, dist);
+        Type::HistContent content_blu(weight, dist, dphiblu, jet.pattern);
+        Type::HistContent content_yel(weight, dist, dphiyel, jet.pattern);
 
         // fill histograms and exit
-        Type::HistIndex index = GetHistIndex(jet);
         if (m_do_eec_hist) {
-          m_manager.FillEECHists(index, content);
+
+          // grab hist indices; if doing spin binning, the order
+          // of the vector will always be
+          //   [0] = blue beam index
+          //   [1] = yellow beam index
+          //   [2] = integrated
+          // otherwise vector will have 1 entry corresponding
+          // to JUST the integrated case
+          std::vector<Type::HistIndex> indices = GetHistIndices(jet);
+
+          // fill relevant histograms
+          if (m_do_sp_bins) {
+            m_manager.FillEECHists(indices[0], content_blu);
+            m_manager.FillEECHists(indices[1], content_yel);
+            m_manager.FillEECHists(indices[2], content_int);
+          } else {
+            m_manager.FillEECHists(indices[0], content_int);
+          }
         }
         return;
 
@@ -321,7 +381,7 @@ namespace PHEnergyCorrelator {
         m_do_cf_bins   = false;
         m_do_sp_bins   = false;
 
-      }  // end ctor(Type::Weight, double)'
+      }  // end ctor(Type::Weight, double)
 
   };  // end PHEnergyCorrelator::Calculator
 

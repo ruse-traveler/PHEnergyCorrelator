@@ -187,6 +187,21 @@ namespace PHEnergyCorrelator {
 
     }  // end 'GetCstLorentz(TVector3, Type::Cst&)'
 
+
+    // ------------------------------------------------------------------------
+    //! Get weighted average of 2 4-vectors
+    // ------------------------------------------------------------------------
+    TLorentzVector GetWeightedAvgLorentz(
+      const TLorentzVector& va,
+      const TLorentzVector& vb
+    ) {
+
+      const float wa = va.E() / (va.E() + vb.E());
+      const float wb = vb.E() / (va.E() + vb.E());
+      return (wa * va) + (wb * vb);
+
+    }  // end 'GetWeightedAvgLorentz(TLorentzVector& x 2)'
+
   }  // end Tools namespace
 }  // end PHEnergyCorrelator namespace
 

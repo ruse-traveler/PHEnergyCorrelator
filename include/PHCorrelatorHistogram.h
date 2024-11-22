@@ -11,6 +11,7 @@
 #define PHCORRELATORHISTOGRAM_H
 
 // c++ utilities
+#include <cassert>
 #include <string>
 #include <vector>
 // root libraries
@@ -81,6 +82,52 @@ namespace PHEnergyCorrelator {
       void SetHistName(const std::string& name)     {m_name = name;}
       void PrependToName(const std::string& prefix) {m_name = prefix + m_name;}
       void AppendToName(const std::string& suffix)  {m_name = m_name + suffix;}
+
+      // ----------------------------------------------------------------------
+      //! Set specific axis title
+      // ----------------------------------------------------------------------
+      void SetAxisTitle(const std::string& title, const std::size_t axis) {
+
+        switch (axis) {
+          case 0:
+            m_title_x = title;
+            break;
+          case 1:
+            m_title_y = title;
+            break;
+          case 2:
+            m_title_z = title;
+            break;
+          default:
+            assert(axis < 3);
+            break;
+        }
+        return;
+
+      }  // end 'SetAxisTitle(std::string&, std::size_t)'
+
+      // ----------------------------------------------------------------------
+      //! Set specific binning
+      // ----------------------------------------------------------------------
+      void SetAxisBins(const Binning& bins, const std::size_t axis) {
+
+        switch (axis) {
+          case 0:
+            m_bins_x = bins;
+            break;
+          case 1:
+            m_bins_y = bins;
+            break;
+          case 2:
+            m_bins_z = bins;
+            break;
+          default:
+            assert(axis < 3);
+            break;
+        }
+        return;
+
+      }  // end 'SetAxisBins(Binning&, std::size_t)'
 
       // ----------------------------------------------------------------------
       //! Set axis titles via list
@@ -189,7 +236,24 @@ namespace PHEnergyCorrelator {
        ~Histogram() {};
 
       // ----------------------------------------------------------------------
-      //! ctor accepting arguments
+      //! ctor accepting arguments (1 binning, 1 axis title)
+      // ----------------------------------------------------------------------
+      Histogram(
+        const std::string& hist_name,
+        const std::string& hist_title,
+        const std::string& axis_title,
+        const Binning& axis_bins
+      ) {
+
+        SetHistName(hist_name);
+        SetHistTitle(hist_title);
+        SetAxisTitle(axis_title, 0);
+        SetAxisBins(axis_bins, 0);
+
+      }  // end ctor(std::string&, std::string&, std::string&, Binning&)'
+
+      // ----------------------------------------------------------------------
+      //! ctor accepting arguments (vector of axis titles/bins)
       // ----------------------------------------------------------------------
       Histogram(
         const std::string& hist_name,
@@ -203,7 +267,7 @@ namespace PHEnergyCorrelator {
         SetAxisTitles(axis_titles);
         SetAxisBins(axis_bins);
 
-      }  // end 'ctor(std::string&, std::string&, std::vector<std::string>&, std::vector<Binning>&)'
+      }  // end ctor(std::string&, std::string&, std::vector<std::string>&, std::vector<Binning>&)
 
   };  // end Histogram
 }  // end PHEnergyCorrelator namespace

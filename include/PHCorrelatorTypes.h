@@ -42,7 +42,9 @@ namespace PHEnergyCorrelator {
       double pt;
       double eta;
       double phi;
-      double spin;
+      double phiblu;
+      double phiyel;
+      int    pattern;
 
       //! default ctor/dtor
       Jet()  {};
@@ -54,13 +56,17 @@ namespace PHEnergyCorrelator {
         const double parg,
         const double harg,
         const double farg,
-        const double sarg
+        const double fbarg = 0.,
+        const double fyarg = 0.,
+        const int    aarg  = 0
       ) {
-        cf   = carg;
-        pt   = parg;
-        eta  = harg;
-        phi  = farg;
-        spin = sarg;
+        cf      = carg;
+        pt      = parg;
+        eta     = harg;
+        phi     = farg;
+        phiblu  = fbarg;
+        phiyel  = fyarg;
+        pattern = aarg; 
       };
 
     };  // end Jet
@@ -142,28 +148,64 @@ namespace PHEnergyCorrelator {
       double rm;
       double rs;
       double xi;
+      double theta;
       double phi;
+      int    pattern;
 
       //! default ctor/dtor
       HistContent()  {};
       ~HistContent() {};
 
-      //! ctor accepting arguments
+      //! ctor accepting only 2-point arguments
       HistContent(
         const double w,
         const double l,
+        const double f = 0.,
+        const int    p = 0
+      ) {
+        weight  = w;
+        rl      = l;
+        phi     = f;
+        pattern = p;
+      }  // end ctor(double x 3, int)
+
+      //! ctor accepting only 3-point arguments
+      HistContent(
+        const double w,
+        const double x,
+        const double t,
+        const double l,
         const double m = 0.,
-        const double s = 0.,
-        const double x = 0.,
-        const double f = 0.
+        const double s = 0.
       ) {
         weight = w;
+        xi     = x;
+        theta  = t;
         rl     = l;
         rm     = m;
         rs     = s;
-        xi     = x;
-        phi    = f;
       }  // end ctor(double x 6)
+
+      //! ctor accepting all arguments
+      HistContent(
+        const double w,
+        const double l,
+        const double m,
+        const double s,
+        const double x,
+        const double t,
+        const double f = 0.,
+        const int    p = 0
+      ) {
+        weight  = w;
+        rl      = l;
+        rm      = m;
+        rs      = s;
+        xi      = x;
+        theta   = t;
+        phi     = f;
+        pattern = p;
+      }  // end ctor(double x 7, int x 1)
 
     };  // end HistContent
 
