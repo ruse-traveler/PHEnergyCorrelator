@@ -122,6 +122,7 @@ void PHEnergyCorrelatorTest() {
   PHEC::Calculator calc_b(PHEC::Type::Pt);
   calc_b.SetPtJetBins(ptjetbins);
   calc_b.SetCFJetBins(cfjetbins);
+  calc_b.GetManager().DoSpinBins();
   calc_b.SetHistTag("SecondTest");
   calc_b.Init(true);
 

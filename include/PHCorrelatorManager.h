@@ -81,6 +81,36 @@ namespace PHEnergyCorrelator {
       Bins m_bins;
 
       // ----------------------------------------------------------------------
+      //! Translate spin index into a tag
+      // ----------------------------------------------------------------------
+      std::string GetSpinTag(const std::size_t isp) {
+
+        std::String tag = "";
+        switch (isp) {
+          case 0:
+            tag = "BlueUp";
+            break;
+          case 1:
+            tag = "BlueDown";
+            break;
+          case 2:
+            tag = "YellUp";
+            break;
+          case 3:
+            tag = "YellDown";
+            break;
+          case 4:
+            tag = "Integrated";
+            break;
+          default:
+            tag = "";
+            break;
+        }
+        return tag;
+
+      }  // end 'GetSpinTag(std::size_t)'
+
+      // ----------------------------------------------------------------------
       //! Make a tag from a histogram index 
       // ----------------------------------------------------------------------
       std::string MakeIndexTag(const Type::HistIndex& index) const {
@@ -91,7 +121,7 @@ namespace PHEnergyCorrelator {
         // add appropriate indices
         if (m_do_pt_bins) tag += Const::PtTag() + Tools::StringifyIndex(index.pt);
         if (m_do_cf_bins) tag += Const::CFTag() + Tools::StringifyIndex(index.cf);
-        if (m_do_sp_bins) tag += Const::SpinTag() + Tools::StringifyIndex(index.spin);
+        if (m_do_sp_bins) tag += Const::SpinTag() + GetSpinTag(index.spin);
         return tag;
 
       }  // end 'MakeIndexTag(Type::HistIndex&)'
@@ -303,13 +333,12 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       //! Bin on spin
       // ----------------------------------------------------------------------
-      void DoSpinBins(const std::size_t nbins) {
+      void DoSpinBins() {
 
-        m_nbins_sp   = nbins;
         m_do_sp_bins = true;
         return;
 
-      }  // end 'DoSpinBins(std::size_t)'
+      }  // end 'DoSpinBins()'
 
       // ----------------------------------------------------------------------
       //! Generate histograms
@@ -450,7 +479,7 @@ namespace PHEnergyCorrelator {
         m_do_sp_bins  = false;
         m_nbins_pt    = 1;
         m_nbins_cf    = 1;
-        m_nbins_sp    = 1;
+        m_nbins_sp    = 5;
         m_hist_tag    = "";
         m_hist_pref   = "";
 
@@ -474,7 +503,7 @@ namespace PHEnergyCorrelator {
         m_do_sp_bins  = false;
         m_nbins_pt    = 1;
         m_nbins_cf    = 1;
-        m_nbins_sp    = 1;
+        m_nbins_sp    = 5;
         m_hist_tag    = "";
         m_hist_pref   = "";
 

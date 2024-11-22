@@ -52,7 +52,6 @@ namespace PHEnergyCorrelator {
       // data members (bins)
       std::vector< std::pair<float, float> > m_ptjet_bins;
       std::vector< std::pair<float, float> > m_cfjet_bins;
-      std::vector< std::pair<float, float> > m_spin_bins;
 
       // data member (hist manager)
       Manager m_manager;
@@ -100,18 +99,19 @@ namespace PHEnergyCorrelator {
       }  // end 'GetCstWeight(TLorentzVector&, TLorentzVector&)'
 
       // ----------------------------------------------------------------------
-      //! Get hist index
+      //! Get hist index/indices
       // ----------------------------------------------------------------------
-      Type::HistIndex GetHistIndex(const Type::Jet& jet) {
+      std::vector<Type::HistIndex> GetHistIndices(const Type::Jet& jet) {
 
-        // by default return index = (0, 0, 0)
-        Type::HistIndex index(0, 0, 0);
+        // for pt and cf, index will correspond to what bin
+        // the jet falls in
+        Type::HistIndex iptcf(0, 0, 0);
 
         // determine pt bin
         if (m_do_pt_bins) {
           for (std::size_t ipt = 0; ipt < m_ptjet_bins.size(); ++ipt) {
             if ((jet.pt >= m_ptjet_bins[ipt].first) && (jet.pt < m_ptjet_bins[ipt].second)) {
-              index.pt = ipt;
+              iptcf.pt = ipt;
             }
           }  // end pt bin loop
         }
@@ -120,22 +120,58 @@ namespace PHEnergyCorrelator {
         if (m_do_cf_bins) {
           for (std::size_t icf = 0; icf < m_cfjet_bins.size(); ++icf) {
             if ((jet.cf >= m_cfjet_bins[icf].first) && (jet.cf < m_cfjet_bins[icf].second)) {
-              index.cf = icf;
+              iptcf.cf = icf;
             }
           }  // end cf bin loop
         }
 
-        // determine spin bin
+        // but for spin, we'll have 2 indices
+        // for each spin pattern
+        //   - pattern = 1 --> spin indices = {0, 3}
+        //   - pattern = 2 --> spin indices = {1, 2}
+        //   - pattern = 3 --> spin indices = {1, 3}
+        //   - pattern = 4 --> spin indices = {0, 2}
+        // plus the index for integrating over
+        // spins (sp = 4)
+        std::vector<Type::HistIndex> indices;
+
+        // determine spin bins
         if (m_do_sp_bins) {
-          for (std::size_t isp = 0; isp < m_spin_bins.size(); ++isp) {
-            if ((jet.spin >= m_spin_bins[isp].first) && (jet.spin < m_spin_bins[isp].second)) {
-              index.spin = isp;
-            }
-          }  // end spin bin loop
+            switch (jet.pattern) {
+
+              // blue up, yellow down
+              case 1:
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 0) );
+                indices.push_back( Type::HistIndex(iptfc.pt, iptcf.cf, 3) );
+                break;
+
+              // blue down, yellow up
+              case 2:
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 1) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 2) );
+                break;
+
+              // blue down, yellow down
+              case 3:
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 1) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 3) );
+                break;
+
+              // blue up, yellow up
+              case 3:
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 0) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 2) );
+                break;
+
+              // by default, only add integrated
+              default:
+                break;
+          }
+          indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 4) );
         }
         return index;
 
-      }  // end 'GetHistIndex(Type::Jet&)'
+      }  // end 'GetHistIndices(Type::Jet&)'
 
     public:
 
@@ -194,24 +230,6 @@ namespace PHEnergyCorrelator {
       }  // end 'SetCFJetBins(std::vector<std::pair<float, float>>&)'
 
       // ----------------------------------------------------------------------
-      //! Set spin bins
-      // ----------------------------------------------------------------------
-      void SetSpinBins(const std::vector< std::pair<float, float> >& bins) {
-
-        // turn on spin binning
-        m_do_sp_bins = true;
-
-        // copy bins to member
-        m_spin_bins.resize( bins.size() );
-        std::copy(bins.begin(), bins.end(), m_spin_bins.begin());
-
-        // update hist manager and exit
-        m_manager.DoSpinBins( m_spin_bins.size() );
-        return;
-
-      }  // end 'SetCFJetBins(std::vector<std::pair<float, float>>&)'
-
-      // ----------------------------------------------------------------------
       //! Initialize calculator
       // ----------------------------------------------------------------------
       void Init(const bool do_eec, const bool do_e3c = false, const bool do_lec = false) {
@@ -241,8 +259,7 @@ namespace PHEnergyCorrelator {
       void CalcEEC(
         const Type::Jet& jet,
         const std::pair<Type::Cst, Type::Cst>& csts,
-        const double evt_weight = 1.0,
-        const TVector3 spin_vec = TVector3(0., 0, 0) 
+        const double evt_weight = 1.0
       ) {
 
         // get jet 4-momenta
@@ -270,15 +287,17 @@ namespace PHEnergyCorrelator {
         // angle b/n the cst average and spin
         const double dist   = Tools::GetCstDist(csts);
         const double weight = cst_weights.first * cst_weights.second * evt_weight;
-        const double phi    = Tools::GetSiversAngle(cst_avg.Vect(), spin_vec);
+        const double phi    = Tools::GetSiversAngle(/* FIXME NEEDS THOUGHT */);
 
         // bundle results for histogram filling
         Type::HistContent content(weight, dist, phi);
 
         // fill histograms and exit
-        Type::HistIndex index = GetHistIndex(jet);
         if (m_do_eec_hist) {
-          m_manager.FillEECHists(index, content);
+          std::vector<Type::HistIndex> indices = GetHistIndices(jet);
+          for (std::size_t idx = 0; idx < indices.size(); ++idx) {
+            m_manager.FillEECHists(indices[idx], content);
+          }
         }
         return;
 

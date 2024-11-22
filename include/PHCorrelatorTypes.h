@@ -42,7 +42,9 @@ namespace PHEnergyCorrelator {
       double pt;
       double eta;
       double phi;
-      double spin;
+      double phiblu;
+      double phiyell;
+      int    pattern;
 
       //! default ctor/dtor
       Jet()  {};
@@ -54,13 +56,17 @@ namespace PHEnergyCorrelator {
         const double parg,
         const double harg,
         const double farg,
-        const double sarg
+        const double fbarg,
+        const double fyarg,
+        const int    parg
       ) {
-        cf   = carg;
-        pt   = parg;
-        eta  = harg;
-        phi  = farg;
-        spin = sarg;
+        cf      = carg;
+        pt      = parg;
+        eta     = harg;
+        phi     = farg;
+        phiblu  = fbarg;
+        phiyel  = fyarg;
+        pattern = parg; 
       };
 
     };  // end Jet
