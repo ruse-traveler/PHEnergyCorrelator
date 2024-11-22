@@ -241,7 +241,8 @@ namespace PHEnergyCorrelator {
       void CalcEEC(
         const Type::Jet& jet,
         const std::pair<Type::Cst, Type::Cst>& csts,
-        const double evtweight = 1.0
+        const double evt_weight = 1.0,
+        const TVector3 spin_vec = TVector3(0., 0, 0) 
       ) {
 
         // get jet 4-momenta
@@ -253,18 +254,26 @@ namespace PHEnergyCorrelator {
           Tools::GetCstLorentz(jet_vec.Vect(), csts.second)
         );
 
+        // get vector distance b/n average of cst.s and spin direction
+        TLorentzVector cst_avg = Tools::GetWeightedAvgLorentz(
+          cst_vecs.first,
+          cst_vecs.second
+        );
+
         // now get weights
         std::pair<double, double> cst_weights = std::make_pair(
           GetCstWeight(cst_vecs.first, jet_vec),
           GetCstWeight(cst_vecs.second, jet_vec)
         );
 
-        // calculate RL (dist b/n cst.s for EEC) 
+        // calculate RL (dist b/n cst.s for EEC), EEC, and
+        // angle b/n the cst average and spin
         const double dist   = Tools::GetCstDist(csts);
-        const double weight = cst_weights.first * cst_weights.second * evtweight;
+        const double weight = cst_weights.first * cst_weights.second * evt_weight;
+        const double phi    = Tools::GetSiversAngle(cst_avg.Vect(), spin_vec);
 
         // bundle results for histogram filling
-        Type::HistContent content(weight, dist);
+        Type::HistContent content(weight, dist, phi);
 
         // fill histograms and exit
         Type::HistIndex index = GetHistIndex(jet);
@@ -321,7 +330,7 @@ namespace PHEnergyCorrelator {
         m_do_cf_bins   = false;
         m_do_sp_bins   = false;
 
-      }  // end ctor(Type::Weight, double)'
+      }  // end ctor(Type::Weight, double)
 
   };  // end PHEnergyCorrelator::Calculator
 

@@ -71,6 +71,16 @@ namespace PHEnergyCorrelator {
 
 
     // ------------------------------------------------------------------------
+    //! Get sivers angle
+    // ------------------------------------------------------------------------
+    double GetSiversAngle(const TVector3& had_vec, const TVector3& spin_vec) {
+
+      return remainder(had_vec.Phi() - spin_vec.Phi(), TMath::TwoPi());
+
+    }  // end 'GetSiversAngle(TVector3& x 2)'
+
+
+    // ------------------------------------------------------------------------
     //! Get variance from a standard error + counts
     // ------------------------------------------------------------------------
     double GetVariance(const double err, const double counts) {
@@ -186,6 +196,21 @@ namespace PHEnergyCorrelator {
       return TLorentzVector(px, py, pz, ptot);
 
     }  // end 'GetCstLorentz(TVector3, Type::Cst&)'
+
+
+    // ------------------------------------------------------------------------
+    //! Get weighted average of 2 4-vectors
+    // ------------------------------------------------------------------------
+    TLorentzVector GetWeightedAvgLorentz(
+      const TLorentzVector& va,
+      const TLorentzVector& vb
+    ) {
+
+      const float wa = va.E() / (va.E() + vb.E());
+      const float wb = vb.E() / (va.E() + vb.E());
+      return (wa * va) + (wb * vb);
+
+    }  // end 'GetWeightedAvgLorentz(TLorentzVector& x 2)'
 
   }  // end Tools namespace
 }  // end PHEnergyCorrelator namespace
