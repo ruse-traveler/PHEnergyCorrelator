@@ -77,19 +77,25 @@ void PHEnergyCorrelatorTest() {
   // --------------------------------------------------------------------------
   // Test calculator
   // --------------------------------------------------------------------------
-  /* TODO changes values to something actually physical,
-   *   these are just random...
+  /*! N.B. the jet/cst values are random: they're here just to
+   *  provide a unit test and make sure everything works.
    */
   std::cout << "    Case [2]: test calculator." << std::endl;
 
-  // pi/4, 5pi/4
+  // pi/4, pi/3, 5pi/4, 4pi/3
   const double piDiv4  = TMath::PiOver4();
+  const double piDiv3  = TMath::Pi() / 3.;
   const double pi5Div4 = 5. * TMath::PiOver4();
+  const double pi4Div3 = 4. * piDiv3;
 
   // jet values
   std::vector<PHEC::Type::Jet> jets;
-  jets.push_back( PHEC::Type::Jet(0.25, 8.0, 0.2, piDiv4, 1.)   );
-  jets.push_back( PHEC::Type::Jet(0.75, 13., -0.2, pi5Div4, 1.) );
+  jets.push_back(
+    PHEC::Type::Jet(0.25, 8.0, 0.2, piDiv4, piDiv3, pi5Div4, 1)
+  );
+  jets.push_back(
+    PHEC::Type::Jet(0.75, 13., -0.2, pi5Div4, piDiv3, pi5Div4, 2)
+  );
 
   // cst values
   std::vector< std::vector< PHEC::Type::Cst > > csts( jets.size() );
@@ -103,8 +109,6 @@ void PHEnergyCorrelatorTest() {
   for (std::size_t ijet = 0; ijet < jets.size(); ++ijet) {
     for (std::size_t icst_a = 0; icst_a < csts[ijet].size(); ++icst_a) {
       for (std::size_t icst_b = 0; icst_b < csts[ijet].size(); ++icst_b) {
-
-        // do calculation
         calc_a.CalcEEC(
           jets[ijet],
           std::make_pair(csts[ijet][icst_a], csts[ijet][icst_b])
@@ -122,7 +126,7 @@ void PHEnergyCorrelatorTest() {
   PHEC::Calculator calc_b(PHEC::Type::Pt);
   calc_b.SetPtJetBins(ptjetbins);
   calc_b.SetCFJetBins(cfjetbins);
-  calc_b.GetManager().DoSpinBins();
+  calc_b.SetDoSpinBins(true);
   calc_b.SetHistTag("SecondTest");
   calc_b.Init(true);
 

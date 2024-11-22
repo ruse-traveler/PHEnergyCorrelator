@@ -13,8 +13,9 @@
 
 // c++ utilities
 #include <algorithm>
-#include <utility>
+#include <cmath>
 #include <string>
+#include <utility>
 #include <vector>
 // root libraries
 #include <TLorentzVector.h>
@@ -142,7 +143,7 @@ namespace PHEnergyCorrelator {
               // blue up, yellow down
               case 1:
                 indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 0) );
-                indices.push_back( Type::HistIndex(iptfc.pt, iptcf.cf, 3) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 3) );
                 break;
 
               // blue down, yellow up
@@ -158,7 +159,7 @@ namespace PHEnergyCorrelator {
                 break;
 
               // blue up, yellow up
-              case 3:
+              case 4:
                 indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 0) );
                 indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 2) );
                 break;
@@ -167,9 +168,9 @@ namespace PHEnergyCorrelator {
               default:
                 break;
           }
-          indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 4) );
         }
-        return index;
+        indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 4) );
+        return indices;
 
       }  // end 'GetHistIndices(Type::Jet&)'
 
@@ -230,6 +231,20 @@ namespace PHEnergyCorrelator {
       }  // end 'SetCFJetBins(std::vector<std::pair<float, float>>&)'
 
       // ----------------------------------------------------------------------
+      //! Turn on/off spin binning
+      // ----------------------------------------------------------------------
+      void SetDoSpinBins(const bool spin) {
+
+        // set spin binning for calculator
+        m_do_sp_bins = spin;
+
+        // and set corresponding flag in manager
+        m_manager.DoSpinBins(spin);
+        return;
+
+      }  // end 'SetDoSpinBins(bool)'
+
+      // ----------------------------------------------------------------------
       //! Initialize calculator
       // ----------------------------------------------------------------------
       void Init(const bool do_eec, const bool do_e3c = false, const bool do_lec = false) {
@@ -285,18 +300,35 @@ namespace PHEnergyCorrelator {
 
         // calculate RL (dist b/n cst.s for EEC), EEC, and
         // angle b/n the cst average and spin
-        const double dist   = Tools::GetCstDist(csts);
-        const double weight = cst_weights.first * cst_weights.second * evt_weight;
-        const double phi    = Tools::GetSiversAngle(/* FIXME NEEDS THOUGHT */);
+        const double dist    = Tools::GetCstDist(csts);
+        const double weight  = cst_weights.first * cst_weights.second * evt_weight;
+        const double dphiblu = remainder(cst_avg.Phi() - jet.phiblu, TMath::TwoPi());
+        const double dphiyel = remainder(cst_avg.Phi() - jet.phiyel, TMath::TwoPi());
 
         // bundle results for histogram filling
-        Type::HistContent content(weight, dist, phi);
+        Type::HistContent content_int(weight, dist);
+        Type::HistContent content_blu(weight, dist, dphiblu, jet.pattern);
+        Type::HistContent content_yel(weight, dist, dphiyel, jet.pattern);
 
         // fill histograms and exit
         if (m_do_eec_hist) {
+
+          // grab hist indices; if doing spin binning, the order
+          // of the vector will always be
+          //   [0] = blue beam index
+          //   [1] = yellow beam index
+          //   [2] = integrated
+          // otherwise vector will have 1 entry corresponding
+          // to JUST the integrated case
           std::vector<Type::HistIndex> indices = GetHistIndices(jet);
-          for (std::size_t idx = 0; idx < indices.size(); ++idx) {
-            m_manager.FillEECHists(indices[idx], content);
+
+          // fill relevant histograms
+          if (m_do_sp_bins) {
+            m_manager.FillEECHists(indices[0], content_blu);
+            m_manager.FillEECHists(indices[1], content_yel);
+            m_manager.FillEECHists(indices[2], content_int);
+          } else {
+            m_manager.FillEECHists(indices[0], content_int);
           }
         }
         return;

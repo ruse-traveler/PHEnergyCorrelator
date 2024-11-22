@@ -814,6 +814,8 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   cfJetBins.push_back( std::make_pair(0., 1.0) );
 
   // now declare calculators
+  //   - 1st argument: quantity used for weights (pt, et, or e)
+  //   - 2nd argument: power to raise weights to
   PHEC::Calculator trueEEC( PHEC::Type::Pt, 1.0 );
   PHEC::Calculator recoEEC( PHEC::Type::Pt, 1.0 );
 
@@ -829,8 +831,15 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   trueEEC.SetCFJetBins( cfJetBins );
   recoEEC.SetCFJetBins( cfJetBins );
 
+  // turn on spin sorting
+  trueEEC.SetDoSpinBins( true );
+  recoEEC.SetDoSpinBins( true );
+
   // run initialization routine to generate 
   // desired histograms
+  //   - 1st argument: turn on/off 2-point histograms 
+  //   - 2nd argument: turn on/off 3-point histograms (TODO)
+  //   - 3rd argument: turn on/off lambda EEC histograms (TODO)
   trueEEC.Init(true, false, false);
   recoEEC.Init(true, false, false);
 
@@ -1877,56 +1886,6 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 
 	}
 
-      // ----------------------------------------------------------------------
-      // EEC calculation over max pt truth jets
-      // ----------------------------------------------------------------------
-      /* N.B. cuts on jet pt and eta are baked into the requirement
-       *   that max_truth_idx >= 0. A max truth jet has to satisfy
-       *   these cuts.
-       */
-      if (doTrue && doTrueEEC && (max_truth_idx>=0)) {
-
-        // collect jet information into a handy struct
-        //   - NOTE: the spin for the bunch x-ing is
-        //     bundled w/ the jets (the last argument)
-        //   - For now, it's just a dummy value
-        PHEC::Type::Jet jet(
-          0.51,  // dummy value, not binning on cf
-          t_pT[max_truth_idx],
-          t_eta[max_truth_idx],
-          t_phi[max_truth_idx],
-          1.
-        );
-
-        // loop through pairs of constituents
-        for (std::size_t iTruthCstA = 0; iTruthCstA < tr_cs_z->at(max_truth_idx).size(); ++iTruthCstA) {
-          for (std::size_t iTruthCstB = 0; iTruthCstB < tr_cs_z->at(max_truth_idx).size(); ++iTruthCstB) {
-
-            // collect cst information into a handy struct
-            PHEC::Type::Cst cstA(
-              tr_cs_z->at(max_truth_idx).at(iTruthCstA),
-              tr_cs_jT->at(max_truth_idx).at(iTruthCstA),
-              tr_cs_eta->at(max_truth_idx).at(iTruthCstA),
-              tr_cs_phi->at(max_truth_idx).at(iTruthCstA),
-              tr_cs_charge->at(max_truth_idx).at(iTruthCstA)
-            );
-            PHEC::Type::Cst cstB(
-              tr_cs_z->at(max_truth_idx).at(iTruthCstB),
-              tr_cs_jT->at(max_truth_idx).at(iTruthCstB),
-              tr_cs_eta->at(max_truth_idx).at(iTruthCstB),
-              tr_cs_phi->at(max_truth_idx).at(iTruthCstB),
-              tr_cs_charge->at(max_truth_idx).at(iTruthCstB)
-            );
-
-            // run 2-point calculation for pair
-            trueEEC.CalcEEC( jet, std::make_pair(cstA, cstB), evWeight );
-
-          }  // end 2nd cst loop
-        }  // end 1st cst loop
-      }  // end max truth jet eec calculation
-
-      // ----------------------------------------------------------------------
-
 	// --
 
 	if(fabs(vertex)>vtxCut) continue;
@@ -1993,55 +1952,6 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 	  hCF->Fill(r_maxPt, r_cf[indexMax],evWeight); 
 	  hPhi->Fill(r_phi[indexMax],evWeight); 
 	  hNC->Fill(r_maxPt, r_nc[indexMax],evWeight); 
-
-          // ------------------------------------------------------------------
-          // EEC calculation over max pt reco jets
-          // ------------------------------------------------------------------
-          /* N.B. cuts on jet pt, eta, and CNF are baked into the requirement
-           *   that indexMax >= 0. A max reco jet has to satisfy these cuts.
-           */
-          if (doRecoEEC) {
-
-            // collect jet information into a handy struct
-            //   - NOTE: the spin for the bunch x-ing is
-            //     bundled w/ the jets (the last argument)
-            //   - For now, it's just a dummy value
-            PHEC::Type::Jet jet(
-              r_cf[indexMax],
-              r_pT[indexMax],
-              r_eta[indexMax],
-              r_phi[indexMax],
-              1.
-            );
-
-            // loop through pairs of constituents
-            for (std::size_t iRecoCstA = 0; iRecoCstA < re_cs_z->at(indexMax).size(); ++iRecoCstA) {
-              for (std::size_t iRecoCstB = 0; iRecoCstB < re_cs_z->at(indexMax).size(); ++iRecoCstB) {
-
-                // collect cst information into a handy struct
-                PHEC::Type::Cst cstA(
-                  re_cs_z->at(indexMax).at(iRecoCstA),
-                  re_cs_jT->at(indexMax).at(iRecoCstA),
-                  re_cs_eta->at(indexMax).at(iRecoCstA),
-                  re_cs_phi->at(indexMax).at(iRecoCstA),
-                  re_cs_charge->at(indexMax).at(iRecoCstA)
-                );
-                PHEC::Type::Cst cstB(
-                  re_cs_z->at(indexMax).at(iRecoCstB),
-                  re_cs_jT->at(indexMax).at(iRecoCstB),
-                  re_cs_eta->at(indexMax).at(iRecoCstB),
-                  re_cs_phi->at(indexMax).at(iRecoCstB),
-                  re_cs_charge->at(indexMax).at(iRecoCstB)
-                );
-
-                // run 2-point calculation for pair
-                recoEEC.CalcEEC( jet, std::make_pair(cstA, cstB), evWeight );
-
-              }  // end 2nd cst loop
-            }  // end 1st cst loop
-          }  // end max reco jet eec calculation
-
-          // ------------------------------------------------------------------
 
 	  // NoUE histograms are filled without trigger requirement
 	  // This increases statistics for the NoUE reference
@@ -2254,6 +2164,119 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 		  else
 		    hJetPhiYellowPolJCNeg[0][even_odd]->Fill(r_maxPt,  yellowPhiSpin); // spin up 
 		}
+
+                // ----------------------------------------------------------------------
+                // EEC calculation over max pt truth jets
+                // ----------------------------------------------------------------------
+                /* N.B. cuts on jet pt and eta are baked into the requirement
+                 *   that max_truth_idx >= 0. A max truth jet has to satisfy
+                 *   these cuts.
+                 */
+                if (doTrue && doTrueEEC && (max_truth_idx>=0)) {
+
+                  // collect jet and spin information into a handy struct
+                  PHEC::Type::Jet jet(
+                    0.51,  // dummy value, not binning on cf
+                    t_pT[max_truth_idx],
+                    t_eta[max_truth_idx],
+                    t_phi[max_truth_idx],
+                    r_spinPat,
+                    bluePhiSpin,
+                    yellowPhiSpin
+                  );
+
+                  // loop through pairs of constituents
+                  for (
+                    std::size_t iTruthCstA = 0;
+                    iTruthCstA < tr_cs_z->at(max_truth_idx).size();
+                    ++iTruthCstA
+                  ) {
+                    for (
+                      std::size_t iTruthCstB = 0;
+                      iTruthCstB < tr_cs_z->at(max_truth_idx).size();
+                      ++iTruthCstB
+                    ) {
+
+                      // collect cst information into a handy struct
+                      PHEC::Type::Cst cstA(
+                        tr_cs_z->at(max_truth_idx).at(iTruthCstA),
+                        tr_cs_jT->at(max_truth_idx).at(iTruthCstA),
+                        tr_cs_eta->at(max_truth_idx).at(iTruthCstA),
+                        tr_cs_phi->at(max_truth_idx).at(iTruthCstA),
+                        tr_cs_charge->at(max_truth_idx).at(iTruthCstA)
+                      );
+                      PHEC::Type::Cst cstB(
+                        tr_cs_z->at(max_truth_idx).at(iTruthCstB),
+                        tr_cs_jT->at(max_truth_idx).at(iTruthCstB),
+                        tr_cs_eta->at(max_truth_idx).at(iTruthCstB),
+                        tr_cs_phi->at(max_truth_idx).at(iTruthCstB),
+                        tr_cs_charge->at(max_truth_idx).at(iTruthCstB)
+                      );
+
+                      // run 2-point calculation for pair
+                      trueEEC.CalcEEC( jet, std::make_pair(cstA, cstB), evWeight );
+
+                    }  // end 2nd cst loop
+                  }  // end 1st cst loop
+                }  // end max truth jet eec calculation
+
+                // ------------------------------------------------------------------
+
+                // ------------------------------------------------------------------
+                // EEC calculation over max pt reco jets
+                // ------------------------------------------------------------------
+                /* N.B. cuts on jet pt, eta, and CNF are baked into the requirement
+                 *   that indexMax >= 0. A max reco jet has to satisfy these cuts.
+                 */
+                if (doRecoEEC) {
+
+                  // collect jet and spin information into a handy struct
+                  PHEC::Type::Jet jet(
+                    r_cf[indexMax],
+                    r_pT[indexMax],
+                    r_eta[indexMax],
+                    r_phi[indexMax],
+                    r_spinPat,
+                    bluePhiSpin,
+                    yellowPhiSpin
+                  );
+
+                  // loop through pairs of constituents
+                  for (
+                    std::size_t iRecoCstA = 0;
+                    iRecoCstA < re_cs_z->at(indexMax).size();
+                    ++iRecoCstA
+                  ) {
+                    for (
+                      std::size_t iRecoCstB = 0;
+                      iRecoCstB < re_cs_z->at(indexMax).size();
+                      ++iRecoCstB
+                    ) {
+
+                      // collect cst information into a handy struct
+                      PHEC::Type::Cst cstA(
+                        re_cs_z->at(indexMax).at(iRecoCstA),
+                        re_cs_jT->at(indexMax).at(iRecoCstA),
+                        re_cs_eta->at(indexMax).at(iRecoCstA),
+                        re_cs_phi->at(indexMax).at(iRecoCstA),
+                        re_cs_charge->at(indexMax).at(iRecoCstA)
+                      );
+                      PHEC::Type::Cst cstB(
+                        re_cs_z->at(indexMax).at(iRecoCstB),
+                        re_cs_jT->at(indexMax).at(iRecoCstB),
+                        re_cs_eta->at(indexMax).at(iRecoCstB),
+                        re_cs_phi->at(indexMax).at(iRecoCstB),
+                        re_cs_charge->at(indexMax).at(iRecoCstB)
+                      );
+
+                      // run 2-point calculation for pair
+                      recoEEC.CalcEEC( jet, std::make_pair(cstA, cstB), evWeight );
+
+                    }  // end 2nd cst loop
+                  }  // end 1st cst loop
+                }  // end max reco jet eec calculation
+
+                // ------------------------------------------------------------------
 
 		for(unsigned int i=0; i<re_cs_z->at(indexMax).size(); i++){
 		  if(re_cs_charge->at(indexMax).at(i)==0.0) continue;   

@@ -83,9 +83,9 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       //! Translate spin index into a tag
       // ----------------------------------------------------------------------
-      std::string GetSpinTag(const std::size_t isp) {
+      std::string GetSpinTag(const std::size_t isp) const {
 
-        std::String tag = "";
+        std::string tag = "";
         switch (isp) {
           case 0:
             tag = "BlueUp";
@@ -226,6 +226,7 @@ namespace PHEnergyCorrelator {
         def_1d.push_back(Histogram("EECWidth", "", "R_{L}", m_bins.Get("side")));
         def_1d.push_back(Histogram("LogEECStat", "", "log R_{L}", m_bins.Get("logside")));
         def_1d.push_back(Histogram("LogEECWidth", "", "log R_{L}", m_bins.Get("logside")));
+        def_1d.push_back(Histogram("SpinPattern", "", "pattern", m_bins.Get("pattern")));
         def_1d.push_back(Histogram("SpinPhiStat", "", "#varphi", m_bins.Get("angle")));
 
         // vectors of binnings for 2d histograms
@@ -333,9 +334,9 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       //! Bin on spin
       // ----------------------------------------------------------------------
-      void DoSpinBins() {
+      void DoSpinBins(const bool spin) {
 
-        m_do_sp_bins = true;
+        m_do_sp_bins = spin;
         return;
 
       }  // end 'DoSpinBins()'
@@ -374,6 +375,7 @@ namespace PHEnergyCorrelator {
         m_hist_1d[MakeHistName("EECWidth", tag)] -> Fill(content.rl, content.weight);
         m_hist_1d[MakeHistName("LogEECStat", tag)] -> Fill(Tools::Log(content.rl), content.weight);
         m_hist_1d[MakeHistName("LogEECWidth", tag)] -> Fill(Tools::Log(content.rl), content.weight);
+        m_hist_1d[MakeHistName("SpinPattern", tag)] -> Fill(content.pattern);
         m_hist_1d[MakeHistName("SpinPhiStat", tag)] -> Fill(content.phi);
 
         // fill 2d histograms

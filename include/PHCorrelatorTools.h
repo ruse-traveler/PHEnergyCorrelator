@@ -71,16 +71,6 @@ namespace PHEnergyCorrelator {
 
 
     // ------------------------------------------------------------------------
-    //! Get sivers angle
-    // ------------------------------------------------------------------------
-    double GetSiversAngle(const TVector3& had_vec, const TVector3& spin_vec) {
-
-      return remainder(had_vec.Phi() - spin_vec.Phi(), TMath::TwoPi());
-
-    }  // end 'GetSiversAngle(TVector3& x 2)'
-
-
-    // ------------------------------------------------------------------------
     //! Get variance from a standard error + counts
     // ------------------------------------------------------------------------
     double GetVariance(const double err, const double counts) {
