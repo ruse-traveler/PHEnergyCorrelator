@@ -479,9 +479,9 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
   TH2D *hOang = new TH2D("hOang", "oang vs. reco p_{T}", NPTBINS, PTBINS, NOANGBINS, OANGBINS);
   hOang->Sumw2(); 
 
-  TH2D *hZgSpinPat[2][4];
+  TH2D *hZgSpinPat[2][6];
   for(unsigned int j = 0; j < 2; j++){
-    for(unsigned int i = 0; i < 4; i++){
+    for(unsigned int i = 0; i < 6; i++){
       hZgSpinPat[j][i] = new TH2D(Form("hZgSpinPat_%i_%i", j, i), Form("hZgSpinPat_%i_%i", j, i), NPTBINS, PTBINS, NZGBINS, ZGBINS);
       hZgSpinPat[j][i]->Sumw2(); 
     }
@@ -499,9 +499,9 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
   TH2D *hFFZ = new TH2D("hFFZ", "z vs. reco p_{T}", NPTBINS, PTBINS, NFFZBINS, FFZBINS);
   hFFZ->Sumw2(); 
 
-  TH2D *hFFZSpinPat[2][4];
+  TH2D *hFFZSpinPat[2][6];
   for(unsigned int j = 0; j < 2; j++){
-    for(unsigned int i = 0; i < 4; i++){
+    for(unsigned int i = 0; i < 6; i++){
       hFFZSpinPat[j][i] = new TH2D(Form("hFFZSpinPat_%i_%i", j, i), Form("hFFZSpinPat_%i_%i", j, i), NPTBINS, PTBINS, NFFZBINS, FFZBINS);
       hFFZSpinPat[j][i]->Sumw2(); 
     }
@@ -519,9 +519,9 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
   TH2D *hFFXI = new TH2D("hFFXI", "z vs. reco p_{T}", NPTBINS, PTBINS, NFFXIBINS, FFXIBINS);
   hFFXI->Sumw2(); 
 
-  TH2D *hFFXISpinPat[2][4];
+  TH2D *hFFXISpinPat[2][6];
   for(unsigned int j = 0; j < 2; j++){
-    for(unsigned int i = 0; i < 4; i++){
+    for(unsigned int i = 0; i < 6; i++){
       hFFXISpinPat[j][i] = new TH2D(Form("hFFXISpinPat_%i_%i", j, i), Form("hFFXISpinPat_%i_%i", j, i), NPTBINS, PTBINS, NFFXIBINS, FFXIBINS);
       hFFXISpinPat[j][i]->Sumw2(); 
     }
@@ -541,9 +541,9 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
   TH2D *hFFJT = new TH2D("hFFJT", "jT/pT vs. reco p_{T}", NPTBINS, PTBINS, NFFJTBINS, FFJTBINS);
   hFFJT->Sumw2(); 
 
-  TH2D *hFFJTSpinPat[2][4];
+  TH2D *hFFJTSpinPat[2][6];
   for(unsigned int j = 0; j < 2; j++){
-    for(unsigned int i = 0; i < 4; i++){
+    for(unsigned int i = 0; i < 6; i++){
       hFFJTSpinPat[j][i] = new TH2D(Form("hFFJTSpinPat_%i_%i", j, i), Form("hFFJTSpinPat_%i_%i", j, i), NPTBINS, PTBINS, NFFJTBINS, FFJTBINS);
       hFFJTSpinPat[j][i]->Sumw2(); 
     }
@@ -561,9 +561,9 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
   TH2D *hFFdR = new TH2D("hFFdR", "dR vs. reco p_{T}", NPTBINS, PTBINS, NFFDRBINS, FFDRBINS);
   hFFdR->Sumw2(); 
 
-  TH2D *hFFdRSpinPat[2][4];
+  TH2D *hFFdRSpinPat[2][6];
   for(unsigned int j = 0; j < 2; j++){
-    for(unsigned int i = 0; i < 4; i++){
+    for(unsigned int i = 0; i < 6; i++){
       hFFdRSpinPat[j][i] = new TH2D(Form("hFFdRSpinPat_%i_%i", j, i), Form("hFFdRSpinPat_%i_%i", j, i), NPTBINS, PTBINS, NFFDRBINS, FFDRBINS);
       hFFdRSpinPat[j][i]->Sumw2(); 
     }
@@ -956,36 +956,13 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 	// 0 = even, 1 = odd
 	int even_odd = r_ip12_clock_cross%2;
 
-	// DEBUG - Randomize spin pattern
-	//r_spinPat = (int)rand.Uniform(0.0,4.0); 
-
-	// DEBUG - swap spin pattern
-	/*
-	if((r_spinPat==0)||(r_spinPat==3)){
-
-	  if(r_spinPat==0) 
-	    r_spinPat = 1; 
-	  else
-	    r_spinPat = 2; 
-
-	}
-	else{
-
-	  if(r_spinPat==1) 
-	    r_spinPat = 0; 
-	  else
-	    r_spinPat = 3; 
-
-	}
-	*/
-
-	if(r_spinPat < 4){
+	if(r_spinPat < 6){ // both blue and yellow polarized
 	  hRecoSpinPat[even_odd][r_spinPat]->Fill(r_maxPt,weight);
 	  if((r_spinPat==0)||(r_spinPat==3)){ //ss
 	    hRecoSpinPatP[even_odd][r_spinPat]->Fill(r_maxPt,weight*Pblue*Pyellow);
 	    hRecoSpinPatP2[even_odd][r_spinPat]->Fill(r_maxPt,weight*Pblue*Pblue*Pyellow*Pyellow);
 	  }
-	  else{ //os
+	  else if((r_spinPat==1)||(r_spinPat==2)){ //os
 	    hRecoSpinPatP[even_odd][r_spinPat]->Fill(r_maxPt,weight*Pblue*Pyellow*RweightEO[even_odd]);
 	    hRecoSpinPatP2[even_odd][r_spinPat]->Fill(r_maxPt,weight*Pblue*Pblue*Pyellow*Pyellow*RweightEO[even_odd]);
 	  }
@@ -1010,18 +987,29 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 	    }
 	  }
 
-	  if(((RUNNUM==12)||(RUNNUM==15))&&(isHI==0)){
+	  if((RUNNUM==12)||(RUNNUM==15)){
 
 	    // Collins histograms
 	    // define unit vectors for angles
 
-	    TVector3 blue_beam(0.0,0.0,1.0); 
-	    TVector3 yellow_beam(0.0,0.0,-1.0); 
+	    TVector3 blue_beam(0.0,0.0,0.0); 
+	    TVector3 yellow_beam(0.0,0.0,0.0); 
 
 	    TVector3 blue_spin(0.0,1.0,0.0);
-	    if((r_spinPat==2)||(r_spinPat==3)) blue_spin.SetY(-1.0); 
+	    if((r_spinPat==1)||(r_spinPat==3)) 
+	      blue_spin.SetY(-1.0); 
+	    else if((r_spinPat==0)||(r_spinPat==2)) 
+	      blue_spin.SetY(1.0);
+	    else if(r_spinPat==4)
+	      blue_spin.SetY(1.0);
+	    else if(r_spinPat==5)
+	      blue_spin.SetY(-1.0);
+
 	    TVector3 yellow_spin(0.0,1.0,0.0);
-	    if((r_spinPat==1)||(r_spinPat==3)) yellow_spin.SetY(-1.0); 
+	    if((r_spinPat==0)||(r_spinPat==1)) 
+	      yellow_spin.SetY(1.0); 
+	    else if((r_spinPat==2)||(r_spinPat==3)) 
+	      yellow_spin.SetY(-1.0); 
 
 	    double theta = 2.0*atan(exp(-r_eta[indexMax]));
 	    double pz = r_maxPt/tan(theta); 
@@ -1043,14 +1031,14 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 	    double bluePhiSpin = TMath::PiOver2() - acos(jet_blue_beam_perp.Dot(blue_spin)); 
 	    double yellowPhiSpin = TMath::PiOver2() - acos(jet_yellow_beam_perp.Dot(yellow_spin)); 
 
-	    if((r_spinPat==2)||(r_spinPat==3)){
+	    if((r_spinPat==1)||(r_spinPat==3)||(r_spinPat==5)){
 	      hJetPhiBluePol[1][even_odd]->Fill(r_maxPt,  bluePhiSpin, weight); // spin down 
 	      if(jetCharge>0.0)
 		hJetPhiBluePolJCPos[1][even_odd]->Fill(r_maxPt,  bluePhiSpin, weight); // spin down 
 	      else
 		hJetPhiBluePolJCNeg[1][even_odd]->Fill(r_maxPt,  bluePhiSpin, weight); // spin down 
 	    }
-	    else{
+	    else if((r_spinPat==0)||(r_spinPat==2)||(r_spinPat==4)){
 	      hJetPhiBluePol[0][even_odd]->Fill(r_maxPt,  bluePhiSpin, weight); // spin up 
 	      if(jetCharge>0.0)
 	        hJetPhiBluePolJCPos[0][even_odd]->Fill(r_maxPt,  bluePhiSpin, weight); // spin up 
@@ -1058,14 +1046,14 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 	        hJetPhiBluePolJCNeg[0][even_odd]->Fill(r_maxPt,  bluePhiSpin, weight); // spin up 
 	    }
 	
-	    if((r_spinPat==1)||(r_spinPat==3)){
+	    if((r_spinPat==2)||(r_spinPat==3)){
 	      hJetPhiYellowPol[1][even_odd]->Fill(r_maxPt,  yellowPhiSpin, weight); // spin down
 	      if(jetCharge>0.0)
 		hJetPhiYellowPolJCPos[1][even_odd]->Fill(r_maxPt,  yellowPhiSpin, weight); // spin down
 	      else
 	        hJetPhiYellowPolJCNeg[1][even_odd]->Fill(r_maxPt,  yellowPhiSpin, weight); // spin down
 	    }
-	    else{
+	    else if((r_spinPat==0)||(r_spinPat==1)){
 	      hJetPhiYellowPol[0][even_odd]->Fill(r_maxPt,  yellowPhiSpin, weight); // spin up 
 	      if(jetCharge>0.0)
 	        hJetPhiYellowPolJCPos[0][even_odd]->Fill(r_maxPt,  yellowPhiSpin, weight); // spin up 
@@ -1204,20 +1192,20 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 
 		if(re_cs_charge->at(indexMax).at(i)>0.0){
 
-		  if((r_spinPat==2)||(r_spinPat==3)){
+		  if((r_spinPat==1)||(r_spinPat==3)){
 		    hFFPhiBluePolPos[1][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), blue_dPhiSpin, weight); // spin down
 		    hFFTwoPhiBluePolPos[1][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), blue_d2PhiSpin, weight); // spin down
 		  }
-		  else{
+		  else if((r_spinPat==0)||(r_spinPat==2)){
 		    hFFPhiBluePolPos[0][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), blue_dPhiSpin, weight); // spin up
 		    hFFTwoPhiBluePolPos[0][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), blue_d2PhiSpin, weight); // spin up
 		  }
 		
-		  if((r_spinPat==1)||(r_spinPat==3)){
+		  if((r_spinPat==2)||(r_spinPat==3)){
 		    hFFPhiYellowPolPos[1][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), yellow_dPhiSpin, weight); // spin down 
 		    hFFTwoPhiYellowPolPos[1][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), yellow_d2PhiSpin, weight); // spin down 
 		  }
-		  else{ 
+		  else if((r_spinPat==0)||(r_spinPat==1)){ 
 		    hFFPhiYellowPolPos[0][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), yellow_dPhiSpin, weight); // spin up
 		    hFFTwoPhiYellowPolPos[0][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), yellow_d2PhiSpin, weight); // spin up
 		  }
@@ -1225,25 +1213,25 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 		}
 		else if(re_cs_charge->at(indexMax).at(i)<0.0){
 
-		  if((r_spinPat==2)||(r_spinPat==3)){
+		  if((r_spinPat==1)||(r_spinPat==3)){
 		    hFFPhiBluePolNeg[1][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), blue_dPhiSpin, weight); // spin down
 		    hFFTwoPhiBluePolNeg[1][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), blue_d2PhiSpin, weight); // spin down
 		  }
-		  else{
+		  else if((r_spinPat==0)||(r_spinPat==2)){
 		    hFFPhiBluePolNeg[0][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), blue_dPhiSpin, weight); // spin up
 		    hFFTwoPhiBluePolNeg[0][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), blue_d2PhiSpin, weight); // spin up
 		  }
 
-		  if((r_spinPat==1)||(r_spinPat==3)){
+		  if((r_spinPat==2)||(r_spinPat==3)){
 		    hFFPhiYellowPolNeg[1][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), yellow_dPhiSpin, weight); // spin down
 		    hFFTwoPhiYellowPolNeg[1][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), yellow_d2PhiSpin, weight); // spin down
 		  }
-		  else{
+		  else if((r_spinPat==0)||(r_spinPat==1)){
 		    hFFPhiYellowPolNeg[0][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), yellow_dPhiSpin, weight); // spin up
 		    hFFTwoPhiYellowPolNeg[0][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), yellow_d2PhiSpin, weight); // spin up
 		  }
 
-		}
+		 }
 
 	      }
 
