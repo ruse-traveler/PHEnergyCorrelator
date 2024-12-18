@@ -61,7 +61,7 @@ void PHEnergyCorrelatorTest() {
   PHEC::Calculator calc_a(PHEC::Type::Pt);
   calc_a.SetPtJetBins(ptjetbins);
   calc_a.SetCFJetBins(cfjetbins);
-  calc_a.SetHistTag("FirstTest");
+  calc_a.SetHistTag("FirstCalculation");
 
   // check no. of bins
   std::cout << "      --- N pt bins = " << calc_a.GetManager().GetNPtJetBins() << "\n"
@@ -75,12 +75,12 @@ void PHEnergyCorrelatorTest() {
             << std::endl;
 
   // --------------------------------------------------------------------------
-  // Test calculator
+  // Prepare dummy jet/cst values
   // --------------------------------------------------------------------------
   /*! N.B. the jet/cst values are random: they're here just to
    *  provide a unit test and make sure everything works.
    */
-  std::cout << "    Case [2]: test calculator." << std::endl;
+  std::cout << "    Preparing dummy jet/cst values for tests" << std::endl;
 
   // pi/4, pi/3, 5pi/4, 4pi/3
   const double piDiv4  = TMath::PiOver4();
@@ -88,22 +88,47 @@ void PHEnergyCorrelatorTest() {
   const double pi5Div4 = 5. * TMath::PiOver4();
   const double pi4Div3 = 4. * piDiv3;
 
-  // jet values
+  // jet values (enough to cover all spin patterns)
   std::vector<PHEC::Type::Jet> jets;
+  jets.push_back(
+    PHEC::Type::Jet(2.0, 9.0, 0.75, piDiv3, piDiv4, pi5Div4, 0)
+  );
   jets.push_back(
     PHEC::Type::Jet(0.25, 8.0, 0.2, piDiv4, piDiv3, pi5Div4, 1)
   );
   jets.push_back(
     PHEC::Type::Jet(0.75, 13., -0.2, pi5Div4, piDiv3, pi5Div4, 2)
   );
+  jets.push_back(
+    PHEC::Type::Jet(1.50, 5.0, 0.1, piDiv3, piDiv4, pi5Div4, 3)
+  );
+  jets.push_back(
+    PHEC::Type::Jet(1.0, 7.0, -0.05, pi4Div3, piDiv4, pi5Div4, 4)
+  );
+  jets.push_back(
+    PHEC::Type::Jet(0.50, 3.0, -0.75, pi4Div3, piDiv4, pi5Div4, 5)
+  );
+  jets.push_back(
+    PHEC::Type::Jet(1.0, 4.0, -0.05, pi4Div3, piDiv4, pi5Div4, 6)
+  );
 
-  // cst values
+  // cst values (enough to make sure calculations run)
   std::vector< std::vector< PHEC::Type::Cst > > csts( jets.size() );
-  csts[0].push_back( PHEC::Type::Cst(0.25, 1.0, 0.25, piDiv4 + 0.02, 1.)   );
-  csts[0].push_back( PHEC::Type::Cst(0.10, 0.3, 0.18, piDiv4 - 0.02, -1.)  );
-  csts[1].push_back( PHEC::Type::Cst(0.57, 2.1, -0.16, pi5Div4 + 0.1, 1.)  );
-  csts[1].push_back( PHEC::Type::Cst(0.20, 0.9, -0.21, pi5Div4 - 0.1, -1.) );
-  csts[1].push_back( PHEC::Type::Cst(0.09, 0.1, -0.19, pi5Div4, 1.)        );
+  for (std::size_t ijet = 0; ijet < jets.size(); ++ijet) {
+    if ((ijet % 2) == 0) {
+      csts[ijet].push_back( PHEC::Type::Cst(0.25, 1.0, 0.25, piDiv4 + 0.02, 1.)   );
+      csts[ijet].push_back( PHEC::Type::Cst(0.10, 0.3, 0.18, piDiv4 - 0.02, -1.)  );
+    } else {
+      csts[ijet].push_back( PHEC::Type::Cst(0.57, 2.1, -0.16, pi5Div4 + 0.1, 1.)  );
+      csts[ijet].push_back( PHEC::Type::Cst(0.20, 0.9, -0.21, pi5Div4 - 0.1, -1.) );
+      csts[ijet].push_back( PHEC::Type::Cst(0.09, 0.1, -0.19, pi5Div4, 1.)        );
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // Test calculator
+  // --------------------------------------------------------------------------
+  std::cout << "    Case [2]: test calculator" << std::endl;
 
   // run calculations
   for (std::size_t ijet = 0; ijet < jets.size(); ++ijet) {
@@ -126,8 +151,7 @@ void PHEnergyCorrelatorTest() {
   PHEC::Calculator calc_b(PHEC::Type::Pt);
   calc_b.SetPtJetBins(ptjetbins);
   calc_b.SetCFJetBins(cfjetbins);
-  calc_b.SetDoSpinBins(true);
-  calc_b.SetHistTag("SecondTest");
+  calc_b.SetHistTag("SecondCalculation");
   calc_b.Init(true);
 
   // run calculations
@@ -145,9 +169,37 @@ void PHEnergyCorrelatorTest() {
   }
 
   // --------------------------------------------------------------------------
+  // Test spin sorting
+  // --------------------------------------------------------------------------
+  std::cout << "    Case [4]: test spin sorting" << std::endl;
+
+  // instantiate calculator
+  PHEC::Calculator calc_c(PHEC::Type::Pt);
+  calc_c.SetPtJetBins(ptjetbins);
+  calc_c.SetCFJetBins(cfjetbins);
+  calc_c.SetDoSpinBins(true);
+  calc_c.SetHistTag("ThirdCalculation");
+  calc_c.Init(true);
+
+  // run calculations
+  for (std::size_t ijet = 0; ijet < jets.size(); ++ijet) {
+    for (std::size_t icst_a = 0; icst_a < csts[ijet].size(); ++icst_a) {
+      for (std::size_t icst_b = 0; icst_b < csts[ijet].size(); ++icst_b) {
+
+        // do calculation
+        calc_c.CalcEEC(
+          jets[ijet],
+          std::make_pair(csts[ijet][icst_a], csts[ijet][icst_b])
+        );
+      }
+    }
+    std::cout << "      --- ran calculation for spin pattern " << jets[ijet].pattern << std::endl;
+  }
+
+  // --------------------------------------------------------------------------
   // Save histograms
   // --------------------------------------------------------------------------
-  std::cout << "    Case [4]: test saving histograms" << std::endl;
+  std::cout << "    Case [5]: test saving histograms" << std::endl;
 
   // create output file
   TFile* output = new TFile("test.root", "recreate");
@@ -155,6 +207,7 @@ void PHEnergyCorrelatorTest() {
   // save histograms to output
   calc_a.End(output);
   calc_b.End(output);
+  calc_c.End(output);
 
   // --------------------------------------------------------------------------
   // Tests complete
@@ -163,7 +216,7 @@ void PHEnergyCorrelatorTest() {
   // close output file
   output -> cd();
   output -> Close();
-  std::cout << "    Output file closed." << std::endl;
+  std::cout << "    Output file closed" << std::endl;
 
   // announce end & exit
   std::cout << "  PHEnergyCorrelator test complete!\n" << std::endl;

@@ -26,6 +26,8 @@
 #include "PHCorrelatorTypes.h"
 #include "PHCorrelatorTools.h"
 
+// TEST
+#include <iostream>
 
 
 namespace PHEnergyCorrelator {
@@ -40,15 +42,6 @@ namespace PHEnergyCorrelator {
       // data members (calc options)
       double       m_weight_power;
       Type::Weight m_weight_type;
-
-      // data members (hist options)
-      bool        m_do_eec_hist;
-      bool        m_do_e3c_hist;
-      bool        m_do_lec_hist;
-      bool        m_do_pt_bins;
-      bool        m_do_cf_bins;
-      bool        m_do_sp_bins;
-      std::string m_hist_tag;
 
       // data members (bins)
       std::vector< std::pair<float, float> > m_ptjet_bins;
@@ -102,6 +95,10 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       //! Get hist index/indices
       // ----------------------------------------------------------------------
+      /*! N.B. when doing spin binning, if an unexpected spin pattern is
+       *  provided then only ONE index will be returned, the spin integrated
+       *  index.
+       */
       std::vector<Type::HistIndex> GetHistIndices(const Type::Jet& jet) {
 
         // for pt and cf, index will correspond to what bin
@@ -109,7 +106,7 @@ namespace PHEnergyCorrelator {
         Type::HistIndex iptcf(0, 0, 0);
 
         // determine pt bin
-        if (m_do_pt_bins) {
+        if (m_manager.GetDoPtJetBins()) {
           for (std::size_t ipt = 0; ipt < m_ptjet_bins.size(); ++ipt) {
             if ((jet.pt >= m_ptjet_bins[ipt].first) && (jet.pt < m_ptjet_bins[ipt].second)) {
               iptcf.pt = ipt;
@@ -118,7 +115,7 @@ namespace PHEnergyCorrelator {
         }
 
         // determine cf bin
-        if (m_do_cf_bins) {
+        if (m_manager.GetDoCFJetBins()) {
           for (std::size_t icf = 0; icf < m_cfjet_bins.size(); ++icf) {
             if ((jet.cf >= m_cfjet_bins[icf].first) && (jet.cf < m_cfjet_bins[icf].second)) {
               iptcf.cf = icf;
@@ -137,7 +134,7 @@ namespace PHEnergyCorrelator {
         std::vector<Type::HistIndex> indices;
 
         // determine spin bins
-        if (m_do_sp_bins) {
+        if (m_manager.GetDoSpinBins()) {
             switch (jet.pattern) {
 
               // blue up, yellow down
@@ -190,17 +187,14 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       //! Setters
       // ----------------------------------------------------------------------
-      void SetHistTag(const std::string& tag)       {m_hist_tag     = tag;}
       void SetWeightPower(const double power)       {m_weight_power = power;}
       void SetWeightType(const Type::Weight weight) {m_weight_type  = weight;}
+      void SetHistTag(const std::string& tag)       {m_manager.SetHistTag(tag);}
 
       // ----------------------------------------------------------------------
       //! Set jet pt bins
       // ----------------------------------------------------------------------
       void SetPtJetBins(const std::vector< std::pair<float, float> >& bins) {
-
-        // turn on pt binning
-        m_do_pt_bins = true;
 
         // copy bins to member
         m_ptjet_bins.resize( bins.size() );
@@ -217,9 +211,6 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       void SetCFJetBins(const std::vector< std::pair<float, float> >& bins) {
 
-        // turn on cf binning
-        m_do_cf_bins = true;
-
         // copy bins to member
         m_cfjet_bins.resize( bins.size() );
         std::copy(bins.begin(), bins.end(), m_cfjet_bins.begin());
@@ -235,9 +226,6 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       void SetDoSpinBins(const bool spin) {
 
-        // set spin binning for calculator
-        m_do_sp_bins = spin;
-
         // and set corresponding flag in manager
         m_manager.DoSpinBins(spin);
         return;
@@ -249,16 +237,12 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       void Init(const bool do_eec, const bool do_e3c = false, const bool do_lec = false) {
 
-        // turn on/off relevent hists
-        m_do_eec_hist = do_eec;
-        m_do_e3c_hist = do_e3c;
-        m_do_lec_hist = do_lec;
+        // turn on/off relevant histograms
+        m_manager.SetDoEECHists(do_eec);
+        m_manager.SetDoE3CHists(do_e3c);
+        m_manager.SetDoLECHists(do_lec);
 
-        // generate histograms
-        m_manager.DoEECHists(m_do_eec_hist);
-        m_manager.DoE3CHists(m_do_e3c_hist);
-        m_manager.DoLECHists(m_do_lec_hist);
-        m_manager.SetHistTag(m_hist_tag);
+        // then generate necessary histograms
         m_manager.GenerateHists();
         return;
 
@@ -311,7 +295,7 @@ namespace PHEnergyCorrelator {
         Type::HistContent content_yel(weight, dist, dphiyel, jet.pattern);
 
         // fill histograms and exit
-        if (m_do_eec_hist) {
+        if (m_manager.GetDoEECHists()) {
 
           // grab hist indices; if doing spin binning, the order
           // of the vector will always be
@@ -323,7 +307,7 @@ namespace PHEnergyCorrelator {
           std::vector<Type::HistIndex> indices = GetHistIndices(jet);
 
           // fill relevant histograms
-          if (m_do_sp_bins) {
+          if (m_manager.GetDoSpinBins() && (indices.size() > 1)) {
             m_manager.FillEECHists(indices[0], content_blu);
             m_manager.FillEECHists(indices[1], content_yel);
             m_manager.FillEECHists(indices[2], content_int);
@@ -353,12 +337,6 @@ namespace PHEnergyCorrelator {
 
         m_weight_power = 1.0;
         m_weight_type  = Type::Pt;
-        m_do_eec_hist  = false;
-        m_do_e3c_hist  = false;
-        m_do_lec_hist  = false;
-        m_do_pt_bins   = false;
-        m_do_cf_bins   = false;
-        m_do_sp_bins   = false;
 
       }  // end default ctor
 
@@ -374,12 +352,6 @@ namespace PHEnergyCorrelator {
 
         m_weight_power = power;
         m_weight_type  = weight;
-        m_do_eec_hist  = false;
-        m_do_e3c_hist  = false;
-        m_do_lec_hist  = false;
-        m_do_pt_bins   = false;
-        m_do_cf_bins   = false;
-        m_do_sp_bins   = false;
 
       }  // end ctor(Type::Weight, double)
 

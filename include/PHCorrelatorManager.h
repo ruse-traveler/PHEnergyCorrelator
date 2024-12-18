@@ -287,27 +287,29 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       //! Getters
       // ----------------------------------------------------------------------
-      std::string GetHistTag()    const {return m_hist_tag;}
-      std::size_t GetNPtJetBins() const {return m_nbins_pt;}
-      std::size_t GetNCFJetBins() const {return m_nbins_cf;}
-      std::size_t GetNSpinBins()  const {return m_nbins_sp;}
-      std::size_t GetNIndexTags() const {return m_index_tags.size();}
-      std::size_t GetNHist1D()    const {return m_hist_1d.size();}
-      std::size_t GetNHist2D()    const {return m_hist_2d.size();}
-      std::size_t GetNHist3D()    const {return m_hist_3d.size();}
-      std::size_t GetNHists()     const {return GetNHist1D() + GetNHist2D() + GetNHist3D();}
+      std::string GetHistTag()     const {return m_hist_tag;}
+      std::size_t GetNPtJetBins()  const {return m_nbins_pt;}
+      std::size_t GetNCFJetBins()  const {return m_nbins_cf;}
+      std::size_t GetNSpinBins()   const {return m_nbins_sp;}
+      std::size_t GetNIndexTags()  const {return m_index_tags.size();}
+      std::size_t GetNHist1D()     const {return m_hist_1d.size();}
+      std::size_t GetNHist2D()     const {return m_hist_2d.size();}
+      std::size_t GetNHist3D()     const {return m_hist_3d.size();}
+      std::size_t GetNHists()      const {return GetNHist1D() + GetNHist2D() + GetNHist3D();}
+      bool        GetDoPtJetBins() const {return m_do_pt_bins;}
+      bool        GetDoCFJetBins() const {return m_do_cf_bins;}
+      bool        GetDoSpinBins()  const {return m_do_sp_bins;}
+      bool        GetDoEECHists()  const {return m_do_eec_hist;}
+      bool        GetDoE3CHists()  const {return m_do_e3c_hist;}
+      bool        GetDoLECHists()  const {return m_do_lec_hist;}
 
       // ----------------------------------------------------------------------
-      //! Set hist tag
+      //! Setters
       // ----------------------------------------------------------------------
-      void SetHistTag(const std::string& tag) {m_hist_tag = tag;}
-
-      // ----------------------------------------------------------------------
-      //! Set histogram options
-      // ----------------------------------------------------------------------
-      void DoEECHists(const bool dohists) {m_do_eec_hist = dohists;}
-      void DoE3CHists(const bool dohists) {m_do_e3c_hist = dohists;}
-      void DoLECHists(const bool dohists) {m_do_lec_hist = dohists;}
+      void SetHistTag(const std::string& tag) {m_hist_tag    = tag;}
+      void SetDoEECHists(const bool dohists)  {m_do_eec_hist = dohists;}
+      void SetDoE3CHists(const bool dohists)  {m_do_e3c_hist = dohists;}
+      void SetDoLECHists(const bool dohists)  {m_do_lec_hist = dohists;}
 
       // ----------------------------------------------------------------------
       //! Bin on jet pt
