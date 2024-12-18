@@ -26,6 +26,8 @@
 #include "PHCorrelatorTypes.h"
 #include "PHCorrelatorTools.h"
 
+// TEST
+#include <iostream>
 
 
 namespace PHEnergyCorrelator {
@@ -102,6 +104,10 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       //! Get hist index/indices
       // ----------------------------------------------------------------------
+      /*! N.B. when doing spin binning, if an unexpected spin pattern is
+       *  provided then only ONE index will be returned, the spin integrated
+       *  index.
+       */
       std::vector<Type::HistIndex> GetHistIndices(const Type::Jet& jet) {
 
         // for pt and cf, index will correspond to what bin
@@ -277,6 +283,7 @@ namespace PHEnergyCorrelator {
         const double evt_weight = 1.0
       ) {
 
+
         // get jet 4-momenta
         TLorentzVector jet_vec = Tools::GetJetLorentz(jet);
 
@@ -323,7 +330,7 @@ namespace PHEnergyCorrelator {
           std::vector<Type::HistIndex> indices = GetHistIndices(jet);
 
           // fill relevant histograms
-          if (m_do_sp_bins) {
+          if (m_do_sp_bins && (indices.size() > 1)) {
             m_manager.FillEECHists(indices[0], content_blu);
             m_manager.FillEECHists(indices[1], content_yel);
             m_manager.FillEECHists(indices[2], content_int);
