@@ -261,7 +261,6 @@ namespace PHEnergyCorrelator {
         const double evt_weight = 1.0
       ) {
 
-
         // get jet 4-momenta
         TLorentzVector jet_vec = Tools::GetJetLorentz(jet);
 
