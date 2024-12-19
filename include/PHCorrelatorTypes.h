@@ -140,17 +140,23 @@ namespace PHEnergyCorrelator {
     // ------------------------------------------------------------------------
     //! Histogram content
     // ------------------------------------------------------------------------
+    /*! FIXME need to add multiple angles wrt spin
+     *    - angle b/n spin and hadron-hadron plane
+     *    - angle b/n spin and combined hadron-hadron + jet plane
+     *      (i.e. the Collins angle)
+     */
     struct HistContent {
 
       // data members
-      double weight;
-      double rl;
-      double rm;
-      double rs;
-      double xi;
-      double theta;
-      double phi;
-      int    pattern;
+      double weight;   //!< energy weight
+      double rl;       //!< longest side length
+      double rm;       //!< medium side length (for E3C)
+      double rs;       //!< shortest side length (for E3C and greater)
+      double xi;       //!< \f$ R_{s} / R_{m} \f$ (for E3C)
+      double theta;    //!< \f$ asin \sqrt(1-\frac{(R_{l}-R_{m})^{2}}{R_{s}^{2}}) \f$ (for E3C)
+      double phib;     //!< angle wrt blue spin
+      double phiy;     //!< angle wrt yellow spin
+      int    pattern;  //!< spin pattern
 
       //! default ctor/dtor
       HistContent()  {};
@@ -160,12 +166,14 @@ namespace PHEnergyCorrelator {
       HistContent(
         const double w,
         const double l,
-        const double f = 0.,
+        const double b = 0.,
+        const double y = 0.,
         const int    p = 0
       ) {
         weight  = w;
         rl      = l;
-        phi     = f;
+        phib    = b;
+        phiy    = y;
         pattern = p;
       }  // end ctor(double x 3, int)
 
@@ -194,7 +202,8 @@ namespace PHEnergyCorrelator {
         const double s,
         const double x,
         const double t,
-        const double f = 0.,
+        const double b = 0.,
+        const double y = 0.,
         const int    p = 0
       ) {
         weight  = w;
@@ -203,7 +212,8 @@ namespace PHEnergyCorrelator {
         rs      = s;
         xi      = x;
         theta   = t;
-        phi     = f;
+        phib    = b;
+        phiy    = y;
         pattern = p;
       }  // end ctor(double x 7, int x 1)
 
