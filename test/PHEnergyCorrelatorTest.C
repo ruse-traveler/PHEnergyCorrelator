@@ -91,7 +91,7 @@ void PHEnergyCorrelatorTest() {
   // jet values (enough to cover all spin patterns)
   std::vector<PHEC::Type::Jet> jets;
   jets.push_back(
-    PHEC::Type::Jet(2.0, 9.0, 0.75, piDiv3, piDiv4, pi5Div4, 0)
+    PHEC::Type::Jet(0.40, 9.0, 0.75, piDiv3, piDiv4, pi5Div4, 0)
   );
   jets.push_back(
     PHEC::Type::Jet(0.25, 8.0, 0.2, piDiv4, piDiv3, pi5Div4, 1)
@@ -100,16 +100,16 @@ void PHEnergyCorrelatorTest() {
     PHEC::Type::Jet(0.75, 13., -0.2, pi5Div4, piDiv3, pi5Div4, 2)
   );
   jets.push_back(
-    PHEC::Type::Jet(1.50, 5.0, 0.1, piDiv3, piDiv4, pi5Div4, 3)
+    PHEC::Type::Jet(0.90, 5.0, 0.1, piDiv3, pi5Div4, piDiv4, 3)
   );
   jets.push_back(
     PHEC::Type::Jet(1.0, 7.0, -0.05, pi4Div3, piDiv4, pi5Div4, 4)
   );
   jets.push_back(
-    PHEC::Type::Jet(0.50, 3.0, -0.75, pi4Div3, piDiv4, pi5Div4, 5)
+    PHEC::Type::Jet(0.50, 3.0, -0.75, pi4Div3, pi5Div4, piDiv3, 5)
   );
   jets.push_back(
-    PHEC::Type::Jet(1.0, 4.0, -0.05, pi4Div3, piDiv4, pi5Div4, 6)
+    PHEC::Type::Jet(0.66, 4.0, -0.05, pi4Div3, piDiv4, pi5Div4, 6)
   );
 
   // cst values (enough to make sure calculations run)
