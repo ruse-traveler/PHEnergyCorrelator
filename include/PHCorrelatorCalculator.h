@@ -125,12 +125,12 @@ namespace PHEnergyCorrelator {
 
         // but for spin, we'll have 2 indices
         // for each spin pattern
-        //   - pattern = 1 --> spin indices = {0, 3}
-        //   - pattern = 2 --> spin indices = {1, 2}
-        //   - pattern = 3 --> spin indices = {1, 3}
-        //   - pattern = 4 --> spin indices = {0, 2}
+        //   - pattern = 1 --> spin indices = {BU, YD}
+        //   - pattern = 2 --> spin indices = {BD, YU}
+        //   - pattern = 3 --> spin indices = {BD, YD}
+        //   - pattern = 4 --> spin indices = {BU, YU}
         // plus the index for integrating over
-        // spins (sp = 4)
+        // spins (sp = Int)
         std::vector<Type::HistIndex> indices;
 
         // determine spin bins
@@ -139,26 +139,26 @@ namespace PHEnergyCorrelator {
 
               // blue up, yellow down
               case 1:
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 0) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 3) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BU) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::YD) );
                 break;
 
               // blue down, yellow up
               case 2:
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 1) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 2) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BD) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::YU) );
                 break;
 
               // blue down, yellow down
               case 3:
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 1) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 3) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BD) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::YD) );
                 break;
 
               // blue up, yellow up
               case 4:
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 0) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 2) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BU) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::YU) );
                 break;
 
               // by default, only add integrated
@@ -166,7 +166,7 @@ namespace PHEnergyCorrelator {
                 break;
           }
         }
-        indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 4) );
+        indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::Int) );
         return indices;
 
       }  // end 'GetHistIndices(Type::Jet&)'

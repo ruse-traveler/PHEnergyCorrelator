@@ -47,6 +47,26 @@ namespace PHEnergyCorrelator {
   // ==========================================================================
   class Manager {
 
+    public:
+
+      // ----------------------------------------------------------------------
+      //! Indices of spin configurations
+      // ----------------------------------------------------------------------
+      /*! This enum indexes all possible spin configurations.
+       *  They are
+       *
+       *    0. Int:  integrated over spin
+       *    1. BU:   blue up (int. over yellow)
+       *    2. BD:   blue down (int. over yellow)
+       *    3. YU:   yellow up (int. over blue)
+       *    4. YD:   yellow down (int. over blue)
+       *    5. BUYU: blue up, yellow up
+       *    6. BUYD: blue up, yellow down
+       *    7. BDYU: blue down, yellow up
+       *    8. BDYD: blue down, yellow down
+       */
+      enum Spin {Int, BU, BD, YU, YD, BUYU, BUYD, BDYU, BDYD}; 
+
     private:
 
       /* TODO
@@ -83,24 +103,27 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       //! Translate spin index into a tag
       // ----------------------------------------------------------------------
+      /*! Spin "bins" correspond to different combinations of
+       *  blue/yellow polarizations.
+       */ 
       std::string GetSpinTag(const std::size_t isp) const {
 
         std::string tag = "";
         switch (isp) {
-          case 0:
+          case Int:
+            tag = "Int";
+            break;
+          case BU:
             tag = "BlueUp";
             break;
-          case 1:
+          case BD:
             tag = "BlueDown";
             break;
-          case 2:
+          case YU:
             tag = "YellUp";
             break;
-          case 3:
+          case YD:
             tag = "YellDown";
-            break;
-          case 4:
-            tag = "Integrated";
             break;
           default:
             tag = "";
