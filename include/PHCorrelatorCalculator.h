@@ -14,6 +14,7 @@
 // c++ utilities
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <string>
 #include <utility>
 #include <vector>
@@ -26,8 +27,6 @@
 #include "PHCorrelatorTypes.h"
 #include "PHCorrelatorTools.h"
 
-// TEST
-#include <iostream>
 
 
 namespace PHEnergyCorrelator {
@@ -36,6 +35,21 @@ namespace PHEnergyCorrelator {
   //! ENC Calculator
   // ==========================================================================
   class Calculator {
+
+    public:
+
+      // ----------------------------------------------------------------------
+      //! Possible spin patterns
+      // ----------------------------------------------------------------------
+      enum pattern {
+        PPBUYU = 0,  /*!< blue up, yellow up (pp) */
+        PPBDYU = 1,  /*!< blue down, yellow up (pp) */
+        PPBUYD = 2,  /*!< blue up, yellow down (pp) */
+        PPBDYD = 3,  /*!< blue down, yellow down (pp) */
+        PABU   = 4,  /*!< blue up (pAu) */
+        PABD   = 5   /*!< blue down (pAu) */
+      };
+
 
     private:
 
@@ -95,9 +109,24 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       //! Get hist index/indices
       // ----------------------------------------------------------------------
-      /*! N.B. when doing spin binning, if an unexpected spin pattern is
-       *  provided then only ONE index will be returned, the spin integrated
-       *  index.
+      /*! Returns a vector of indices of histograms to be filled. If not doing
+       *  spin sorting, vector will only have ONE entry, which is the pt (and
+       *  maybe CF) index.
+       *
+       *  If doing spin sorting, the vector will have either 1, 2, or 4
+       *  entries.
+       *    - `size() == 4`: pp case; entries correspond to spin-integrated,
+       *       blue-only, yellow-only, and blue-and-yellow indices.
+       *    - `size() == 2`: pAu case; entries correspond to spin-integrated
+       *       and blue-only indices.
+       *    - `size() == 1`: an unexpected spin pattern was provided, only
+       *       spin-integrated case returned.
+       *
+       *  The order of the vector will always be
+       *    [0] = integrated
+       *    [1] = blue beam index
+       *    [2] = yellow beam index
+       *    [3] = blue and yellow index
        */
       std::vector<Type::HistIndex> GetHistIndices(const Type::Jet& jet) {
 
@@ -123,42 +152,50 @@ namespace PHEnergyCorrelator {
           }  // end cf bin loop
         }
 
-        // but for spin, we'll have 2 indices
-        // for each spin pattern
-        //   - pattern = 1 --> spin indices = {BU, YD}
-        //   - pattern = 2 --> spin indices = {BD, YU}
-        //   - pattern = 3 --> spin indices = {BD, YD}
-        //   - pattern = 4 --> spin indices = {BU, YU}
-        // plus the index for integrating over
-        // spins (sp = Int)
+        // By default, add spin-integrated bin
         std::vector<Type::HistIndex> indices;
+        indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::Int) );
 
-        // determine spin bins
+        // if needed, determine spin bins
         if (m_manager.GetDoSpinBins()) {
             switch (jet.pattern) {
 
-              // blue up, yellow down
-              case 1:
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BU) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::YD) );
-                break;
-
-              // blue down, yellow up
-              case 2:
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BD) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::YU) );
-                break;
-
-              // blue down, yellow down
-              case 3:
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BD) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::YD) );
-                break;
-
-              // blue up, yellow up
-              case 4:
+              // blue up, yellow up (pp)
+              case PPBUYU:
                 indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BU) );
                 indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::YU) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BUYU) );
+                break;
+
+              // blue down, yellow up (pp)
+              case PPBDYU:
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BD) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::YU) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BDYU) );
+                break;
+
+              // blue up, yellow down (pp)
+              case PPBUYD:
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BU) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::YD) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BUYD) );
+                break;
+
+              // blue down, yellow down (pp)
+              case PPBDYD:
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BD) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::YD) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BDYD) );
+                break;
+
+              // blue up (pAu)
+              case PABU:
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BU) );
+                break;
+
+              // blue down (pAu)
+              case PABD:
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BD) );
                 break;
 
               // by default, only add integrated
@@ -166,7 +203,6 @@ namespace PHEnergyCorrelator {
                 break;
           }
         }
-        indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::Int) );
         return indices;
 
       }  // end 'GetHistIndices(Type::Jet&)'
@@ -289,32 +325,51 @@ namespace PHEnergyCorrelator {
         const double dphiblu = remainder(cst_avg.Phi() - jet.phiblu, TMath::TwoPi());
         const double dphiyel = remainder(cst_avg.Phi() - jet.phiyel, TMath::TwoPi());
 
-        // bundle results for histogram filling
-        Type::HistContent content_int(weight, dist);
-        Type::HistContent content_blu(weight, dist, dphiblu, jet.pattern);
-        Type::HistContent content_yel(weight, dist, dphiyel, jet.pattern);
-
-        // fill histograms and exit
+        // fill histograms if needed
+        //   - FIXME this can be simplified...
         if (m_manager.GetDoEECHists()) {
 
           // grab hist indices; if doing spin binning, the order
-          // of the vector will always be
-          //   [0] = blue beam index
-          //   [1] = yellow beam index
-          //   [2] = integrated
-          // otherwise vector will have 1 entry corresponding
-          // to JUST the integrated case
           std::vector<Type::HistIndex> indices = GetHistIndices(jet);
 
-          // fill relevant histograms
+          // fill spin integrated case
+          Type::HistContent content_int(weight, dist);
+          m_manager.FillEECHists(indices[0], content_int);
+
+          // if needed, fill spin sorted histograms
           if (m_manager.GetDoSpinBins() && (indices.size() > 1)) {
-            m_manager.FillEECHists(indices[0], content_blu);
-            m_manager.FillEECHists(indices[1], content_yel);
-            m_manager.FillEECHists(indices[2], content_int);
-          } else {
-            m_manager.FillEECHists(indices[0], content_int);
-          }
-        }
+
+            // fill blue-only case
+            Type::HistContent content_blu(
+              weight,
+              dist,
+              dphiblu,
+              std::numeric_limits<double>::max(),
+              jet.pattern
+            );
+            m_manager.FillEECHists(indices[1], content_blu);
+
+            // fill yellow-only, both cases
+            if (indices.size() > 2) {
+              Type::HistContent content_yel(
+                weight,
+                dist,
+                std::numeric_limits<double>::max(),
+                dphiyel,
+                jet.pattern
+              );
+              Type::HistContent content_both(
+                weight,
+                dist,
+                dphiblu,
+                dphiyel,
+                jet.pattern
+              );
+              m_manager.FillEECHists(indices[2], content_yel);
+              m_manager.FillEECHists(indices[3], content_both);
+            }
+          }  // end spin hist filling
+        }  // end hist filing
         return;
 
       }  // end 'CalcEEC(Type::Jet&, std::pair<Type::Cst, Type::Cst>&, double)'
