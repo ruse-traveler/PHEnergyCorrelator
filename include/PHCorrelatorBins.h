@@ -97,7 +97,7 @@ namespace PHEnergyCorrelator {
         m_bins["angle"]    = Binning(180, -3.15, 3.15);
         m_bins["cosangle"] = Binning(20, -1., 1.);
         m_bins["xi"]       = Binning(100, 0., 1.);
-        m_bins["pattern"]  = Binning(5, -0.5, 4.5);
+        m_bins["pattern"]  = Binning(10, -0.5, 9.5);
 
       }  // end 'ctor()'
 
