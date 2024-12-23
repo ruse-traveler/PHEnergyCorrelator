@@ -289,8 +289,12 @@ namespace PHEnergyCorrelator {
 
         // get cst 4-momenta
         std::pair<TLorentzVector, TLorentzVector> vecCst4 = std::make_pair(
-          Tools::GetCstLorentz(csts.first, jet.pt),
-          Tools::GetCstLorentz(csts.second, jet.pt)
+          Tools::GetCstLorentz(csts.first, jet.pt, false),
+          Tools::GetCstLorentz(csts.second, jet.pt, false)
+        );
+        std::pair<TLorentzVector, TLorentzVector> unitCst4 = std::make_pair(
+          Tools::GetCstLorentz(csts.first, jet.pt, true),
+          Tools::GetCstLorentz(csts.second, jet.pt, true)
         );
 
         // get average of cst 3-vectors
@@ -302,11 +306,29 @@ namespace PHEnergyCorrelator {
         // get spins
         std::pair<TVector3, TVector3> vecSpin3 = Tools::GetSpins( jet.pattern );
 
-        // compute angles wrt to spins
-        //   - FIXME dummy calculations! need to fill in
-        //     actual calculations wrt to spin!
-        const double dphiblu = remainder(avgCst3.Phi() - vecJet4.Phi(), TMath::TwoPi());
-        const double dphiyel = remainder(avgCst3.Phi() - vecJet4.Phi(), TMath::TwoPi());
+        // now calculate vectors normal to hadron-spin and jet-spin planes
+        std::pair<TVector3, TVector3> normHadSpin3 = std::make_pair(
+          ( vecSpin3.first.Cross(avgCst3) ).Unit(),
+          ( vecSpin3.second.Cross(avgCst3) ).Unit()
+        );
+        std::pair<TVector3, TVector3> normJetSpin3 = std::make_pair(
+          ( vecSpin3.first.Cross(unitJet4.Vect()) ).Unit(),
+          ( vecSpin3.second.Cross(unitJet4.Vect()) ).Unit()
+        );
+
+        // next calculate vectors normal to hadron-hadron and hadron-jet planes
+        TVector3 normHadHad3 = ( unitCst4.first.Vect().Cross(unitCst4.second.Vect()) ).Unit();
+        TVector3 normJetHad3 = ( unitJet4.Vect().Cross(avgCst3) ).Unit();
+
+        // and finally, compute angles wrt to spins
+        double phiHadBlue = acos( normHadSpin3.first.Dot(normHadHad3) );
+        double phiHadYell = acos( normHadSpin3.second.Dot(normHadHad3) );
+        double phiJetBlue = acos( normJetSpin3.first.Dot(normJetHad3) );
+        double phiJetYell = acos( normJetSpin3.first.Dot(normJetHad3) );
+        if (phiHadBlue > TMath::PiOver2()) phiHadBlue -= TMath::Pi();
+        if (phiHadYell > TMath::PiOver2()) phiHadYell -= TMath::Pi();
+        if (phiJetBlue > TMath::PiOver2()) phiJetBlue -= TMath::Pi();
+        if (phiJetYell > TMath::PiOver2()) phiJetYell -= TMath::Pi();
 
         // now get EEC weights
         std::pair<double, double> cst_weights = std::make_pair(
@@ -314,7 +336,7 @@ namespace PHEnergyCorrelator {
           GetCstWeight(vecCst4.second, vecJet4)
         );
 
-        // calculate RL (dist b/n cst.s for EEC) and overall EEC weight
+        // then calculate RL (dist b/n cst.s for EEC) and overall EEC weight
         const double dist    = Tools::GetCstDist(csts);
         const double weight  = cst_weights.first * cst_weights.second * evt_weight;
 
@@ -336,9 +358,9 @@ namespace PHEnergyCorrelator {
             Type::HistContent content_blu(
               weight,
               dist,
-              dphiblu,
+              phiHadBlue,
               std::numeric_limits<double>::max(),
-              dphiblu,
+              phiJetBlue,
               std::numeric_limits<double>::max(),
               vecSpin3.first.Y(),
               vecSpin3.second.Y(),
@@ -352,9 +374,9 @@ namespace PHEnergyCorrelator {
                 weight,
                 dist,
                 std::numeric_limits<double>::max(),
-                dphiyel,
+                phiHadYell,
                 std::numeric_limits<double>::max(),
-                dphiyel,
+                phiJetYell,
                 vecSpin3.first.Y(),
                 vecSpin3.second.Y(),
                 jet.pattern
@@ -362,10 +384,10 @@ namespace PHEnergyCorrelator {
               Type::HistContent content_both(
                 weight,
                 dist,
-                dphiblu,
-                dphiyel,
-                dphiblu,
-                dphiyel,
+                phiHadBlue,
+                phiHadYell,
+                phiJetBlue,
+                phiJetYell,
                 vecSpin3.first.Y(),
                 vecSpin3.second.Y(),
                 jet.pattern
