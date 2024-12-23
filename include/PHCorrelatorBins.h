@@ -98,6 +98,7 @@ namespace PHEnergyCorrelator {
         m_bins["cosangle"] = Binning(20, -1., 1.);
         m_bins["xi"]       = Binning(100, 0., 1.);
         m_bins["pattern"]  = Binning(10, -0.5, 9.5);
+        m_bins["spin"]     = Binning(5, -2.5, 2.5);
 
       }  // end 'ctor()'
 

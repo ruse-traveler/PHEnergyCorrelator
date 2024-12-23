@@ -162,6 +162,8 @@ namespace PHEnergyCorrelator {
       double phiHAvgY; //!< hadron-hadron angle wrt yellow spin
       double phiCollB; //!< collins (hadron-hadron-jet) angle wrt blue spin
       double phiCollY; //!< collins (hadron-hadron-jet) angle wrt yellow spin
+      double spinB;    //!< blue spin y-component
+      double spinY;    //!< yellow spin y-component
       int    pattern;  //!< spin pattern
 
       //! default ctor/dtor
@@ -176,6 +178,8 @@ namespace PHEnergyCorrelator {
         const double ay = 0.,
         const double cb = 0.,
         const double cy = 0.,
+        const double sb = 0.,
+        const double sy = 0.,
         const int    p = 0
       ) {
         weight   = w;
@@ -184,8 +188,10 @@ namespace PHEnergyCorrelator {
         phiHAvgY = ay;
         phiCollB = cb;
         phiCollY = cy;
+        spinB    = sb;
+        spinY    = sy;
         pattern  = p;
-      }  // end ctor(double x 6, int)
+      }  // end ctor(double x 8, int)
 
       //! ctor accepting only 3-point arguments
       HistContent(
@@ -216,6 +222,8 @@ namespace PHEnergyCorrelator {
         const double ay = 0.,
         const double cb = 0.,
         const double cy = 0.,
+        const double sb = 0.,
+        const double sy = 0.,
         const int    p = 0
       ) {
         weight   = w;
@@ -228,8 +236,10 @@ namespace PHEnergyCorrelator {
         phiHAvgY = ay;
         phiCollB = cb;
         phiCollY = cy;
+        spinB    = sb;
+        spinY    = sy;
         pattern  = p;
-      }  // end ctor(double x 9, int x 1)
+      }  // end ctor(double x 11, int x 1)
 
     };  // end HistContent
 

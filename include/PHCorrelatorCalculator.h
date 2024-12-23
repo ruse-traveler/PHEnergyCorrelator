@@ -299,6 +299,9 @@ namespace PHEnergyCorrelator {
           vecCst4.second.Vect()
         );
 
+        // get spins
+        std::pair<TVector3, TVector3> vecSpin3 = Tools::GetSpins( jet.pattern );
+
         // compute angles wrt to spins
         //   - FIXME dummy calculations! need to fill in
         //     actual calculations wrt to spin!
@@ -337,6 +340,8 @@ namespace PHEnergyCorrelator {
               std::numeric_limits<double>::max(),
               dphiblu,
               std::numeric_limits<double>::max(),
+              vecSpin3.first.Y(),
+              vecSpin3.second.Y(),
               jet.pattern
             );
             m_manager.FillEECHists(indices[1], content_blu);
@@ -350,6 +355,8 @@ namespace PHEnergyCorrelator {
                 dphiyel,
                 std::numeric_limits<double>::max(),
                 dphiyel,
+                vecSpin3.first.Y(),
+                vecSpin3.second.Y(),
                 jet.pattern
               );
               Type::HistContent content_both(
@@ -359,6 +366,8 @@ namespace PHEnergyCorrelator {
                 dphiyel,
                 dphiblu,
                 dphiyel,
+                vecSpin3.first.Y(),
+                vecSpin3.second.Y(),
                 jet.pattern
               );
               m_manager.FillEECHists(indices[2], content_yel);

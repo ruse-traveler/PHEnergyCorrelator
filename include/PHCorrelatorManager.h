@@ -268,6 +268,12 @@ namespace PHEnergyCorrelator {
           Histogram("EECWidth", "", "R_{L}", m_bins.Get("side"))
         );
         def_1d.push_back(
+          Histogram("SpinBlue", "", "y_{B}^{spin}", m_bins.Get("spin"))
+        );
+        def_1d.push_back(
+          Histogram("SpinYellow", "", "y_{Y}^{spin}", m_bins.Get("spin"))
+        );
+        def_1d.push_back(
           Histogram("SpinPattern", "", "pattern", m_bins.Get("pattern"))
         );
         def_1d.push_back(
@@ -437,6 +443,8 @@ namespace PHEnergyCorrelator {
         // fill 1d histograms
         m_hist_1d[MakeHistName("EECStat", tag)] -> Fill(content.rl, content.weight);
         m_hist_1d[MakeHistName("EECWidth", tag)] -> Fill(content.rl, content.weight);
+        m_hist_1d[MakeHistName("SpinBlue", tag)] -> Fill(content.spinB);
+        m_hist_1d[MakeHistName("SpinYellow", tag)] -> Fill(content.spinY);
         m_hist_1d[MakeHistName("SpinPattern", tag)] -> Fill(content.pattern);
         m_hist_1d[MakeHistName("SpinHadAvgBlueStat", tag)] -> Fill(content.phiHAvgB);
         m_hist_1d[MakeHistName("SpinHadAvgYellStat", tag)] -> Fill(content.phiHAvgY);
