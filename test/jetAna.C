@@ -1075,9 +1075,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
                 r_pT[indexMax],
                 r_eta[indexMax],
                 r_phi[indexMax],
-                r_spinPat,
-                bluePhiSpin,
-                yellowPhiSpin
+                r_spinPat
               );
 
               // loop through pairs of constituents
