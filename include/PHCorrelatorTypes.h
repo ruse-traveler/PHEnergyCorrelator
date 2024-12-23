@@ -28,8 +28,23 @@ namespace PHEnergyCorrelator {
     // ------------------------------------------------------------------------
     //! Weight types
     // ------------------------------------------------------------------------
-    enum Weight {E, Et, Pt};
+    enum Weight {
+      E,   /*!< weight by energy */
+      Et,  /*!< weight by transverse energy */
+      Pt   /*!< weight by transverse momentum (lab frame) */
+    };
 
+    // ----------------------------------------------------------------------
+    //! Possible spin patterns
+    // ----------------------------------------------------------------------
+    enum Pattern {
+      PPBUYU = 0,  /*!< blue up, yellow up (pp) */
+      PPBDYU = 1,  /*!< blue down, yellow up (pp) */
+      PPBUYD = 2,  /*!< blue up, yellow down (pp) */
+      PPBDYD = 3,  /*!< blue down, yellow down (pp) */
+      PABU   = 4,  /*!< blue up (pAu) */
+      PABD   = 5   /*!< blue down (pAu) */
+    };
 
 
     // ------------------------------------------------------------------------
