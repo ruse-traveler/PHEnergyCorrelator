@@ -330,70 +330,48 @@ namespace PHEnergyCorrelator {
         if (phiJetBlue > TMath::PiOver2()) phiJetBlue -= TMath::Pi();
         if (phiJetYell > TMath::PiOver2()) phiJetYell -= TMath::Pi();
 
-        // now get EEC weights
+        // get EEC weights
         std::pair<double, double> cst_weights = std::make_pair(
           GetCstWeight(vecCst4.first, vecJet4),
           GetCstWeight(vecCst4.second, vecJet4)
         );
 
-        // then calculate RL (dist b/n cst.s for EEC) and overall EEC weight
+        // and then calculate RL (dist b/n cst.s for EEC) and overall EEC weight
         const double dist    = Tools::GetCstDist(csts);
         const double weight  = cst_weights.first * cst_weights.second * evt_weight;
 
         // fill histograms if needed
-        //   - FIXME this can be simplified...
         if (m_manager.GetDoEECHists()) {
 
           // grab hist indices
           std::vector<Type::HistIndex> indices = GetHistIndices(jet);
 
-          // fill spin integrated case
-          Type::HistContent content_int(weight, dist);
-          m_manager.FillEECHists(indices[0], content_int);
+          // collect quantities to be histogrammed
+          Type::HistContent content(
+            weight,
+            dist,
+            phiHadBlue,
+            phiHadYell,
+            phiJetBlue,
+            phiJetYell,
+            vecSpin3.first.Y(),
+            vecSpin3.second.y(),
+            jet.pattern
+          );
+
+          // fill spin-integrated histograms
+          m_manager.FillEECHists(indices[0], content);
 
           // if needed, fill spin sorted histograms
           if (m_manager.GetDoSpinBins() && (indices.size() > 1)) {
 
             // fill blue-only case
-            Type::HistContent content_blu(
-              weight,
-              dist,
-              phiHadBlue,
-              std::numeric_limits<double>::max(),
-              phiJetBlue,
-              std::numeric_limits<double>::max(),
-              vecSpin3.first.Y(),
-              vecSpin3.second.Y(),
-              jet.pattern
-            );
-            m_manager.FillEECHists(indices[1], content_blu);
+            m_manager.FillEECHists(indices[1], content);
 
             // fill yellow-only, both cases
             if (indices.size() > 2) {
-              Type::HistContent content_yel(
-                weight,
-                dist,
-                std::numeric_limits<double>::max(),
-                phiHadYell,
-                std::numeric_limits<double>::max(),
-                phiJetYell,
-                vecSpin3.first.Y(),
-                vecSpin3.second.Y(),
-                jet.pattern
-              );
-              Type::HistContent content_both(
-                weight,
-                dist,
-                phiHadBlue,
-                phiHadYell,
-                phiJetBlue,
-                phiJetYell,
-                vecSpin3.first.Y(),
-                vecSpin3.second.Y(),
-                jet.pattern
-              );
-              m_manager.FillEECHists(indices[2], content_yel);
-              m_manager.FillEECHists(indices[3], content_both);
+              m_manager.FillEECHists(indices[2], content);
+              m_manager.FillEECHists(indices[3], content);
             }
           }  // end spin hist filling
         }  // end hist filing
