@@ -26,8 +26,6 @@
 #include "PHCorrelatorTypes.h"
 #include "PHCorrelatorTools.h"
 
-// TEST
-#include <iostream>
 
 
 namespace PHEnergyCorrelator {
@@ -95,9 +93,24 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       //! Get hist index/indices
       // ----------------------------------------------------------------------
-      /*! N.B. when doing spin binning, if an unexpected spin pattern is
-       *  provided then only ONE index will be returned, the spin integrated
-       *  index.
+      /*! Returns a vector of indices of histograms to be filled. If not doing
+       *  spin sorting, vector will only have ONE entry, which is the pt (and
+       *  maybe CF) index.
+       *
+       *  If doing spin sorting, the vector will have either 1, 2, or 4
+       *  entries.
+       *    - `size() == 4`: pp case; entries correspond to spin-integrated,
+       *       blue-only, yellow-only, and blue-and-yellow indices.
+       *    - `size() == 2`: pAu case; entries correspond to spin-integrated
+       *       and blue-only indices.
+       *    - `size() == 1`: an unexpected spin pattern was provided, only
+       *       spin-integrated case returned.
+       *
+       *  The order of the vector will always be
+       *    [0] = integrated
+       *    [1] = blue beam index
+       *    [2] = yellow beam index
+       *    [3] = blue and yellow index
        */
       std::vector<Type::HistIndex> GetHistIndices(const Type::Jet& jet) {
 
@@ -123,50 +136,58 @@ namespace PHEnergyCorrelator {
           }  // end cf bin loop
         }
 
-        // but for spin, we'll have 2 indices
-        // for each spin pattern
-        //   - pattern = 1 --> spin indices = {0, 3}
-        //   - pattern = 2 --> spin indices = {1, 2}
-        //   - pattern = 3 --> spin indices = {1, 3}
-        //   - pattern = 4 --> spin indices = {0, 2}
-        // plus the index for integrating over
-        // spins (sp = 4)
+        // By default, add spin-integrated bin
         std::vector<Type::HistIndex> indices;
+        indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::Int) );
 
-        // determine spin bins
+        // if needed, determine spin bins
         if (m_manager.GetDoSpinBins()) {
             switch (jet.pattern) {
 
-              // blue up, yellow down
-              case 1:
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 0) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 3) );
+              // blue up, yellow up (pp)
+              case Type::PPBUYU:
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BU) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::YU) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BUYU) );
                 break;
 
-              // blue down, yellow up
-              case 2:
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 1) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 2) );
+              // blue down, yellow up (pp)
+              case Type::PPBDYU:
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BD) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::YU) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BDYU) );
                 break;
 
-              // blue down, yellow down
-              case 3:
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 1) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 3) );
+              // blue up, yellow down (pp)
+              case Type::PPBUYD:
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BU) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::YD) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BUYD) );
                 break;
 
-              // blue up, yellow up
-              case 4:
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 0) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 2) );
+              // blue down, yellow down (pp)
+              case Type::PPBDYD:
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BD) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::YD) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BDYD) );
+                break;
+
+              // blue up (pAu)
+              case Type::PABU:
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BU) );
+                break;
+
+              // blue down (pAu)
+              case Type::PABD:
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BD) );
                 break;
 
               // by default, only add integrated
               default:
                 break;
+
           }
         }
-        indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, 4) );
         return indices;
 
       }  // end 'GetHistIndices(Type::Jet&)'
@@ -262,59 +283,92 @@ namespace PHEnergyCorrelator {
       ) {
 
         // get jet 4-momenta
-        TLorentzVector jet_vec = Tools::GetJetLorentz(jet);
+        TLorentzVector vecJet4  = Tools::GetJetLorentz(jet, false);
+        TLorentzVector unitJet4 = Tools::GetJetLorentz(jet, true);
 
         // get cst 4-momenta
-        std::pair<TLorentzVector, TLorentzVector> cst_vecs = std::make_pair(
-          Tools::GetCstLorentz(jet_vec.Vect(), csts.first),
-          Tools::GetCstLorentz(jet_vec.Vect(), csts.second)
+        std::pair<TLorentzVector, TLorentzVector> vecCst4 = std::make_pair(
+          Tools::GetCstLorentz(csts.first, jet.pt, false),
+          Tools::GetCstLorentz(csts.second, jet.pt, false)
+        );
+        std::pair<TLorentzVector, TLorentzVector> unitCst4 = std::make_pair(
+          Tools::GetCstLorentz(csts.first, jet.pt, true),
+          Tools::GetCstLorentz(csts.second, jet.pt, true)
         );
 
-        // get vector distance b/n average of cst.s and spin direction
-        TLorentzVector cst_avg = Tools::GetWeightedAvgLorentz(
-          cst_vecs.first,
-          cst_vecs.second
+        // get average of cst 3-vectors
+        TVector3 avgCst3 = Tools::GetWeightedAvgVector(
+          vecCst4.first.Vect(),
+          vecCst4.second.Vect()
         );
 
-        // now get weights
+        // get spins
+        std::pair<TVector3, TVector3> vecSpin3 = Tools::GetSpins( jet.pattern );
+
+        // now calculate vectors normal to hadron-spin and jet-spin planes
+        std::pair<TVector3, TVector3> normHadSpin3 = std::make_pair(
+          ( vecSpin3.first.Cross(avgCst3) ).Unit(),
+          ( vecSpin3.second.Cross(avgCst3) ).Unit()
+        );
+        std::pair<TVector3, TVector3> normJetSpin3 = std::make_pair(
+          ( vecSpin3.first.Cross(unitJet4.Vect()) ).Unit(),
+          ( vecSpin3.second.Cross(unitJet4.Vect()) ).Unit()
+        );
+
+        // next calculate vectors normal to hadron-hadron and hadron-jet planes
+        TVector3 normHadHad3 = ( unitCst4.first.Vect().Cross(unitCst4.second.Vect()) ).Unit();
+        TVector3 normJetHad3 = ( unitJet4.Vect().Cross(avgCst3) ).Unit();
+
+        // and finally, compute angles wrt to spins
+        double phiHadBlue = acos( normHadSpin3.first.Dot(normHadHad3) );
+        double phiHadYell = acos( normHadSpin3.second.Dot(normHadHad3) );
+        double phiJetBlue = acos( normJetSpin3.first.Dot(normJetHad3) );
+        double phiJetYell = acos( normJetSpin3.first.Dot(normJetHad3) );
+        if (phiHadBlue > TMath::PiOver2()) phiHadBlue -= TMath::Pi();
+        if (phiHadYell > TMath::PiOver2()) phiHadYell -= TMath::Pi();
+        if (phiJetBlue > TMath::PiOver2()) phiJetBlue -= TMath::Pi();
+        if (phiJetYell > TMath::PiOver2()) phiJetYell -= TMath::Pi();
+
+        // get EEC weights
         std::pair<double, double> cst_weights = std::make_pair(
-          GetCstWeight(cst_vecs.first, jet_vec),
-          GetCstWeight(cst_vecs.second, jet_vec)
+          GetCstWeight(vecCst4.first, vecJet4),
+          GetCstWeight(vecCst4.second, vecJet4)
         );
 
-        // calculate RL (dist b/n cst.s for EEC), EEC, and
-        // angle b/n the cst average and spin
+        // and then calculate RL (dist b/n cst.s for EEC) and overall EEC weight
         const double dist    = Tools::GetCstDist(csts);
         const double weight  = cst_weights.first * cst_weights.second * evt_weight;
-        const double dphiblu = remainder(cst_avg.Phi() - jet.phiblu, TMath::TwoPi());
-        const double dphiyel = remainder(cst_avg.Phi() - jet.phiyel, TMath::TwoPi());
 
-        // bundle results for histogram filling
-        Type::HistContent content_int(weight, dist);
-        Type::HistContent content_blu(weight, dist, dphiblu, jet.pattern);
-        Type::HistContent content_yel(weight, dist, dphiyel, jet.pattern);
-
-        // fill histograms and exit
+        // fill histograms if needed
         if (m_manager.GetDoEECHists()) {
 
-          // grab hist indices; if doing spin binning, the order
-          // of the vector will always be
-          //   [0] = blue beam index
-          //   [1] = yellow beam index
-          //   [2] = integrated
-          // otherwise vector will have 1 entry corresponding
-          // to JUST the integrated case
+          // grab hist indices
           std::vector<Type::HistIndex> indices = GetHistIndices(jet);
 
-          // fill relevant histograms
-          if (m_manager.GetDoSpinBins() && (indices.size() > 1)) {
-            m_manager.FillEECHists(indices[0], content_blu);
-            m_manager.FillEECHists(indices[1], content_yel);
-            m_manager.FillEECHists(indices[2], content_int);
-          } else {
-            m_manager.FillEECHists(indices[0], content_int);
+          // collect quantities to be histogrammed
+          Type::HistContent content(weight, dist);
+          if (m_manager.GetDoSpinBins()) {
+            content.phiHAvgB = phiHadBlue;
+            content.phiHAvgY = phiHadYell;
+            content.phiCollB = phiJetBlue;
+            content.phiCollY = phiJetYell;
+            content.spinB    = vecSpin3.first.Y();
+            content.spinY    = vecSpin3.second.y();
+            content.pattern  = jet.pattern;
           }
-        }
+
+          // fill spin-integrated histograms
+          m_manager.FillEECHists(indices[0], content);
+
+          // if needed, fill spin sorted histograms
+          if (m_manager.GetDoSpinBins() && (indices.size() > 1)) {
+            m_manager.FillEECHists(indices[1], content);
+            if (indices.size() > 2) {
+              m_manager.FillEECHists(indices[2], content);
+              m_manager.FillEECHists(indices[3], content);
+            }
+          }  // end spin hist filling
+        }  // end hist filing
         return;
 
       }  // end 'CalcEEC(Type::Jet&, std::pair<Type::Cst, Type::Cst>&, double)'

@@ -12,7 +12,10 @@
 #define PHCORRELATORCONSTANTS_H
 
 // c++ utilities
+#include <limits>
 #include <string>
+// root libraries
+#include <TVector3.h>
 
 
 
@@ -22,6 +25,30 @@ namespace PHEnergyCorrelator {
   //! PHEnergyCorrelator Constants
   // ==========================================================================
   namespace Const {
+
+    // ------------------------------------------------------------------------
+    // Default value for index arguments
+    // ------------------------------------------------------------------------
+    inline std::size_t IndexDefault() {
+      const std::size_t def = 0;
+      return def;
+    }
+
+    // ------------------------------------------------------------------------
+    // Default value for int arguments
+    // ------------------------------------------------------------------------
+    inline int IntDefault() {
+      const int def = std::numeric_limits<int>::max();
+      return def;
+    }
+
+    // ------------------------------------------------------------------------
+    // Default value for double arguments
+    // ------------------------------------------------------------------------
+    inline double DoubleDefault() {
+      const int def = std::numeric_limits<double>::max();
+      return def;
+    }
 
     // ------------------------------------------------------------------------
     //! Base for log axes
@@ -53,6 +80,30 @@ namespace PHEnergyCorrelator {
     inline std::string SpinTag() {
       const std::string sptag = "sp";
       return sptag;
+    }
+
+    // ------------------------------------------------------------------------
+    //! Spin up in lab coordinates
+    // ------------------------------------------------------------------------
+    inline TVector3 SpinUp() {
+      const TVector3 up(0.0, 1.0, 0.0);
+      return up;
+    }
+
+    // ------------------------------------------------------------------------
+    //! Spin down in lab coordinates
+    // ------------------------------------------------------------------------
+    inline TVector3 SpinDown() {
+      const TVector3 down(0.0, -1.0, 0.0);
+      return down;
+    }
+
+    // ------------------------------------------------------------------------
+    //! Null spin in lab coordinates
+    // ------------------------------------------------------------------------
+    inline TVector3 SpinNull() {
+      const TVector3 null(0.0, 0.0, 0.0);
+      return null;
     }
 
   }   // end Const namespace
