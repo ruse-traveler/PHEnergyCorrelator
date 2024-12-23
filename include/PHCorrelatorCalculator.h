@@ -14,7 +14,6 @@
 // c++ utilities
 #include <algorithm>
 #include <cmath>
-#include <limits>
 #include <string>
 #include <utility>
 #include <vector>
@@ -347,28 +346,23 @@ namespace PHEnergyCorrelator {
           std::vector<Type::HistIndex> indices = GetHistIndices(jet);
 
           // collect quantities to be histogrammed
-          Type::HistContent content(
-            weight,
-            dist,
-            phiHadBlue,
-            phiHadYell,
-            phiJetBlue,
-            phiJetYell,
-            vecSpin3.first.Y(),
-            vecSpin3.second.y(),
-            jet.pattern
-          );
+          Type::HistContent content(weight, dist);
+          if (m_manager.GetDoSpinBins()) {
+            content.phiHAvgB = phiHadBlue;
+            content.phiHAvgY = phiHadYell;
+            content.phiCollB = phiJetBlue;
+            content.phiCollY = phiJetYell;
+            content.spinB    = vecSpin3.first.Y();
+            content.spinY    = vecSpin3.second.y();
+            content.pattern  = jet.pattern;
+          }
 
           // fill spin-integrated histograms
           m_manager.FillEECHists(indices[0], content);
 
           // if needed, fill spin sorted histograms
           if (m_manager.GetDoSpinBins() && (indices.size() > 1)) {
-
-            // fill blue-only case
             m_manager.FillEECHists(indices[1], content);
-
-            // fill yellow-only, both cases
             if (indices.size() > 2) {
               m_manager.FillEECHists(indices[2], content);
               m_manager.FillEECHists(indices[3], content);

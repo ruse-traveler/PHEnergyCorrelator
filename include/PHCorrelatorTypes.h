@@ -11,6 +11,9 @@
 #ifndef PHCORRELATORTYPES_H
 #define PHCORRELATORTYPES_H
 
+// analysis components
+#include "PHCorrelatorConstants.h"
+
 
 
 namespace PHEnergyCorrelator {
@@ -69,7 +72,7 @@ namespace PHEnergyCorrelator {
         const double parg,
         const double harg,
         const double farg,
-        const int    aarg  = 0
+        const int    aarg = Const::IntDefault()
       ) {
         cf      = carg;
         pt      = parg;
@@ -134,8 +137,8 @@ namespace PHEnergyCorrelator {
       //! ctor accepting arguments
       HistIndex(
         const std::size_t ipt,
-        const std::size_t icf = 0,
-        const std::size_t isp = 0
+        const std::size_t icf = Const::IndexDefault(),
+        const std::size_t isp = Const::IndexDefault()
       ) {
         pt   = ipt;
         cf   = icf;
@@ -174,13 +177,13 @@ namespace PHEnergyCorrelator {
       HistContent(
         const double w,
         const double l,
-        const double ab = 0.,
-        const double ay = 0.,
-        const double cb = 0.,
-        const double cy = 0.,
-        const double sb = 0.,
-        const double sy = 0.,
-        const int    p = 0
+        const double ab = Const::DoubleDefault(),
+        const double ay = Const::DoubleDefault(),
+        const double cb = Const::DoubleDefault(),
+        const double cy = Const::DoubleDefault(),
+        const double sb = Const::DoubleDefault(),
+        const double sy = Const::DoubleDefault(),
+        const int    p = Const::IntDefault()
       ) {
         weight   = w;
         rl       = l;
@@ -199,8 +202,8 @@ namespace PHEnergyCorrelator {
         const double x,
         const double t,
         const double l,
-        const double m = 0.,
-        const double s = 0.
+        const double m = Const::DoubleDefault(),
+        const double s = Const::DoubleDefault()
       ) {
         weight = w;
         xi     = x;
@@ -218,13 +221,13 @@ namespace PHEnergyCorrelator {
         const double s,
         const double x,
         const double t,
-        const double ab = 0.,
-        const double ay = 0.,
-        const double cb = 0.,
-        const double cy = 0.,
-        const double sb = 0.,
-        const double sy = 0.,
-        const int    p = 0
+        const double ab = Const::DoubleDefault(),
+        const double ay = Const::DoubleDefault(),
+        const double cb = Const::DoubleDefault(),
+        const double cy = Const::DoubleDefault(),
+        const double sb = Const::DoubleDefault(),
+        const double sy = Const::DoubleDefault(),
+        const int    p = Const::IntDefault()
       ) {
         weight   = w;
         rl       = l;
