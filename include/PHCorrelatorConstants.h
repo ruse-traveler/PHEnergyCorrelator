@@ -13,6 +13,8 @@
 
 // c++ utilities
 #include <string>
+// root libraries
+#include <TVector3.h>
 
 
 
@@ -53,6 +55,30 @@ namespace PHEnergyCorrelator {
     inline std::string SpinTag() {
       const std::string sptag = "sp";
       return sptag;
+    }
+
+    // ------------------------------------------------------------------------
+    //! Spin up in lab coordinates
+    // ------------------------------------------------------------------------
+    inline TVector3 SpinUp() {
+      const TVector3 up(0.0, 1.0, 0.0);
+      return up;
+    }
+
+    // ------------------------------------------------------------------------
+    //! Spin down in lab coordinates
+    // ------------------------------------------------------------------------
+    inline TVector3 SpinDown() {
+      const TVector3 down(0.0, -1.0, 0.0);
+      return down;
+    }
+
+    // ------------------------------------------------------------------------
+    //! Null spin in lab coordinates
+    // ------------------------------------------------------------------------
+    inline TVector3 SpinNull() {
+      const TVector3 null(0.0, 0.0, 0.0);
+      return null;
     }
 
   }   // end Const namespace

@@ -235,6 +235,68 @@ namespace PHEnergyCorrelator {
 
     }  // end 'GetWeightedAvgVector(TVector3& x 2)'
 
+
+
+    // ------------------------------------------------------------------------
+    //! Get spins based on a provided spin pattern
+    // ------------------------------------------------------------------------
+    /*! Returns a pair of spin vectors based on a provided spin pattern.
+     *  The 1st element will always be the blue spin, and the 2nd the
+     *  yellow.
+     */
+    std::pair<TVector3, TVector3> GetSpins(const int pattern) { 
+
+      TVector3 blue(0.0, 0.0, 0.0);
+      TVector3 yellow(0.0, 0.0, 0.0);
+      switch (pattern) {
+
+        // blue up, yellow up (pp)
+        case Type::PPBUYU:
+          blue   = Const::SpinUp();
+          yellow = Const::SpinUp();
+          break;
+
+        // blue down, yellow up (pp)
+        case Type::PPBDYU:
+          blue   = Const::SpinDown();
+          yellow = Const::SpinUp();
+          break;
+
+        // blue up, yellow down (pp)
+        case Type::PPBUYD:
+          blue   = Const::SpinUp();
+          yellow = Const::SpinDown();
+          break;
+
+        // blue down, yellow down (pp)
+        case Type::PPBDYD:
+          blue   = Const::SpinDown();
+          yellow = Const::SpinDown();
+          break;
+
+        // blue up (pAu)
+        case Type::PABU:
+          blue   = Const::SpinUp();
+          yellow = Const::SpinNull();
+          break;
+
+        // blue down (pAu)
+        case Type::PABD:
+          blue   = Const::SpinDown();
+          yellow = Const::SpinNull();
+          break;
+
+        // by default, return both as null vectors
+        default:
+          blue   = Const::SpinNull();
+          yellow = Const::SpinNull();
+          break;
+
+      }
+      return std::make_pair(blue, yellow);
+
+    }  // end 'GetSpins(int)'
+
   }  // end Tools namespace
 }  // end PHEnergyCorrelator namespace
 
