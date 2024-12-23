@@ -253,34 +253,68 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       void GenerateEECHists() {
 
+        // 1d spin axis titles
+        const std::string hadAvgB_title("#varphi_{B}^{#LThh#GT}");
+        const std::string hadAvgY_title("#varphi_{Y}^{#LThh#GT}");
+        const std::string collB_title("#varphi_{B}^{collins}");
+        const std::string collY_title("#varphi_{Y}^{collins}");
+
         // 1d histogram definitions
         std::vector<Histogram> def_1d;
-        def_1d.push_back(Histogram("EECStat", "", "R_{L}", m_bins.Get("side")));
-        def_1d.push_back(Histogram("EECWidth", "", "R_{L}", m_bins.Get("side")));
-        def_1d.push_back(Histogram("SpinPattern", "", "pattern", m_bins.Get("pattern")));
-        def_1d.push_back(Histogram("SpinPhiBlueStat", "", "#varphi_{B}", m_bins.Get("angle")));
-        def_1d.push_back(Histogram("SpinPhiYellStat", "", "#varphi_{Y}", m_bins.Get("angle")));
+        def_1d.push_back(
+          Histogram("EECStat", "", "R_{L}", m_bins.Get("side"))
+        );
+        def_1d.push_back(
+          Histogram("EECWidth", "", "R_{L}", m_bins.Get("side"))
+        );
+        def_1d.push_back(
+          Histogram("SpinPattern", "", "pattern", m_bins.Get("pattern"))
+        );
+        def_1d.push_back(
+          Histogram("SpinHadAvgBlueStat", "", hadAvgB_title, m_bins.Get("angle"))
+        );
+        def_1d.push_back(
+          Histogram("SpinHadAvgYellStat", "", hadAvgY_title, m_bins.Get("angle"))
+        );
+        def_1d.push_back(
+          Histogram("SpinCollinsBlueStat", "", collB_title, m_bins.Get("angle"))
+        );
+        def_1d.push_back(
+          Histogram("SpinCollinsYellStat", "", collY_title, m_bins.Get("angle"))
+        );
 
         // vectors of binnings for 2d histograms
-        std::vector<Binning> spinside_bins;
-        spinside_bins.push_back(m_bins.Get("side"));
-        spinside_bins.push_back(m_bins.Get("angle"));
+        std::vector<Binning> angleXside_bins;
+        angleXside_bins.push_back(m_bins.Get("side"));
+        angleXside_bins.push_back(m_bins.Get("angle"));
 
         // vectors of axis titles for 2d histograms
-        std::vector<std::string> spinsideb_titles;
-        std::vector<std::string> spinsidey_titles;
-        spinsideb_titles.push_back("R_{L}");
-        spinsideb_titles.push_back("#varphi_{B}");
-        spinsidey_titles.push_back("R_{L}");
-        spinsidey_titles.push_back("#varphi_{Y}");
+        std::vector<std::string> hadAvgXsideB_titles;
+        std::vector<std::string> hadAvgXsideY_titles;
+        std::vector<std::string> collXsideB_titles;
+        std::vector<std::string> collXsideY_titles;
+        hadAvgXsideB_titles.push_back("R_{L}");
+        hadAvgXsideB_titles.push_back(hadAvgB_title);
+        hadAvgXsideY_titles.push_back("R_{L}");
+        hadAvgXsideY_titles.push_back(hadAvgY_title);
+        collXsideB_titles.push_back("R_{L}");
+        collXsideB_titles.push_back(collB_title);
+        collXsideY_titles.push_back("R_{L}");
+        collXsideY_titles.push_back(collY_title);
 
         // 2D histogram definitions
         std::vector<Histogram> def_2d;
         def_2d.push_back(
-          Histogram("EECPhiBlueVsRStat", "", spinsideb_titles, spinside_bins)
+          Histogram("EECHadAvgBlueVsRStat", "", hadAvgXsideB_titles, angleXside_bins)
         );
         def_2d.push_back(
-          Histogram("EECPhiYellVsRStat", "", spinsidey_titles, spinside_bins)
+          Histogram("EECHadAvgYellVsRStat", "", hadAvgXsideY_titles, angleXside_bins)
+        );
+        def_2d.push_back(
+          Histogram("EECCollinsBlueVsRStat", "", collXsideB_titles, angleXside_bins)
+        );
+        def_2d.push_back(
+          Histogram("EECCollinsYellVsRStat", "", collXsideY_titles, angleXside_bins)
         );
 
         // create histograms
@@ -404,15 +438,23 @@ namespace PHEnergyCorrelator {
         m_hist_1d[MakeHistName("EECStat", tag)] -> Fill(content.rl, content.weight);
         m_hist_1d[MakeHistName("EECWidth", tag)] -> Fill(content.rl, content.weight);
         m_hist_1d[MakeHistName("SpinPattern", tag)] -> Fill(content.pattern);
-        m_hist_1d[MakeHistName("SpinPhiBlueStat", tag)] -> Fill(content.phib);
-        m_hist_1d[MakeHistName("SpinPhiYellStat", tag)] -> Fill(content.phiy);
+        m_hist_1d[MakeHistName("SpinHadAvgBlueStat", tag)] -> Fill(content.phiHAvgB);
+        m_hist_1d[MakeHistName("SpinHadAvgYellStat", tag)] -> Fill(content.phiHAvgY);
+        m_hist_1d[MakeHistName("SpinCollinsBlueStat", tag)] -> Fill(content.phiCollB);
+        m_hist_1d[MakeHistName("SpinCollinsYellStat", tag)] -> Fill(content.phiCollY);
 
         // fill 2d histograms
-        m_hist_2d[MakeHistName("EECPhiBlueVsRStat", tag)] -> Fill(
-          content.rl, content.phib, content.weight
+        m_hist_2d[MakeHistName("EECHadAvgBlueVsRStat", tag)] -> Fill(
+          content.rl, content.phiHAvgB, content.weight
         );
-        m_hist_2d[MakeHistName("EECPhiYellVsRStat", tag)] -> Fill(
-          content.rl, content.phiy, content.weight
+        m_hist_2d[MakeHistName("EECHadAvgYellVsRStat", tag)] -> Fill(
+          content.rl, content.phiHAvgY, content.weight
+        );
+        m_hist_2d[MakeHistName("EECCollinsBlueVsRStat", tag)] -> Fill(
+          content.rl, content.phiCollB, content.weight
+        );
+        m_hist_2d[MakeHistName("EECCollinsYellVsRStat", tag)] -> Fill(
+          content.rl, content.phiCollY, content.weight
         );
         return;
 

@@ -42,8 +42,6 @@ namespace PHEnergyCorrelator {
       double pt;
       double eta;
       double phi;
-      double phiblu;
-      double phiyel;
       int    pattern;
 
       //! default ctor/dtor
@@ -56,16 +54,12 @@ namespace PHEnergyCorrelator {
         const double parg,
         const double harg,
         const double farg,
-        const double fbarg = 0.,
-        const double fyarg = 0.,
         const int    aarg  = 0
       ) {
         cf      = carg;
         pt      = parg;
         eta     = harg;
         phi     = farg;
-        phiblu  = fbarg;
-        phiyel  = fyarg;
         pattern = aarg; 
       };
 
@@ -140,11 +134,6 @@ namespace PHEnergyCorrelator {
     // ------------------------------------------------------------------------
     //! Histogram content
     // ------------------------------------------------------------------------
-    /*! FIXME need to add multiple angles wrt spin
-     *    - angle b/n spin and hadron-hadron plane
-     *    - angle b/n spin and combined hadron-hadron + jet plane
-     *      (i.e. the Collins angle)
-     */
     struct HistContent {
 
       // data members
@@ -152,10 +141,12 @@ namespace PHEnergyCorrelator {
       double rl;       //!< longest side length
       double rm;       //!< medium side length (for E3C)
       double rs;       //!< shortest side length (for E3C and greater)
-      double xi;       //!< \f$ R_{s} / R_{m} \f$ (for E3C)
-      double theta;    //!< \f$ asin \sqrt(1-\frac{(R_{l}-R_{m})^{2}}{R_{s}^{2}}) \f$ (for E3C)
-      double phib;     //!< angle wrt blue spin
-      double phiy;     //!< angle wrt yellow spin
+      double xi;       //!< \f$R_{s}/R_{m}\f$ (for E3C)
+      double theta;    //!< \f$asin\sqrt(1-\frac{(R_{l}-R_{m})^{2}}{R_{s}^{2}})\f$ (for E3C)
+      double phiHAvgB; //!< hadron-hadron angle wrt blue spin
+      double phiHAvgY; //!< hadron-hadron angle wrt yellow spin
+      double phiCollB; //!< collins (hadron-hadron-jet) angle wrt blue spin
+      double phiCollY; //!< collins (hadron-hadron-jet) angle wrt yellow spin
       int    pattern;  //!< spin pattern
 
       //! default ctor/dtor
@@ -166,16 +157,20 @@ namespace PHEnergyCorrelator {
       HistContent(
         const double w,
         const double l,
-        const double b = 0.,
-        const double y = 0.,
+        const double ab = 0.,
+        const double ay = 0.,
+        const double cb = 0.,
+        const double cy = 0.,
         const int    p = 0
       ) {
-        weight  = w;
-        rl      = l;
-        phib    = b;
-        phiy    = y;
-        pattern = p;
-      }  // end ctor(double x 3, int)
+        weight   = w;
+        rl       = l;
+        phiHAvgB = ab;
+        phiHAvgY = ay;
+        phiCollB = cb;
+        phiCollY = cy;
+        pattern  = p;
+      }  // end ctor(double x 6, int)
 
       //! ctor accepting only 3-point arguments
       HistContent(
@@ -202,20 +197,24 @@ namespace PHEnergyCorrelator {
         const double s,
         const double x,
         const double t,
-        const double b = 0.,
-        const double y = 0.,
+        const double ab = 0.,
+        const double ay = 0.,
+        const double cb = 0.,
+        const double cy = 0.,
         const int    p = 0
       ) {
-        weight  = w;
-        rl      = l;
-        rm      = m;
-        rs      = s;
-        xi      = x;
-        theta   = t;
-        phib    = b;
-        phiy    = y;
-        pattern = p;
-      }  // end ctor(double x 7, int x 1)
+        weight   = w;
+        rl       = l;
+        rm       = m;
+        rs       = s;
+        xi       = x;
+        theta    = t;
+        phiHAvgB = ab;
+        phiHAvgY = ay;
+        phiCollB = cb;
+        phiCollY = cy;
+        pattern  = p;
+      }  // end ctor(double x 9, int x 1)
 
     };  // end HistContent
 

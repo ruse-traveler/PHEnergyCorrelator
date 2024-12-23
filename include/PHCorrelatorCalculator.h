@@ -313,18 +313,21 @@ namespace PHEnergyCorrelator {
           vecCst4.second.Vect()
         );
 
+        // compute angles wrt to spins
+        //   - FIXME dummy calculations! need to fill in
+        //     actual calculations wrt to spin!
+        const double dphiblu = remainder(avgCst3.Phi() - vecJet4.Phi(), TMath::TwoPi());
+        const double dphiyel = remainder(avgCst3.Phi() - vecJet4.Phi(), TMath::TwoPi());
+
         // now get EEC weights
         std::pair<double, double> cst_weights = std::make_pair(
           GetCstWeight(vecCst4.first, vecJet4),
           GetCstWeight(vecCst4.second, vecJet4)
         );
 
-        // calculate RL (dist b/n cst.s for EEC), EEC, and
-        // angle b/n the cst average and spin
+        // calculate RL (dist b/n cst.s for EEC) and overall EEC weight
         const double dist    = Tools::GetCstDist(csts);
         const double weight  = cst_weights.first * cst_weights.second * evt_weight;
-        const double dphiblu = remainder(avgCst3.Phi() - jet.phiblu, TMath::TwoPi());
-        const double dphiyel = remainder(avgCst3.Phi() - jet.phiyel, TMath::TwoPi());
 
         // fill histograms if needed
         //   - FIXME this can be simplified...
@@ -346,6 +349,8 @@ namespace PHEnergyCorrelator {
               dist,
               dphiblu,
               std::numeric_limits<double>::max(),
+              dphiblu,
+              std::numeric_limits<double>::max(),
               jet.pattern
             );
             m_manager.FillEECHists(indices[1], content_blu);
@@ -357,11 +362,15 @@ namespace PHEnergyCorrelator {
                 dist,
                 std::numeric_limits<double>::max(),
                 dphiyel,
+                std::numeric_limits<double>::max(),
+                dphiyel,
                 jet.pattern
               );
               Type::HistContent content_both(
                 weight,
                 dist,
+                dphiblu,
+                dphiyel,
                 dphiblu,
                 dphiyel,
                 jet.pattern
