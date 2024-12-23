@@ -36,21 +36,6 @@ namespace PHEnergyCorrelator {
   // ==========================================================================
   class Calculator {
 
-    public:
-
-      // ----------------------------------------------------------------------
-      //! Possible spin patterns
-      // ----------------------------------------------------------------------
-      enum pattern {
-        PPBUYU = 0,  /*!< blue up, yellow up (pp) */
-        PPBDYU = 1,  /*!< blue down, yellow up (pp) */
-        PPBUYD = 2,  /*!< blue up, yellow down (pp) */
-        PPBDYD = 3,  /*!< blue down, yellow down (pp) */
-        PABU   = 4,  /*!< blue up (pAu) */
-        PABD   = 5   /*!< blue down (pAu) */
-      };
-
-
     private:
 
       // data members (calc options)
@@ -161,46 +146,47 @@ namespace PHEnergyCorrelator {
             switch (jet.pattern) {
 
               // blue up, yellow up (pp)
-              case PPBUYU:
+              case Type::PPBUYU:
                 indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BU) );
                 indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::YU) );
                 indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BUYU) );
                 break;
 
               // blue down, yellow up (pp)
-              case PPBDYU:
+              case Type::PPBDYU:
                 indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BD) );
                 indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::YU) );
                 indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BDYU) );
                 break;
 
               // blue up, yellow down (pp)
-              case PPBUYD:
+              case Type::PPBUYD:
                 indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BU) );
                 indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::YD) );
                 indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BUYD) );
                 break;
 
               // blue down, yellow down (pp)
-              case PPBDYD:
+              case Type::PPBDYD:
                 indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BD) );
                 indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::YD) );
                 indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BDYD) );
                 break;
 
               // blue up (pAu)
-              case PABU:
+              case Type::PABU:
                 indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BU) );
                 break;
 
               // blue down (pAu)
-              case PABD:
+              case Type::PABD:
                 indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BD) );
                 break;
 
               // by default, only add integrated
               default:
                 break;
+
           }
         }
         return indices;
