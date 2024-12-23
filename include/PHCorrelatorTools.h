@@ -147,60 +147,93 @@ namespace PHEnergyCorrelator {
 
 
     // ------------------------------------------------------------------------
-    //! Get jet 4-vector from jet info
+    //! Get jet 4-vector in cartesian coordinates from jet info
     // ------------------------------------------------------------------------
-    TLorentzVector GetJetLorentz(const Type::Jet& jet) {
+    /*! Returns jet lorentz vector based on a Type::Jet. Note that the
+     *  energy of the vector is set to be the magnitude of the jet 3-
+     *  vector.
+     *
+     *  If `norm` is set to true, vector will be normalized by
+     *  its magnitude
+     */
+    TLorentzVector GetJetLorentz(const Type::Jet& jet, const bool norm = false) {
 
       // calculate momentum components
-      const float theta = 2.0 * atan(exp( -1.0 * jet.eta ));
-      const float pz    = jet.pt / tan(theta);
-      const float py    = (pz / cos(theta)) * sin(jet.phi);
-      const float px    = (pz / cos(theta)) * cos(jet.phi);
-      const float ptot  = hypot(jet.pt, pz);
+      const double th = 2.0 * atan( exp(-1.0 * jet.eta) );
+      const double pz = jet.pt / tan(th);
+      const double px = (pz / cos(th)) * cos(jet.phi);
+      const double py = (pz / cos(th)) * sin(jet.phi);
+
+      // normalize if need be
+      TVector3 vector(px, py, pz);
+      if (norm) {
+        vector *= (1.0 / vector.Mag());
+      }
 
       // return 4-vector
-      return TLorentzVector(px, py, pz, ptot);
+      return TLorentzVector(vector.Px(), vector.Py(), vector.Pz(), vector.Mag());
 
-    }  // end 'GetJetLorentz(Type::Jet&)'
+    }  // end 'GetJetLorentz(Type::Jet&, bool)'
 
 
 
     // ------------------------------------------------------------------------
-    //! Get constituent 4-vector in lab frame from 3-momenta in jet frame
+    //! Get constituent 4-vector in cartesian coordinates from cst info
     // ------------------------------------------------------------------------
+    /*! Returns cst lorentz vector based on a Type::Cst and the pt of a jet.
+     *  Note that the energy of the vector is set to be the magnitude of the
+     *  jet 3-vector.
+     *
+     *  If `norm` is set to true, vector will be normalized by
+     *  its magnitude
+     */
     TLorentzVector GetCstLorentz(
-      const TVector3& pjet,
-      const Type::Cst& cst
+      const Type::Cst& cst,
+      const double ptJet,
+      const bool norm = false
     ) {
 
-      // get fractional momenta wrt jet
-      TVector3 pcst = cst.z * pjet;
+      // get total momentum
+      const double ptCst = cst.z * ptJet;
+      const double pCst  = sqrt( (ptCst * ptCst) + (cst.jt * cst.jt) );
 
-      // calculate momentum components in lab frame
-      const float ptot = hypot(cst.jt, pcst.Mag());
-      const float px   = ptot * std::cosh(cst.eta) * std::cos(cst.phi);
-      const float py   = ptot * std::cosh(cst.eta) * std::sin(cst.phi);
-      const float pz   = ptot * std::sinh(cst.eta);
+      // calculate momentum components
+      const double th = 2.0 * atan( exp(-1.0 * cst.eta) );
+      const double px = pCst * sin(th) * cos(cst.phi);
+      const double py = pCst * sin(th) * sin(cst.phi);
+      const double pz = pCst * cos(th);
 
-      // return 4-vector
-      return TLorentzVector(px, py, pz, ptot);
+      // normalize if need be
+      TVector3 vector(px, py, pz);
+      if (norm) {
+        vector *= (1.0 / vector.Mag());
+      }
 
-    }  // end 'GetCstLorentz(TVector3, Type::Cst&)'
+      // return 3-vector
+      return TLorentzVector(vector.Px(), vector.Py(), vector.Pz(), vector.Mag());
+
+    }  // end 'GetCstLorentz(Types::Cst&, double, bool)'
+
 
 
     // ------------------------------------------------------------------------
-    //! Get weighted average of 2 4-vectors
+    //! Get magnitude-weighted average of two 3-vectors
     // ------------------------------------------------------------------------
-    TLorentzVector GetWeightedAvgLorentz(
-      const TLorentzVector& va,
-      const TLorentzVector& vb
+    TVector3 GetWeightedAvgVector(
+      const TVector3& va,
+      const TVector3& vb
     ) {
 
-      const float wa = va.E() / (va.E() + vb.E());
-      const float wb = vb.E() / (va.E() + vb.E());
-      return (wa * va) + (wb * vb);
+      // calculate weights
+      const double wa = va.Mag() / (va.Mag() + vb.Mag());
+      const double wb = vb.Mag() / (va.Mag() + vb.Mag());
 
-    }  // end 'GetWeightedAvgLorentz(TLorentzVector& x 2)'
+      // scale and sum vectors
+      const TVector3 sva = va * wa;
+      const TVector3 svb = vb * wb;
+      return sva + svb;
+
+    }  // end 'GetWeightedAvgVector(TVector3& x 2)'
 
   }  // end Tools namespace
 }  // end PHEnergyCorrelator namespace

@@ -298,38 +298,39 @@ namespace PHEnergyCorrelator {
       ) {
 
         // get jet 4-momenta
-        TLorentzVector jet_vec = Tools::GetJetLorentz(jet);
+        TLorentzVector vecJet4  = Tools::GetJetLorentz(jet, false);
+        TLorentzVector unitJet4 = Tools::GetJetLorentz(jet, true);
 
         // get cst 4-momenta
-        std::pair<TLorentzVector, TLorentzVector> cst_vecs = std::make_pair(
-          Tools::GetCstLorentz(jet_vec.Vect(), csts.first),
-          Tools::GetCstLorentz(jet_vec.Vect(), csts.second)
+        std::pair<TLorentzVector, TLorentzVector> vecCst4 = std::make_pair(
+          Tools::GetCstLorentz(csts.first, jet.pt),
+          Tools::GetCstLorentz(csts.second, jet.pt)
         );
 
-        // get vector distance b/n average of cst.s and spin direction
-        TLorentzVector cst_avg = Tools::GetWeightedAvgLorentz(
-          cst_vecs.first,
-          cst_vecs.second
+        // get average of cst 3-vectors
+        TVector3 avgCst3 = Tools::GetWeightedAvgVector(
+          vecCst4.first.Vect(),
+          vecCst4.second.Vect()
         );
 
-        // now get weights
+        // now get EEC weights
         std::pair<double, double> cst_weights = std::make_pair(
-          GetCstWeight(cst_vecs.first, jet_vec),
-          GetCstWeight(cst_vecs.second, jet_vec)
+          GetCstWeight(vecCst4.first, vecJet4),
+          GetCstWeight(vecCst4.second, vecJet4)
         );
 
         // calculate RL (dist b/n cst.s for EEC), EEC, and
         // angle b/n the cst average and spin
         const double dist    = Tools::GetCstDist(csts);
         const double weight  = cst_weights.first * cst_weights.second * evt_weight;
-        const double dphiblu = remainder(cst_avg.Phi() - jet.phiblu, TMath::TwoPi());
-        const double dphiyel = remainder(cst_avg.Phi() - jet.phiyel, TMath::TwoPi());
+        const double dphiblu = remainder(avgCst3.Phi() - jet.phiblu, TMath::TwoPi());
+        const double dphiyel = remainder(avgCst3.Phi() - jet.phiyel, TMath::TwoPi());
 
         // fill histograms if needed
         //   - FIXME this can be simplified...
         if (m_manager.GetDoEECHists()) {
 
-          // grab hist indices; if doing spin binning, the order
+          // grab hist indices
           std::vector<Type::HistIndex> indices = GetHistIndices(jet);
 
           // fill spin integrated case
