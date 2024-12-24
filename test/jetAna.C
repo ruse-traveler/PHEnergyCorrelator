@@ -814,7 +814,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 	}
       }
 
-      double R_lumi[2][4] = {{0.0, 0.0, 0.0, 0.0},{0.0, 0.0, 0.0, 0.0}}; 
+      double R_lumi[2][6] = {{0.0, 0.0, 0.0, 0.0, 0.0, 0.0},{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}}; 
 
       for(int ip12_clock_cross = 0; ip12_clock_cross<120; ip12_clock_cross++){
 
@@ -825,7 +825,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 
 	int spinPattern = GetSpinPattern(bspin, yspin);
 
-	if(chk && (ss_ok!=0) && (spinPattern>=0) && (spinPattern<4)){
+	if(chk && (ss_ok!=0) && (spinPattern>=0) && (spinPattern<6)){
 	  R_lumi[even_odd][spinPattern] += (double)(ss_bbcnovtxlive[ip12_clock_cross]);
 	}
 	else{
