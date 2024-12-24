@@ -240,10 +240,16 @@ int GetSpinPattern(int bspin, int yspin){
   
     ret_spinPat = 3;
   }
-  else{                     
+  else if( bspin == 1) {                     
     
     ret_spinPat = 4;
   }
+  else if( bspin == -1) {                     
+    
+    ret_spinPat = 5;
+  }
+  else
+    ret_spinPat = 6; 
 
   return ret_spinPat;
 }
@@ -447,11 +453,11 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
   TH1F *hRecoOppPatP2_odd = new TH1F("hRecoOppPatP2_odd_ERTfired", "Opp spin: +-/-+, odd crossing", NPTBINS, PTBINS);
   hRecoOppPatP2_odd->Sumw2();
 
-  TH1D *hRecoSpinPat[2][4];
-  TH1F *hRecoSpinPatP[2][4];
-  TH1F *hRecoSpinPatP2[2][4];
+  TH1D *hRecoSpinPat[2][6];
+  TH1F *hRecoSpinPatP[2][6];
+  TH1F *hRecoSpinPatP2[2][6];
   for(unsigned int j = 0; j < 2; j++){
-    for(unsigned int i = 0; i < 4; i++){
+    for(unsigned int i = 0; i < 6; i++){
       hRecoSpinPat[j][i] = new TH1D(Form("hRecoSpinPat_%i_%i", j, i), Form("Reco Jets, spinPat: %i %i", j, i), NPTBINS, PTBINS);
       hRecoSpinPat[j][i]->Sumw2();
       hRecoSpinPatP[j][i] = new TH1F(Form("hRecoSpinPatP_%i_%i", j, i), Form("Reco Jets, spinPat: %i %i", j, i), NPTBINS, PTBINS);
