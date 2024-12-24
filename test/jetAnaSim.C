@@ -2125,7 +2125,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 		else if(r_spinPat==5)
 		  blue_spin.SetY(-1.0);
 
-		TVector3 yellow_spin(0.0,1.0,0.0);
+		TVector3 yellow_spin(0.0,0.0,0.0);
 		if((r_spinPat==0)||(r_spinPat==1)) 
 		  yellow_spin.SetY(1.0); 
 		else if((r_spinPat==2)||(r_spinPat==3)) 
@@ -2148,8 +2148,9 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 		TVector3 jet_blue_beam_perp = (blue_beam.Cross(jet)).Unit();  
 		TVector3 jet_yellow_beam_perp = (yellow_beam.Cross(jet)).Unit();  
 	 
-		double bluePhiSpin = TMath::PiOver2() - acos(jet_blue_beam_perp.Dot(blue_spin)); 
-		double yellowPhiSpin = TMath::PiOver2() - acos(jet_yellow_beam_perp.Dot(yellow_spin)); 
+		double bluePhiSpin = TMath::PiOver2() - acos(jet_blue_beam_perp.Dot(blue_spin));
+		double yellowPhiSpin = 0.0; 
+		if(r_spinPat<4) yellowPhiSpin = TMath::PiOver2() - acos(jet_yellow_beam_perp.Dot(yellow_spin)); 
 	  
 		if((r_spinPat==2)||(r_spinPat==3)||(r_spinPat==5)){
 		  hJetPhiBluePol[1][even_odd]->Fill(r_maxPt,  bluePhiSpin); // spin down 
