@@ -323,7 +323,7 @@ namespace PHEnergyCorrelator {
         double phiHadBlue = acos( normHadSpin3.first.Dot(normHadHad3) );
         double phiHadYell = acos( normHadSpin3.second.Dot(normHadHad3) );
         double phiJetBlue = acos( normJetSpin3.first.Dot(normJetHad3) );
-        double phiJetYell = acos( normJetSpin3.first.Dot(normJetHad3) );
+        double phiJetYell = acos( normJetSpin3.second.Dot(normJetHad3) );
         if (phiHadBlue > TMath::PiOver2()) phiHadBlue -= TMath::Pi();
         if (phiHadYell > TMath::PiOver2()) phiHadYell -= TMath::Pi();
         if (phiJetBlue > TMath::PiOver2()) phiJetBlue -= TMath::Pi();
