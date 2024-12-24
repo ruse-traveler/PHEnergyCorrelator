@@ -240,10 +240,16 @@ int GetSpinPattern(int bspin, int yspin){
   
     ret_spinPat = 3;
   }
-  else{                     
+  else if( bspin == 1) {                     
     
     ret_spinPat = 4;
   }
+  else if( bspin == -1) {                     
+    
+    ret_spinPat = 5;
+  }
+  else
+    ret_spinPat = 6; 
 
   return ret_spinPat;
 }
@@ -447,11 +453,11 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
   TH1F *hRecoOppPatP2_odd = new TH1F("hRecoOppPatP2_odd_ERTfired", "Opp spin: +-/-+, odd crossing", NPTBINS, PTBINS);
   hRecoOppPatP2_odd->Sumw2();
 
-  TH1D *hRecoSpinPat[2][4];
-  TH1F *hRecoSpinPatP[2][4];
-  TH1F *hRecoSpinPatP2[2][4];
+  TH1D *hRecoSpinPat[2][6];
+  TH1F *hRecoSpinPatP[2][6];
+  TH1F *hRecoSpinPatP2[2][6];
   for(unsigned int j = 0; j < 2; j++){
-    for(unsigned int i = 0; i < 4; i++){
+    for(unsigned int i = 0; i < 6; i++){
       hRecoSpinPat[j][i] = new TH1D(Form("hRecoSpinPat_%i_%i", j, i), Form("Reco Jets, spinPat: %i %i", j, i), NPTBINS, PTBINS);
       hRecoSpinPat[j][i]->Sumw2();
       hRecoSpinPatP[j][i] = new TH1F(Form("hRecoSpinPatP_%i_%i", j, i), Form("Reco Jets, spinPat: %i %i", j, i), NPTBINS, PTBINS);
@@ -808,7 +814,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 	}
       }
 
-      double R_lumi[2][4] = {{0.0, 0.0, 0.0, 0.0},{0.0, 0.0, 0.0, 0.0}}; 
+      double R_lumi[2][6] = {{0.0, 0.0, 0.0, 0.0, 0.0, 0.0},{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}}; 
 
       for(int ip12_clock_cross = 0; ip12_clock_cross<120; ip12_clock_cross++){
 
@@ -819,7 +825,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 
 	int spinPattern = GetSpinPattern(bspin, yspin);
 
-	if(chk && (ss_ok!=0) && (spinPattern>=0) && (spinPattern<4)){
+	if(chk && (ss_ok!=0) && (spinPattern>=0) && (spinPattern<6)){
 	  R_lumi[even_odd][spinPattern] += (double)(ss_bbcnovtxlive[ip12_clock_cross]);
 	}
 	else{
@@ -1005,7 +1011,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 	    else if(r_spinPat==5)
 	      blue_spin.SetY(-1.0);
 
-	    TVector3 yellow_spin(0.0,1.0,0.0);
+	    TVector3 yellow_spin(0.0,0.0,0.0);
 	    if((r_spinPat==0)||(r_spinPat==1)) 
 	      yellow_spin.SetY(1.0); 
 	    else if((r_spinPat==2)||(r_spinPat==3)) 
@@ -1029,7 +1035,8 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 	    TVector3 jet_yellow_beam_perp = (yellow_beam.Cross(jet)).Unit();  
 	 
 	    double bluePhiSpin = TMath::PiOver2() - acos(jet_blue_beam_perp.Dot(blue_spin)); 
-	    double yellowPhiSpin = TMath::PiOver2() - acos(jet_yellow_beam_perp.Dot(yellow_spin)); 
+	    double yellowPhiSpin = 0.0; 
+	    if(r_spinPat<4) yellowPhiSpin = TMath::PiOver2() - acos(jet_yellow_beam_perp.Dot(yellow_spin)); 
 
 	    if((r_spinPat==1)||(r_spinPat==3)||(r_spinPat==5)){
 	      hJetPhiBluePol[1][even_odd]->Fill(r_maxPt,  bluePhiSpin, weight); // spin down 

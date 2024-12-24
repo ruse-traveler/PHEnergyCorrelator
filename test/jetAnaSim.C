@@ -80,6 +80,7 @@ float t_pT[kMaxTruthJets];
 float t_eta[kMaxTruthJets];
 float t_phi[kMaxTruthJets];
 float t_zg[kMaxTruthJets];
+float t_cf[kMaxTruthJets];
 float evt_Qsqr; 
 float evt_x1;
 float evt_x2;
@@ -211,6 +212,7 @@ void LinkMatchedVars(TTree *tReco, TTree *tMatch, TTree *tTrue){
   tTrue->SetBranchAddress("parton_id4_py", &parton_id4_py);
   tTrue->SetBranchAddress("parton_id4_pz", &parton_id4_pz);
   tTrue->SetBranchAddress("z_g", t_zg);
+  tTrue->SetBranchAddress("cf", t_cf);
 
 #ifdef INCLUDE_CONSTITUENTS
 
@@ -1265,9 +1267,9 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   TH1F *hRecoOppPatP2_odd = new TH1F("hRecoOppPat_odd_ERTfiredP2", "Opp spin: +-/-+, odd crossing", NPTBINS, PTBINS);
   hRecoOppPatP2_odd->Sumw2();
 
-  TH1F *hRecoSpinPat[2][4];
+  TH1F *hRecoSpinPat[2][6];
   for(unsigned int j = 0; j < 2; j++){
-    for(unsigned int i = 0; i < 4; i++){
+    for(unsigned int i = 0; i < 6; i++){
       hRecoSpinPat[j][i] = new TH1F(Form("hRecoSpinPat_%i_%i", j, i), Form("Reco Jets, spinPat: %i %i", j, i), NPTBINS, PTBINS);
       hRecoSpinPat[j][i]->Sumw2();
     }
@@ -1292,8 +1294,8 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   TH1F *hTrueOppPat = new TH1F("hTrueOppPat", "Opp spin: +-/-+", NPTBINS, PTBINS);
   hTrueOppPat->Sumw2();
 
-  TH1F *hTrueSpinPat[4];
-  for(unsigned int i = 0; i < 4; i++){
+  TH1F *hTrueSpinPat[6];
+  for(unsigned int i = 0; i < 6; i++){
     hTrueSpinPat[i] = new TH1F(Form("hTrueSpinPat_%i", i), Form("True Jets, spinPat: %i", i), NPTBINS, PTBINS);
     hTrueSpinPat[i]->Sumw2();
   }
@@ -1333,9 +1335,9 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   TH2D *hOangNoUETrig = new TH2D("hOangNoUETrig", "oang vs. reco p_{T} (no UE)", NPTBINS, PTBINS, NOANGBINS, OANGBINS);
   hOangNoUETrig->Sumw2(); 
 
-  TH2D *hZgSpinPat[2][4];
+  TH2D *hZgSpinPat[2][6];
   for(unsigned int j = 0; j < 2; j++){
-    for(unsigned int i = 0; i < 4; i++){
+    for(unsigned int i = 0; i < 6; i++){
       hZgSpinPat[j][i] = new TH2D(Form("hZgSpinPat_%i_%i", j, i), Form("hZgSpinPat_%i_%i", j, i), NPTBINS, PTBINS, NZGBINS, ZGBINS);
       hZgSpinPat[j][i]->Sumw2(); 
     }
@@ -1358,9 +1360,9 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   TH2D *hFFZNoUETrig = new TH2D("hFFZNoUETrig", "z vs. reco p_{T} (no UE)", NPTBINS, PTBINS, NFFZBINS, FFZBINS);
   hFFZNoUETrig->Sumw2(); 
 
-  TH2D *hFFZSpinPat[2][4];
+  TH2D *hFFZSpinPat[2][6];
   for(unsigned int j = 0; j < 2; j++){
-    for(unsigned int i = 0; i < 4; i++){
+    for(unsigned int i = 0; i < 6; i++){
       hFFZSpinPat[j][i] = new TH2D(Form("hFFZSpinPat_%i_%i", j, i), Form("hFFZSpinPat_%i_%i", j, i), NPTBINS, PTBINS, NFFZBINS, FFZBINS);
       hFFZSpinPat[j][i]->Sumw2(); 
     }
@@ -1383,9 +1385,9 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   TH2D *hFFXINoUETrig = new TH2D("hFFXINoUETrig", "z vs. reco p_{T} (no UE)", NPTBINS, PTBINS, NFFXIBINS, FFXIBINS);
   hFFXINoUETrig->Sumw2(); 
 
-  TH2D *hFFXISpinPat[2][4];
+  TH2D *hFFXISpinPat[2][6];
   for(unsigned int j = 0; j < 2; j++){
-    for(unsigned int i = 0; i < 4; i++){
+    for(unsigned int i = 0; i < 6; i++){
       hFFXISpinPat[j][i] = new TH2D(Form("hFFXISpinPat_%i_%i", j, i), Form("hFFXISpinPat_%i_%i", j, i), NPTBINS, PTBINS, NFFXIBINS, FFXIBINS);
       hFFXISpinPat[j][i]->Sumw2(); 
     }
@@ -1411,9 +1413,9 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   TH2D *hFFJTNoUETrig = new TH2D("hFFJTNoUETrig", "jT/pT vs. reco p_{T} (no UE)", NPTBINS, PTBINS, NFFJTBINS, FFJTBINS);
   hFFJTNoUETrig->Sumw2(); 
 
-  TH2D *hFFJTSpinPat[2][4];
+  TH2D *hFFJTSpinPat[2][6];
   for(unsigned int j = 0; j < 2; j++){
-    for(unsigned int i = 0; i < 4; i++){
+    for(unsigned int i = 0; i < 6; i++){
       hFFJTSpinPat[j][i] = new TH2D(Form("hFFJTSpinPat_%i_%i", j, i), Form("hFFJTSpinPat_%i_%i", j, i), NPTBINS, PTBINS, NFFJTBINS, FFJTBINS);
       hFFJTSpinPat[j][i]->Sumw2(); 
     }
@@ -1436,9 +1438,9 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   TH2D *hFFdRNoUETrig = new TH2D("hFFdRNoUETrig", "dR vs. reco p_{T} (noUE)", NPTBINS, PTBINS, NFFDRBINS, FFDRBINS);
   hFFdRNoUETrig->Sumw2(); 
 
-  TH2D *hFFdRSpinPat[2][4];
+  TH2D *hFFdRSpinPat[2][6];
   for(unsigned int j = 0; j < 2; j++){
-    for(unsigned int i = 0; i < 4; i++){
+    for(unsigned int i = 0; i < 6; i++){
       hFFdRSpinPat[j][i] = new TH2D(Form("hFFdRSpinPat_%i_%i", j, i), Form("hFFdRSpinPat_%i_%i", j, i), NPTBINS, PTBINS, NFFDRBINS, FFDRBINS);
       hFFdRSpinPat[j][i]->Sumw2(); 
     }
@@ -1564,7 +1566,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 
   // check for consistency/relative luminosity
   double nEvenOdd[2] = {0.0,0.0}; 
-  double nSpinPat[2][4] = {{0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0}}; 
+  double nSpinPat[2][6] = {{0.0,0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0,0.0}}; 
 
   // Weight function to reweight PYTHIA to partonic NLO
 
@@ -1826,7 +1828,10 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 	fullyWeightedEvents += evWeight; 
 
 	// Simulated random values:
-	int r_spinPat = myRand->Integer(4); 
+	int r_spinPat = 0; 
+	if((runno==13)||((runno==15)&&(embed==0))) r_spinPat = myRand->Integer(4); // pp 0-3, long or transverse
+	if(((runno==15)&&(embed==1)))r_spinPat = myRand->Integer(2) + 5; // pAu 4-5
+
 	// must use value from file to get trig eff. correct
 	int even_odd =  ip12_clock_cross%2; 
 	if((even_odd<0)||(even_odd>1)) even_odd = myRand->Integer(2); 
@@ -2079,7 +2084,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 
 	    hALLWeightReco->Fill(ALLSim); 
 
-	    if(r_spinPat < 4){
+	    if(r_spinPat < 6){
 
 	      hRecoSpinPat[even_odd][r_spinPat]->Fill(r_maxPt,evWeight*aLL_weight);
 
@@ -2102,7 +2107,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 		hFFdRSpinPat[even_odd][r_spinPat]->Fill(r_maxPt, re_cs_dR->at(indexMax).at(i),evWeight); 
 	      }
 
-	      if(((runno==12)||(runno==15))&&(embed==0)){
+	      if(((runno==12)||(runno==15))){
 
 		// Collins histograms
 		// define unit vectors for angles
@@ -2111,9 +2116,20 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 		TVector3 yellow_beam(0.0,0.0,-1.0); 
 
 		TVector3 blue_spin(0.0,1.0,0.0);
-		if((r_spinPat==2)||(r_spinPat==3)) blue_spin.SetY(-1.0); 
-		TVector3 yellow_spin(0.0,1.0,0.0);
-		if((r_spinPat==1)||(r_spinPat==3)) yellow_spin.SetY(-1.0); 
+		if((r_spinPat==1)||(r_spinPat==3)) 
+		  blue_spin.SetY(-1.0); 
+		else if((r_spinPat==0)||(r_spinPat==2)) 
+		  blue_spin.SetY(1.0);
+		else if(r_spinPat==4)
+		  blue_spin.SetY(1.0);
+		else if(r_spinPat==5)
+		  blue_spin.SetY(-1.0);
+
+		TVector3 yellow_spin(0.0,0.0,0.0);
+		if((r_spinPat==0)||(r_spinPat==1)) 
+		  yellow_spin.SetY(1.0); 
+		else if((r_spinPat==2)||(r_spinPat==3)) 
+		  yellow_spin.SetY(-1.0); 
 
 		double theta = 2.0*atan(exp(-r_eta[indexMax]));
 		double pz = r_maxPt/tan(theta); 
@@ -2132,10 +2148,11 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 		TVector3 jet_blue_beam_perp = (blue_beam.Cross(jet)).Unit();  
 		TVector3 jet_yellow_beam_perp = (yellow_beam.Cross(jet)).Unit();  
 	 
-		double bluePhiSpin = TMath::PiOver2() - acos(jet_blue_beam_perp.Dot(blue_spin)); 
-		double yellowPhiSpin = TMath::PiOver2() - acos(jet_yellow_beam_perp.Dot(yellow_spin)); 
+		double bluePhiSpin = TMath::PiOver2() - acos(jet_blue_beam_perp.Dot(blue_spin));
+		double yellowPhiSpin = 0.0; 
+		if(r_spinPat<4) yellowPhiSpin = TMath::PiOver2() - acos(jet_yellow_beam_perp.Dot(yellow_spin)); 
 	  
-		if((r_spinPat==2)||(r_spinPat==3)){
+		if((r_spinPat==2)||(r_spinPat==3)||(r_spinPat==5)){
 		  hJetPhiBluePol[1][even_odd]->Fill(r_maxPt,  bluePhiSpin); // spin down 
 		  if(jetCharge>0.0)
 		    hJetPhiBluePolJCPos[1][even_odd]->Fill(r_maxPt,  bluePhiSpin); // spin down 
@@ -2150,7 +2167,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 		    hJetPhiBluePolJCNeg[0][even_odd]->Fill(r_maxPt,  bluePhiSpin); // spin up 
 		}
 	
-		if((r_spinPat==1)||(r_spinPat==3)){
+		if((r_spinPat==1)||(r_spinPat==3)||(r_spinPat==4)){
 		  hJetPhiYellowPol[1][even_odd]->Fill(r_maxPt,  yellowPhiSpin); // spin down
 		  if(jetCharge>0.0)
 		    hJetPhiYellowPolJCPos[1][even_odd]->Fill(r_maxPt,  yellowPhiSpin); // spin down
@@ -2176,13 +2193,11 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 
                   // collect jet and spin information into a handy struct
                   PHEC::Type::Jet jet(
-                    0.51,  // dummy value, not binning on cf
+		    t_cf[indexMax],
                     t_pT[max_truth_idx],
                     t_eta[max_truth_idx],
                     t_phi[max_truth_idx],
-                    r_spinPat,
-                    bluePhiSpin,
-                    yellowPhiSpin
+                    r_spinPat
                   );
 
                   // loop through pairs of constituents
@@ -2236,9 +2251,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
                     r_pT[indexMax],
                     r_eta[indexMax],
                     r_phi[indexMax],
-                    r_spinPat,
-                    bluePhiSpin,
-                    yellowPhiSpin
+                    r_spinPat
                   );
 
                   // loop through pairs of constituents
@@ -2352,20 +2365,20 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 
 		  if(re_cs_charge->at(indexMax).at(i)>0.0){
 
-		    if((r_spinPat==2)||(r_spinPat==3)){
+		    if((r_spinPat==1)||(r_spinPat==3)){
 		      hFFPhiBluePolPos[1][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), blue_dPhiSpin); // spin down
 		      hFFTwoPhiBluePolPos[1][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), blue_d2PhiSpin); // spin down
 		    }
-		    else{
+		    else if((r_spinPat==0)||(r_spinPat==2)){
 		      hFFPhiBluePolPos[0][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), blue_dPhiSpin); // spin up
 		      hFFTwoPhiBluePolPos[0][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), blue_d2PhiSpin); // spin up
 		    }
 		
-		    if((r_spinPat==1)||(r_spinPat==3)){
+		    if((r_spinPat==2)||(r_spinPat==3)){
 		      hFFPhiYellowPolPos[1][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), yellow_dPhiSpin); // spin down 
 		      hFFTwoPhiYellowPolPos[1][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), yellow_d2PhiSpin); // spin down 
 		    }
-		    else{ 
+		    else if((r_spinPat==0)||(r_spinPat==1)){ 
 		      hFFPhiYellowPolPos[0][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), yellow_dPhiSpin); // spin up
 		      hFFTwoPhiYellowPolPos[0][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), yellow_d2PhiSpin); // spin up
 		    }
@@ -2373,20 +2386,20 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 		  }
 		  else if(re_cs_charge->at(indexMax).at(i)<0.0){
 
-		    if((r_spinPat==2)||(r_spinPat==3)){
+		    if((r_spinPat==1)||(r_spinPat==3)){
 		      hFFPhiBluePolNeg[1][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), blue_dPhiSpin); // spin down
 		      hFFTwoPhiBluePolNeg[1][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), blue_d2PhiSpin); // spin down
 		    }
-		    else{
+		    else if((r_spinPat==0)||(r_spinPat==2)){
 		      hFFPhiBluePolNeg[0][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), blue_dPhiSpin); // spin up
 		      hFFTwoPhiBluePolNeg[0][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), blue_d2PhiSpin); // spin up
 		    }
 
-		    if((r_spinPat==1)||(r_spinPat==3)){
+		    if((r_spinPat==2)||(r_spinPat==3)){
 		      hFFPhiYellowPolNeg[1][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), yellow_dPhiSpin); // spin down
 		      hFFTwoPhiYellowPolNeg[1][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), yellow_d2PhiSpin); // spin down
 		    }
-		    else{
+		    else if((r_spinPat==0)||(r_spinPat==1)){
 		      hFFPhiYellowPolNeg[0][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), yellow_dPhiSpin); // spin up
 		      hFFTwoPhiYellowPolNeg[0][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), yellow_d2PhiSpin); // spin up
 		    }
@@ -2420,11 +2433,15 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   cout << "-->Spin Pattern 1 Events = " << nSpinPat[0][1] << endl; 
   cout << "-->Spin Pattern 2 Events = " << nSpinPat[0][2] << endl; 
   cout << "-->Spin Pattern 3 Events = " << nSpinPat[0][3] << endl << endl; 
+  cout << "-->Spin Pattern 4 Events = " << nSpinPat[0][4] << endl << endl; 
+  cout << "-->Spin Pattern 5 Events = " << nSpinPat[0][5] << endl << endl; 
   cout << "Odd Crossing Events = " << nEvenOdd[1] << endl; 
   cout << "-->Spin Pattern 0 Events = " << nSpinPat[1][0] << endl; 
   cout << "-->Spin Pattern 1 Events = " << nSpinPat[1][1] << endl; 
   cout << "-->Spin Pattern 2 Events = " << nSpinPat[1][2] << endl; 
   cout << "-->Spin Pattern 3 Events = " << nSpinPat[1][3] << endl << endl; 
+  cout << "-->Spin Pattern 4 Events = " << nSpinPat[1][4] << endl << endl; 
+  cout << "-->Spin Pattern 5 Events = " << nSpinPat[1][5] << endl << endl; 
 
   // Same/Opp
   double R_even = (nSpinPat[0][0]+nSpinPat[0][3])/(nSpinPat[0][1]+nSpinPat[0][2]); 
