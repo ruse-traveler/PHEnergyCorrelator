@@ -752,16 +752,15 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
     if((RUNNUM==8) && (isHI==1) && ((r_centrality<centLow) || (r_centrality>=centHigh))) continue; 
     if((RUNNUM==15) && (isHI==1) && ((r_centrality<centLow) || (r_centrality>=centHigh))) continue; 
 
-    // Check for valid spin information
+    // Bad pAu runs - not in spin database
+    if((r_runNumber==434147)||(r_runNumber==434148)||(r_runNumber==434150)||(r_runNumber==434151)) continue; 
 
+    // Check for valid spin information
     if( (r_ip12_clock_cross<0) || (r_ip12_clock_cross>120) ){
       cout << "Bad clock cross, event skipped, run = " << r_runNumber << " ip12_clock_cross = " << r_ip12_clock_cross << endl; 
       continue; 
     }
     
-    // Bad pAu run - not in spin database
-    if(r_runNumber==434147) continue; 
-
     // Check for run number change, update polarization
     if(((RUNNUM==13)||(RUNNUM==15)) && (r_runNumber!=currRunNumber)){
 
