@@ -2432,15 +2432,15 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   cout << "-->Spin Pattern 0 Events = " << nSpinPat[0][0] << endl; 
   cout << "-->Spin Pattern 1 Events = " << nSpinPat[0][1] << endl; 
   cout << "-->Spin Pattern 2 Events = " << nSpinPat[0][2] << endl; 
-  cout << "-->Spin Pattern 3 Events = " << nSpinPat[0][3] << endl << endl; 
-  cout << "-->Spin Pattern 4 Events = " << nSpinPat[0][4] << endl << endl; 
+  cout << "-->Spin Pattern 3 Events = " << nSpinPat[0][3] << endl; 
+  cout << "-->Spin Pattern 4 Events = " << nSpinPat[0][4] << endl; 
   cout << "-->Spin Pattern 5 Events = " << nSpinPat[0][5] << endl << endl; 
   cout << "Odd Crossing Events = " << nEvenOdd[1] << endl; 
   cout << "-->Spin Pattern 0 Events = " << nSpinPat[1][0] << endl; 
   cout << "-->Spin Pattern 1 Events = " << nSpinPat[1][1] << endl; 
   cout << "-->Spin Pattern 2 Events = " << nSpinPat[1][2] << endl; 
-  cout << "-->Spin Pattern 3 Events = " << nSpinPat[1][3] << endl << endl; 
-  cout << "-->Spin Pattern 4 Events = " << nSpinPat[1][4] << endl << endl; 
+  cout << "-->Spin Pattern 3 Events = " << nSpinPat[1][3] << endl; 
+  cout << "-->Spin Pattern 4 Events = " << nSpinPat[1][4] << endl; 
   cout << "-->Spin Pattern 5 Events = " << nSpinPat[1][5] << endl << endl; 
 
   // Same/Opp

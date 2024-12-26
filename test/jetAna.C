@@ -240,13 +240,13 @@ int GetSpinPattern(int bspin, int yspin){
   
     ret_spinPat = 3;
   }
-  else if( bspin == 1) {                     
+  else if( yspin == 0 ) { // Run-15 p+Au (only p is polarized)               
     
-    ret_spinPat = 4;
-  }
-  else if( bspin == -1) {                     
-    
-    ret_spinPat = 5;
+    if(bspin == 1)
+      ret_spinPat = 4;
+    else if(bspin = -1) 
+      ret_spinPat = 5; 
+
   }
   else
     ret_spinPat = 6; 
@@ -752,13 +752,18 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
     if((RUNNUM==8) && (isHI==1) && ((r_centrality<centLow) || (r_centrality>=centHigh))) continue; 
     if((RUNNUM==15) && (isHI==1) && ((r_centrality<centLow) || (r_centrality>=centHigh))) continue; 
 
-    // TEST - eliminate two crossings after empties
-    //if((RUNNUM==13) && 
-    //   (((r_runNumber<392200) && ((r_ip12_clock_cross==31)||(r_ip12_clock_cross==32)||(r_ip12_clock_cross==71)||(r_ip12_clock_cross==72))) ||
-    //    (r_ip12_clock_cross<=3)) ) continue;
+    // Check for valid spin information
+
+    if( (r_ip12_clock_cross<0) || (r_ip12_clock_cross>120) ){
+      cout << "Bad clock cross, event skipped, run = " << r_runNumber << " ip12_clock_cross = " << r_ip12_clock_cross << endl; 
+      continue; 
+    }
     
+    // Bad pAu run - not in spin database
+    if(r_runNumber==434147) continue; 
+
     // Check for run number change, update polarization
-    if((RUNNUM==13) && (r_runNumber!=currRunNumber)){
+    if(((RUNNUM==13)||(RUNNUM==15)) && (r_runNumber!=currRunNumber)){
 
      // Update polarization values 
 
@@ -772,7 +777,8 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 
       int getdbcontstore = spin_out.GetDBContentStore(spin_cont,r_runNumber);
       if( getdbcontstore != 1) {
-	cout << "ERROR: GetDBContentStore failed for run =  " << r_runNumber << endl;      
+	cout << "ERROR: GetDBContentStore failed for run =  " << r_runNumber << endl;
+	currRunNumber = r_runNumber; // don't keep hammering the DB
 	continue; 
       }
 
@@ -780,7 +786,8 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 
 	double bpol, bpol_err; 
 	int getbluepol = spin_cont.GetPolarizationBlue(ip12_clock_cross, bpol, bpol_err);
-	if((getbluepol==1)&&(bpol<0.7)){ // eliminate unusually high blue polarization values
+	//if((getbluepol==1)&&(bpol<0.7)){ // eliminate unusually high blue polarization values
+	if(getbluepol==1){ 
 	  bpolIndexed[ip12_clock_cross] = bpol; 
 	  BluePol->Fill(ip12_clock_cross,bpol); 
 	}
@@ -802,44 +809,48 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
       
       }
 
-      // Update relative luminosity for this run
+      if(RUNNUM==13){
 
-      int entries = tMu->GetEntries();
-      bool chk = false;
-      for(int i = 0; i < entries; i++){//loop over tree   
-	tMu->GetEntry(i);
-	if(tMu_runnum == r_runNumber){
-	  chk = true;
-	  break;
+	// Update relative luminosity for this run
+
+	int entries = tMu->GetEntries();
+	bool chk = false;
+	for(int i = 0; i < entries; i++){//loop over tree   
+	  tMu->GetEntry(i);
+	  if(tMu_runnum == r_runNumber){
+	    chk = true;
+	    break;
+	  }
 	}
+
+	double R_lumi[2][6] = {{0.0, 0.0, 0.0, 0.0, 0.0, 0.0},{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}}; 
+
+	for(int ip12_clock_cross = 0; ip12_clock_cross<120; ip12_clock_cross++){
+
+	  int even_odd = ip12_clock_cross%2; 
+
+	  int bspin = spin_cont.GetSpinPatternBlue(ip12_clock_cross);
+	  int yspin = spin_cont.GetSpinPatternYellow(ip12_clock_cross);
+
+	  int spinPattern = GetSpinPattern(bspin, yspin);
+
+	  if(chk && (ss_ok!=0) && (spinPattern>=0) && (spinPattern<6)){
+	    R_lumi[even_odd][spinPattern] += (double)(ss_bbcnovtxlive[ip12_clock_cross]);
+	  }
+	  else{
+	    R_lumi[even_odd][spinPattern] += (double)spin_cont.GetScalerBbcNoCut(ip12_clock_cross);
+	  }
+	}
+
+	RweightEO[0] = (R_lumi[0][1]+R_lumi[0][2])/(R_lumi[0][0]+R_lumi[0][3]); 
+	RweightEO[1] = (R_lumi[1][1]+R_lumi[1][2])/(R_lumi[1][0]+R_lumi[1][3]);   
+	Rweight = (R_lumi[0][1]+R_lumi[0][2]+R_lumi[1][1]+R_lumi[1][2])/(R_lumi[0][0]+R_lumi[0][3]+R_lumi[1][0]+R_lumi[1][3]); 
+
+	// Notify user
+
+	cout << " Run = " << r_runNumber << " RweightEO[0] = " << RweightEO[0] << " RweightEO[1] = " << RweightEO[1] << endl; 
+
       }
-
-      double R_lumi[2][6] = {{0.0, 0.0, 0.0, 0.0, 0.0, 0.0},{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}}; 
-
-      for(int ip12_clock_cross = 0; ip12_clock_cross<120; ip12_clock_cross++){
-
-	int even_odd = ip12_clock_cross%2; 
-
-	int bspin = spin_cont.GetSpinPatternBlue(ip12_clock_cross);
-	int yspin = spin_cont.GetSpinPatternYellow(ip12_clock_cross);
-
-	int spinPattern = GetSpinPattern(bspin, yspin);
-
-	if(chk && (ss_ok!=0) && (spinPattern>=0) && (spinPattern<6)){
-	  R_lumi[even_odd][spinPattern] += (double)(ss_bbcnovtxlive[ip12_clock_cross]);
-	}
-	else{
-	  R_lumi[even_odd][spinPattern] += (double)spin_cont.GetScalerBbcNoCut(ip12_clock_cross);
-	}
-      }
-
-      RweightEO[0] = (R_lumi[0][1]+R_lumi[0][2])/(R_lumi[0][0]+R_lumi[0][3]); 
-      RweightEO[1] = (R_lumi[1][1]+R_lumi[1][2])/(R_lumi[1][0]+R_lumi[1][3]);   
-      Rweight = (R_lumi[0][1]+R_lumi[0][2]+R_lumi[1][1]+R_lumi[1][2])/(R_lumi[0][0]+R_lumi[0][3]+R_lumi[1][0]+R_lumi[1][3]); 
-
-      // Notify user
-
-      cout << " Run = " << r_runNumber << " RweightEO[0] = " << RweightEO[0] << " RweightEO[1] = " << RweightEO[1] << endl; 
 
       // update current run number
       
@@ -849,7 +860,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
     
     // Set polarization 
 
-    if(RUNNUM==13){
+    if((RUNNUM==13)||(RUNNUM==15)){
       Pblue = bpolIndexed[r_ip12_clock_cross]; 
       Pyellow = ypolIndexed[r_ip12_clock_cross]; 
     }
@@ -960,6 +971,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 
 	//SPIN pattern histos
 	// 0 = even, 1 = odd
+
 	int even_odd = r_ip12_clock_cross%2;
 
 	if(r_spinPat < 6){ // both blue and yellow polarized
