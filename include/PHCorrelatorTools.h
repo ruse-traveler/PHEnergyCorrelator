@@ -18,7 +18,6 @@
 // root libraries
 #include <TH1.h>
 #include <TLorentzVector.h>
-#include <TString.h>
 #include <TVector3.h>
 // analysis components
 #include "PHCorrelatorConstants.h"
@@ -80,23 +79,6 @@ namespace PHEnergyCorrelator {
       return var;
 
     }  // end 'GetVariance(double, double)'
-
-
-
-    // ------------------------------------------------------------------------
-    //! Convert an index to a string
-    // ------------------------------------------------------------------------
-    std::string StringifyIndex(const std::size_t index) {
-
-      // create TString, add index
-      TString tstr;
-      tstr += index;
-
-      // create std::string and return
-      const std::string sstr(tstr.Data());
-      return sstr;
-
-    }  // end 'StringifyIndex(std::size_t)'
 
 
 

@@ -22,6 +22,7 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TH3.h>
+#include <TString.h>
 // analysis components
 #include "PHCorrelatorBins.h"
 #include "PHCorrelatorConstants.h"
@@ -96,6 +97,21 @@ namespace PHEnergyCorrelator {
 
       // data members (bins)
       Bins m_bins;
+
+      // ----------------------------------------------------------------------
+      //! Convert an index to a string
+      // ----------------------------------------------------------------------
+      std::string StringifyIndex(const std::size_t index) {
+
+        // create TString, add index
+        TString tstr;
+        tstr += index;
+
+        // create std::string and return
+        const std::string sstr(tstr.Data());
+        return sstr;
+
+      }  // end 'StringifyIndex(std::size_t)'
 
       // ----------------------------------------------------------------------
       //! Translate spin index into a tag
