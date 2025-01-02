@@ -1,5 +1,5 @@
 /// ============================================================================
-/*! \file    PHCorrelatorManager.h
+/*! \file    PHCorrelatorHistManager.h
  *  \authors Derek Anderson
  *  \date    09.24.2024
  *
@@ -8,8 +8,8 @@
  */
 /// ============================================================================
 
-#ifndef PHCORRELATORMANAGER_H
-#define PHCORRELATORMANAGER_H
+#ifndef PHCORRELATORHISTMANAGER_H
+#define PHCORRELATORHISTMANAGER_H
 
 // c++ utilities
 #include <algorithm>
@@ -24,11 +24,11 @@
 #include <TH3.h>
 #include <TString.h>
 // analysis components
+#include "PHCorrelatorAnaTools.h"
+#include "PHCorrelatorAnaTypes.h"
 #include "PHCorrelatorBins.h"
 #include "PHCorrelatorConstants.h"
 #include "PHCorrelatorHistogram.h"
-#include "PHCorrelatorTools.h"
-#include "PHCorrelatorTypes.h"
 
 
 
@@ -46,7 +46,7 @@ namespace PHEnergyCorrelator {
   // ==========================================================================
   //! ENC Histogram Manager
   // ==========================================================================
-  class Manager {
+  class HistManager {
 
     public:
 
@@ -101,7 +101,7 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       //! Convert an index to a string
       // ----------------------------------------------------------------------
-      std::string StringifyIndex(const std::size_t index) {
+      std::string StringifyIndex(const std::size_t index) const {
 
         // create TString, add index
         TString tstr;
@@ -168,8 +168,8 @@ namespace PHEnergyCorrelator {
         std::string tag = "";
 
         // add appropriate indices
-        if (m_do_pt_bins) tag += Const::PtTag() + Tools::StringifyIndex(index.pt);
-        if (m_do_cf_bins) tag += Const::CFTag() + Tools::StringifyIndex(index.cf);
+        if (m_do_pt_bins) tag += Const::PtTag() + StringifyIndex(index.pt);
+        if (m_do_cf_bins) tag += Const::CFTag() + StringifyIndex(index.cf);
         if (m_do_sp_bins) tag += Const::SpinTag() + GetSpinTag(index.spin);
         return tag;
 
@@ -570,7 +570,7 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       //! default ctor
       // ----------------------------------------------------------------------
-      Manager()  {
+      HistManager()  {
 
         m_do_eec_hist = false;
         m_do_e3c_hist = false;
@@ -589,12 +589,12 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       //! default dtor
       // ----------------------------------------------------------------------
-      ~Manager() {};
+      ~HistManager() {};
 
       // ----------------------------------------------------------------------
       //! ctor accepting arguments
       // ----------------------------------------------------------------------
-      Manager(const bool do_eec, const bool do_e3c = false, const bool do_lec = false) {
+      HistManager(const bool do_eec, const bool do_e3c = false, const bool do_lec = false) {
 
         m_do_eec_hist = do_eec;
         m_do_e3c_hist = do_e3c;
@@ -608,9 +608,9 @@ namespace PHEnergyCorrelator {
         m_hist_tag    = "";
         m_hist_pref   = "";
 
-      }  // end 'Manager(bool, bool, bool)'
+      }  // end 'HistManager(bool, bool, bool)'
 
-  };  // end PHEnergyCorrelator::Manager
+  };  // end PHEnergyCorrelator::HistManager
 
 }  // end PHEnergyCorrelator namespace
 

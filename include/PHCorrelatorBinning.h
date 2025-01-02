@@ -14,8 +14,8 @@
 #include <string>
 #include <vector>
 // analysis components
-#include "PHCorrelatorTools.h"
-#include "PHCorrelatorTypes.h"
+#include "PHCorrelatorAnaTools.h"
+#include "PHCorrelatorAnaTypes.h"
 
 
 

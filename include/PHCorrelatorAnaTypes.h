@@ -1,15 +1,14 @@
 /// ============================================================================
-/*! \file    PHCorrelatorTypes.h
+/*! \file    PHCorrelatorAnaTypes.h
  *  \authors Derek Anderson
  *  \date    09.21.2024
  *
- *  Namespace to collect types used in PHENIX
- *  ENC analyses.
+ *  Useful types related to analysis/histogramming.
  */
 /// ============================================================================
 
-#ifndef PHCORRELATORTYPES_H
-#define PHCORRELATORTYPES_H
+#ifndef PHCORRELATORANATYPES_H
+#define PHCORRELATORANATYPES_H
 
 // analysis components
 #include "PHCorrelatorConstants.h"
@@ -17,10 +16,6 @@
 
 
 namespace PHEnergyCorrelator {
-
-  // ==========================================================================
-  //! PHEnergyCorrelator Types
-  // ==========================================================================
   namespace Type {
 
     // ------------------------------------------------------------------------

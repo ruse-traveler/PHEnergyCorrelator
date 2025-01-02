@@ -22,9 +22,9 @@
 #include <TMath.h>
 #include <TVector3.h>
 // analysis componenets
-#include "PHCorrelatorManager.h"
-#include "PHCorrelatorTypes.h"
-#include "PHCorrelatorTools.h"
+#include "PHCorrelatorAnaTools.h"
+#include "PHCorrelatorAnaTypes.h"
+#include "PHCorrelatorHistManager.h"
 
 
 
@@ -46,7 +46,7 @@ namespace PHEnergyCorrelator {
       std::vector< std::pair<float, float> > m_cfjet_bins;
 
       // data member (hist manager)
-      Manager m_manager;
+      HistManager m_manager;
 
       // ---------------------------------------------------------------------=
       //! Get weight of a constituent
@@ -138,7 +138,7 @@ namespace PHEnergyCorrelator {
 
         // By default, add spin-integrated bin
         std::vector<Type::HistIndex> indices;
-        indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::Int) );
+        indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::Int) );
 
         // if needed, determine spin bins
         if (m_manager.GetDoSpinBins()) {
@@ -146,40 +146,40 @@ namespace PHEnergyCorrelator {
 
               // blue up, yellow up (pp)
               case Type::PPBUYU:
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BU) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::YU) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BUYU) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::BU) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::YU) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::BUYU) );
                 break;
 
               // blue down, yellow up (pp)
               case Type::PPBDYU:
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BD) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::YU) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BDYU) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::BD) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::YU) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::BDYU) );
                 break;
 
               // blue up, yellow down (pp)
               case Type::PPBUYD:
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BU) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::YD) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BUYD) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::BU) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::YD) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::BUYD) );
                 break;
 
               // blue down, yellow down (pp)
               case Type::PPBDYD:
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BD) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::YD) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BDYD) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::BD) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::YD) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::BDYD) );
                 break;
 
               // blue up (pAu)
               case Type::PABU:
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BU) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::BU) );
                 break;
 
               // blue down (pAu)
               case Type::PABD:
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, Manager::BD) );
+                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::BD) );
                 break;
 
               // by default, only add integrated
@@ -203,7 +203,7 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       //! Getters
       // ----------------------------------------------------------------------
-      Manager& GetManager() {return m_manager;}
+      HistManager& GetManager() {return m_manager;}
 
       // ----------------------------------------------------------------------
       //! Setters

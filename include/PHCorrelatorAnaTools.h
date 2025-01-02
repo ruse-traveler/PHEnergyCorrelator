@@ -1,14 +1,14 @@
 /// ============================================================================
-/*! \file    PHCorrelatorTools.h
+/*! \file    PHCorrelatorAnaTools.h
  *  \authors Derek Anderson
  *  \date    09.23.2024
  *
- *  Namespace to collect useful methods for ENC calculations.
+ *  Useful tools for analysis/histogramming.
  */
 /// ============================================================================
 
-#ifndef PHCORRELATORTOOLS_H
-#define PHCORRELATORTOOLS_H
+#ifndef PHCORRELATORANATOOLS_H
+#define PHCORRELATORANATOOLS_H
 
 // c++ utilities
 #include <algorithm>
@@ -20,16 +20,12 @@
 #include <TLorentzVector.h>
 #include <TVector3.h>
 // analysis components
+#include "PHCorrelatorAnaTypes.h"
 #include "PHCorrelatorConstants.h"
-#include "PHCorrelatorTypes.h"
 
 
 
 namespace PHEnergyCorrelator {
-
-  // ==========================================================================
-  //! PHEnergyCorrelator Tools
-  // ==========================================================================
   namespace Tools {
 
     // ------------------------------------------------------------------------

@@ -19,9 +19,9 @@
 #include <TH2.h>
 #include <TH3.h>
 // analysis components
+#include "PHCorrelatorAnaTools.h"
+#include "PHCorrelatorAnaTypes.h"
 #include "PHCorrelatorBinning.h"
-#include "PHCorrelatorTools.h"
-#include "PHCorrelatorTypes.h"
 
 
 
