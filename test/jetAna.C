@@ -1102,11 +1102,22 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
                 iCstA < re_cs_z->at(indexMax).size();
                 ++iCstA
               ) {
+
+                // keep only charged csts.s
+                if (re_cs_charge->at(indexMax).at(iCstA) == 0.0) {
+                  continue;
+                }
+
                 for (
                   std::size_t iCstB = 0;
                   iCstB < re_cs_z->at(indexMax).size();
                   ++iCstB
                 ) {
+
+                  // keep only charged csts.s
+                  if (re_cs_charge->at(indexMax).at(iCstB) == 0.0) {
+                    continue;
+                  }
 
                   // collect cst information into a handy struct
                   PHEC::Type::Cst cstA(
