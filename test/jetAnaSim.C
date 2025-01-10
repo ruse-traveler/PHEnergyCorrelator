@@ -803,7 +803,9 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 
 // define flags to turn off certain calculations
 #define doTrueEEC 1
+#define doTrueEECChargedOnly 0 
 #define doRecoEEC 1
+#define doRecoEECChargedOnly 0 
 
   // pt jet bins
   std::vector< std::pair<float, float> > ptJetBins;
@@ -2208,7 +2210,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
                   ) {
 
 		    // keep only charged cst.s
-		    if (tr_cs_charge->at(max_truth_idx).at(iTruthCstA) == 0.0) {
+		    if (doTrueEECChargedOnly && (tr_cs_charge->at(max_truth_idx).at(iTruthCstA) == 0.0)) {
 		      continue;
 		    }
 
@@ -2219,7 +2221,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
                     ) {
 
 		      // keep only charged cst.s
-		      if (tr_cs_charge->at(max_truth_idx).at(iTruthCstB) == 0.0) {
+		      if (doTrueEECChargedOnly && (tr_cs_charge->at(max_truth_idx).at(iTruthCstB) == 0.0)) {
 			continue;
 		      }
 
@@ -2273,7 +2275,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
                   ) {
 
 		    // keep only charged cst.s
-                    if (re_cs_charge->at(indexMax).at(iRecoCstA) == 0.0) {
+                    if (doRecoEECChargedOnly && (re_cs_charge->at(indexMax).at(iRecoCstA) == 0.0)) {
                       continue;
                     }
 
@@ -2284,7 +2286,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
                     ) {
 
 		      // keep only charged cst.s
-                      if (re_cs_charge->at(indexMax).at(iRecoCstB) == 0.0) {
+                      if (doRecoEECChargedOnly && (re_cs_charge->at(indexMax).at(iRecoCstB) == 0.0)) {
                          continue;
                       }
 

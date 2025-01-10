@@ -263,6 +263,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 
 // define flags to turn off eec calculations
 #define doDataEEC 1
+#define doDataEECChargedOnly 0
 
   // pt jet bins
   std::vector< std::pair<float, float> > ptJetBins;
@@ -1105,7 +1106,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
               ) {
 
                 // keep only charged csts.s
-                if (re_cs_charge->at(indexMax).at(iCstA) == 0.0) {
+                if (doDataEECChargedOnly && (re_cs_charge->at(indexMax).at(iCstA) == 0.0)) {
                   continue;
                 }
 
@@ -1116,7 +1117,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
                 ) {
 
                   // keep only charged csts.s
-                  if (re_cs_charge->at(indexMax).at(iCstB) == 0.0) {
+                  if (doDataEECChargedOnly && (re_cs_charge->at(indexMax).at(iCstB) == 0.0)) {
                     continue;
                   }
 
