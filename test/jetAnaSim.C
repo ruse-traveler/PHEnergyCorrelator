@@ -2208,11 +2208,22 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
                     iTruthCstA < tr_cs_z->at(max_truth_idx).size();
                     ++iTruthCstA
                   ) {
+
+                    // keep only charged cst.s
+                    if (tr_cs_charge->at(indexMax).at(iTruthCstA) == 0.0) {
+                      continue;
+                    }
+
                     for (
                       std::size_t iTruthCstB = 0;
                       iTruthCstB < tr_cs_z->at(max_truth_idx).size();
                       ++iTruthCstB
                     ) {
+
+                      // keep only charged cst.s
+                      if (tr_cs_charge->at(indexMax).at(iTruthCstA) == 0.0) {
+                        continue;
+                      }
 
                       // collect cst information into a handy struct
                       PHEC::Type::Cst cstA(
@@ -2262,11 +2273,22 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
                     iRecoCstA < re_cs_z->at(indexMax).size();
                     ++iRecoCstA
                   ) {
+
+                    // keep only charged cst.s
+                    if (re_cs_charge->at(indexMax).at(iRecoCstA) == 0.0) {
+                      continue;
+                    }
+
                     for (
                       std::size_t iRecoCstB = 0;
                       iRecoCstB < re_cs_z->at(indexMax).size();
                       ++iRecoCstB
                     ) {
+
+                      // keep only charged cst.s
+                      if (re_cs_charge->at(indexMax).at(iRecoCstB) == 0.0) {
+                        continue;
+                      }
 
                       // collect cst information into a handy struct
                       PHEC::Type::Cst cstA(
