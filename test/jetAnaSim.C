@@ -803,7 +803,9 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 
 // define flags to turn off certain calculations
 #define doTrueEEC 1
+#define doTrueEECChargedOnly 0 
 #define doRecoEEC 1
+#define doRecoEECChargedOnly 0 
 
   // pt jet bins
   std::vector< std::pair<float, float> > ptJetBins;
@@ -849,7 +851,6 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 
   //TString PPAdd = "_Pythia8"; 
   TString PPAdd = ""; 
-  TString HIAdd = "EmbedHerwig"; 
 
   saved_embed = embed; 
   saved_Suffix = inSuffix; 
@@ -1126,24 +1127,11 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
       nCkinRuns = nRuns_r15e; 
       for(unsigned int i=0; i<nCkinRuns; i++){
 	ckins[i] = ckins_r15e[i]; 
-
-	if(HIAdd=="EmbedHerwig"){	  
-	  crossSec[i] = crossSecH_r15e[i];
-	  nFiles[i] = nFiles_r15e[i]; 
-	}
-	else if(HIAdd=="EmbedPythia8"){	  
-	  crossSec[i] = crossSecP8_r15e[i];
-	  nFiles[i] = nFiles_r15e[i]; 
-	}
-	else{
-	  crossSec[i] = crossSec_r15e[i]; 
-	  nFiles[i] = nFiles_r15e[i]; 
-	}
-
+	crossSec[i] = crossSec_r15e[i]; 
+	nFiles[i] = nFiles_r15e[i]; 
 	evPerFile[i] = evPerFile_r15e[i];
         tpT_cutoff[i] = tpT_cutoff_r15e[i];  
         rpT_cutoff[i] = rpT_cutoff_r15e[i];  
-
       }
 
       NPTBINS = NPTBINS_RECO_12; 
@@ -1638,14 +1626,14 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
       centWeightFactor[i] = centWeightFactor12[i]; 
     }
   }
-  // else if( (runno==15) && (centLow==0.0) && (centHigh==84.0) ){
-  //   nMBCombine = 4; 
-  //   for(int i=0; i<nMBCombine; i++){
-  //     centlow[i] = centlow15[i]; 
-  //     centhigh[i] = centhigh15[i]; 
-  //     centWeightFactor[i] = centWeightFactor15[i]; 
-  //   }
-  // }
+  else if( (runno==15) && (centLow==0.0) && (centHigh==84.0) ){
+    nMBCombine = 4; 
+    for(int i=0; i<nMBCombine; i++){
+      centlow[i] = centlow15[i]; 
+      centhigh[i] = centhigh15[i]; 
+      centWeightFactor[i] = centWeightFactor15[i]; 
+    }
+  }
 
   // Loop over each CKIN, create a TChain and process events
 
@@ -1662,22 +1650,29 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
     if(p_or_h_flag==0) p_or_h = "_partons";
 
     TString fileLoc =  Form("/phenix/crs/phnxreco/lajoie/SimOut/Run%i_PP%s/%i", runno, PPAdd.Data(), cmsE);
+    //if(runno==15) fileLoc =  Form("/phenix/crs/phnxreco/jrunchey/ISUSim/FullSim/Run%i_PP/%i", runno, cmsE);
 
     if(embed) { 
-      if(runno==8) fileLoc =  Form("/phenix/crs/phnxreco/lajoie/SimOut/Run%i_DAU%s_%i_%i/%i", runno, HIAdd.Data(), (int)centlow[ic], (int)centhigh[ic], cmsE);
-      if(runno==15) fileLoc =  Form("/phenix/crs/phnxreco/lajoie/SimOut/Run%i_PAU%s_%i_%i/%i", runno, HIAdd.Data(), (int)centlow[ic], (int)centhigh[ic], cmsE);
+      if(runno==8) fileLoc =  Form("/phenix/crs/phnxreco/lajoie/SimOut/Run%i_DAUEmbedPythia_%i_%i/%i", runno, (int)centlow[ic], (int)centhigh[ic], cmsE);
+      if(runno==15) fileLoc =  Form("/phenix/crs/phnxreco/lajoie/SimOut/Run%i_PAUEmbedPythia_%i_%i/%i", runno, (int)centlow[ic], (int)centhigh[ic], cmsE);
       if((runno==12) && Run12EmbedJewel) 
-	fileLoc =  Form("/phenix/crs/phnxreco/lajoie/SimOut/Run%i_CUAU%s_%i_%i/%i", runno, HIAdd.Data(), (int)centlow[ic], (int)centhigh[ic], cmsE);
+	fileLoc =  Form("/phenix/crs/phnxreco/lajoie/SimOut/Run%i_CUAUEmbedJewel_%i_%i/%i", runno, (int)centlow[ic], (int)centhigh[ic], cmsE);
       if((runno==12) && !Run12EmbedJewel) 
-	fileLoc =  Form("/phenix/crs/phnxreco/lajoie/SimOut/Run%i_CUAU%s_%i_%i/%i", runno, HIAdd.Data(), (int)centlow[ic], (int)centhigh[ic], cmsE);
+	fileLoc =  Form("/phenix/crs/phnxreco/lajoie/SimOut/Run%i_CUAUEmbedPythia_%i_%i/%i", runno, (int)centlow[ic], (int)centhigh[ic], cmsE);
     }
 
     TString fNormName = Form("%s/CHAINS/simChain_Run%i_CKIN%i%s_%s%s.root", fileLoc.Data(), runno, ckins[normIdx], p_or_h.Data(),RString.Data(),Suffix.Data()); 
+
+    // special name for Jon's files
+    //if(runno==15) fNormName = Form("%s/CHAINS/simChain_Run%i_CKIN%i%s_%s%s_NoPbGl.root", 
+    //			     fileLoc.Data(), runno, ckins[normIdx], p_or_h.Data(),RString.Data(),kSuffix.Data()); 
 
     if(embed) {
       fNormName = Form("%s/CHAINS/simChain_Run%i_CKIN%i%s_embed_%s_%i_%i%s.root", fileLoc.Data(), runno, ckins[normIdx], p_or_h.Data(),RString.Data(),
 			       (int)centlow[ic], (int)centhigh[ic],Suffix.Data()); 
 
+      //if(runno==15) fNormName = Form("%s/CHAINS/simChain_Run%i_CKIN%i%s_embed_%s_%i_%i%s_NoPbGl.root", 
+      //			       fileLoc.Data(), runno, ckins[normIdx], p_or_h.Data(),RString.Data(),(int)centlow[ic],(int)centhigh[ic],kSuffix.Data());
     }
 
     TFile *fNorm = new TFile(fNormName);
@@ -1697,11 +1692,16 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
  
       TString fInName = Form("%s/CHAINS/simChain_Run%i_CKIN%i%s_%s%s.root", fileLoc.Data(), runno, ckins[index], p_or_h.Data(),RString.Data(),Suffix.Data()); 
 
+      // special name for Jon's files
+      //if(runno==15) fInName = Form("%s/CHAINS/simChain_Run%i_CKIN%i%s_%s%s_NoPbGl.root", 
+      //			     fileLoc.Data(), runno, ckins[index], p_or_h.Data(),RString.Data(),kSuffix.Data()); 
 
       if(embed) {
 	fInName = Form("%s/CHAINS/simChain_Run%i_CKIN%i%s_embed_%s_%i_%i%s.root", fileLoc.Data(), runno, ckins[index], p_or_h.Data(),RString.Data(),
 			       (int)centlow[ic], (int)centhigh[ic],Suffix.Data()); 
 
+	//if(runno==15) fInName = Form("%s/CHAINS/simChain_Run%i_CKIN%i%s_embed_%s_%i_%i%s_NoPbGl.root", 
+	//		       fileLoc.Data(), runno, ckins[index], p_or_h.Data(),RString.Data(),(int)centlow[ic],(int)centhigh[ic],kSuffix.Data()); 
       }
 
       TFile *fIn = new TFile(fInName);
@@ -1832,7 +1832,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 	// Simulated random values:
 	int r_spinPat = 0; 
 	if((runno==13)||((runno==15)&&(embed==0))) r_spinPat = myRand->Integer(4); // pp 0-3, long or transverse
-	if(((runno==15)&&(embed==1)))r_spinPat = myRand->Integer(2) + 4; // pAu 4-5
+	if(((runno==15)&&(embed==1)))r_spinPat = myRand->Integer(2) + 5; // pAu 4-5
 
 	// must use value from file to get trig eff. correct
 	int even_odd =  ip12_clock_cross%2; 
@@ -2209,10 +2209,10 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
                     ++iTruthCstA
                   ) {
 
-                    // keep only charged cst.s
-                    if (tr_cs_charge->at(indexMax).at(iTruthCstA) == 0.0) {
-                      continue;
-                    }
+		    // keep only charged cst.s
+		    if (doTrueEECChargedOnly && (tr_cs_charge->at(max_truth_idx).at(iTruthCstA) == 0.0)) {
+		      continue;
+		    }
 
                     for (
                       std::size_t iTruthCstB = 0;
@@ -2220,10 +2220,10 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
                       ++iTruthCstB
                     ) {
 
-                      // keep only charged cst.s
-                      if (tr_cs_charge->at(indexMax).at(iTruthCstA) == 0.0) {
-                        continue;
-                      }
+		      // keep only charged cst.s
+		      if (doTrueEECChargedOnly && (tr_cs_charge->at(max_truth_idx).at(iTruthCstB) == 0.0)) {
+			continue;
+		      }
 
                       // collect cst information into a handy struct
                       PHEC::Type::Cst cstA(
@@ -2274,8 +2274,8 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
                     ++iRecoCstA
                   ) {
 
-                    // keep only charged cst.s
-                    if (re_cs_charge->at(indexMax).at(iRecoCstA) == 0.0) {
+		    // keep only charged cst.s
+                    if (doRecoEECChargedOnly && (re_cs_charge->at(indexMax).at(iRecoCstA) == 0.0)) {
                       continue;
                     }
 
@@ -2285,9 +2285,9 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
                       ++iRecoCstB
                     ) {
 
-                      // keep only charged cst.s
-                      if (re_cs_charge->at(indexMax).at(iRecoCstB) == 0.0) {
-                        continue;
+		      // keep only charged cst.s
+                      if (doRecoEECChargedOnly && (re_cs_charge->at(indexMax).at(iRecoCstB) == 0.0)) {
+                         continue;
                       }
 
                       // collect cst information into a handy struct

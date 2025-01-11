@@ -263,6 +263,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 
 // define flags to turn off eec calculations
 #define doDataEEC 1
+#define doDataEECChargedOnly 0
 
   // pt jet bins
   std::vector< std::pair<float, float> > ptJetBins;
@@ -752,15 +753,16 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
     if((RUNNUM==8) && (isHI==1) && ((r_centrality<centLow) || (r_centrality>=centHigh))) continue; 
     if((RUNNUM==15) && (isHI==1) && ((r_centrality<centLow) || (r_centrality>=centHigh))) continue; 
 
-    // Bad pAu runs - not in spin database
-    if((r_runNumber==434147)||(r_runNumber==434148)||(r_runNumber==434150)||(r_runNumber==434151)) continue; 
-
     // Check for valid spin information
+
     if( (r_ip12_clock_cross<0) || (r_ip12_clock_cross>120) ){
       cout << "Bad clock cross, event skipped, run = " << r_runNumber << " ip12_clock_cross = " << r_ip12_clock_cross << endl; 
       continue; 
     }
     
+    // Bad pAu run - not in spin database
+    if(r_runNumber==434147) continue; 
+
     // Check for run number change, update polarization
     if(((RUNNUM==13)||(RUNNUM==15)) && (r_runNumber!=currRunNumber)){
 
@@ -1009,8 +1011,8 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 	    // Collins histograms
 	    // define unit vectors for angles
 
-	    TVector3 blue_beam(0.0,0.0,0.0); 
-	    TVector3 yellow_beam(0.0,0.0,0.0); 
+	    TVector3 blue_beam(0.0,0.0,1.0); 
+	    TVector3 yellow_beam(0.0,0.0,-1.0); 
 
 	    TVector3 blue_spin(0.0,1.0,0.0);
 	    if((r_spinPat==1)||(r_spinPat==3)) 
@@ -1104,7 +1106,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
               ) {
 
                 // keep only charged csts.s
-                if (re_cs_charge->at(indexMax).at(iCstA) == 0.0) {
+                if (doDataEECChargedOnly && (re_cs_charge->at(indexMax).at(iCstA) == 0.0)) {
                   continue;
                 }
 
@@ -1115,7 +1117,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
                 ) {
 
                   // keep only charged csts.s
-                  if (re_cs_charge->at(indexMax).at(iCstB) == 0.0) {
+                  if (doDataEECChargedOnly && (re_cs_charge->at(indexMax).at(iCstB) == 0.0)) {
                     continue;
                   }
 
