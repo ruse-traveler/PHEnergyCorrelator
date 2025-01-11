@@ -1011,8 +1011,8 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 	    // Collins histograms
 	    // define unit vectors for angles
 
-	    TVector3 blue_beam(0.0,0.0,0.0); 
-	    TVector3 yellow_beam(0.0,0.0,0.0); 
+	    TVector3 blue_beam(0.0,0.0,1.0); 
+	    TVector3 yellow_beam(0.0,0.0,-1.0); 
 
 	    TVector3 blue_spin(0.0,1.0,0.0);
 	    if((r_spinPat==1)||(r_spinPat==3)) 
