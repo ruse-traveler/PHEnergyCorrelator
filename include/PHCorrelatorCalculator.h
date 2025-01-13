@@ -302,8 +302,12 @@ namespace PHEnergyCorrelator {
           vecCst4.second.Vect()
         );
 
-        // get spins
+        // (0) get beam and spin directions
+        std::pair<TVector3, TVector3> vecBeam3 = Tools::GetBeams();
         std::pair<TVector3, TVector3> vecSpin3 = Tools::GetSpins( jet.pattern );
+
+        // (1) get angle between the jet-beam plane and spin
+        /* TODO do that here */
 
         // now calculate vectors normal to hadron-spin and jet-spin planes
         std::pair<TVector3, TVector3> normHadSpin3 = std::make_pair(
