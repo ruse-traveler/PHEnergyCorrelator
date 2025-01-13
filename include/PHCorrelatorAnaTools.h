@@ -216,6 +216,17 @@ namespace PHEnergyCorrelator {
 
 
     // ------------------------------------------------------------------------
+    //! Get beam directions
+    // ------------------------------------------------------------------------
+    std::pair<TVector3, TVector3> GetBeams() {
+
+      return std::make_pair(Const::BlueBeam(), Const::YellowBeam());
+
+    }  // end 'GetBeams()'
+
+
+
+    // ------------------------------------------------------------------------
     //! Get spins based on a provided spin pattern
     // ------------------------------------------------------------------------
     /*! Returns a pair of spin vectors based on a provided spin pattern.
