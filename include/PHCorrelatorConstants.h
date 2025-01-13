@@ -83,6 +83,22 @@ namespace PHEnergyCorrelator {
     }
 
     // ------------------------------------------------------------------------
+    //! Blue beam direction in lab coordinates
+    // ------------------------------------------------------------------------
+    inline TVector3 BlueBeam() {
+      const TVector3 blue(0.0, 0.0, 1.0);
+      return blue;
+    }
+
+    // ------------------------------------------------------------------------
+    //! Yellow beam direction in lab coordinates
+    // ------------------------------------------------------------------------
+    inline TVector3 YellowBeam() {
+      const TVector3 yellow(0.0, 0.0, -1.0);
+      return yellow;
+    }
+
+    // ------------------------------------------------------------------------
     //! Spin up in lab coordinates
     // ------------------------------------------------------------------------
     inline TVector3 SpinUp() {
