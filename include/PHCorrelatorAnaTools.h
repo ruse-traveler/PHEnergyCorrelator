@@ -79,6 +79,80 @@ namespace PHEnergyCorrelator {
 
 
     // ------------------------------------------------------------------------
+    //! Get hadron angle controlled for wraparounds
+    // ------------------------------------------------------------------------
+    /*! Takes an angle in (0, pi) and constrains it to (-pi/2, pi/2).
+     */
+    double GetWrappedHadronAngle(double angle) {
+
+      if (angle > TMath::PiOver2()) {
+        angle -= TMath::Pi();
+      }
+      return angle;
+
+    }  // end 'GetWrappedHadronAngle(double)'
+
+
+
+    // ------------------------------------------------------------------------
+    //! Get doubled hadron angle controlled for wraparounds
+    // ------------------------------------------------------------------------
+    /*! Takes an angle and constrains it to (-pi/2, pi/2).
+     */
+    double GetWrappedDoubledHadronAngle(double angle) {
+
+      // angles for convenience
+      const double piDiv2     = TMath::PiOver2();
+      const double pi3Div2    = 3.0 * TMath::PiOver2();
+      const double minPiDiv2  = -1.0 * TMath::PiOver2();
+      const double minPi3Div2 = -3.0 * TMath::PiOver2();
+
+      // check what adjustment is needed
+      const bool doPiSub    = ( (angle > piDiv2) && (angle <= pi3Div2) );
+      const bool doTwoPiSub = ( angle > pi3Div2 );
+      const bool doPiAdd    = ( (angle < minPiDiv2) && (angle >= minPi3Div2) );
+      const bool doTwoPiAdd = ( angle < minPi3Div2 );
+
+      // apply adjustment
+      if (doPiSub) {
+        angle -= TMath::Pi();
+      } else if (doTwoPiSub) {
+        angle -= TMath::TwoPi();
+      } else if (doPiAdd) {
+        angle += TMath::Pi();
+      } else if (doTwoPiAdd) {
+        angle += TMath::TwoPi();
+      }
+      return angle;
+
+    }  // end 'GetWrappedDoubledHadronAngle(double)'
+
+
+
+    // ------------------------------------------------------------------------
+    //! Get spin - hadron angle controlled for wraparounds
+    // ------------------------------------------------------------------------
+    /*! Takes an angle and constrains it to (0, pi).
+     */
+    double GetWrappedSpinHadronAngle(double angle) {
+
+      // check what adjustment is needed
+      const bool doPiSub = ( angle > TMath::Pi() );
+      const bool doPiAdd = ( angle < 0.0 );
+
+      // apply adjustment
+      if (doPiSub) {
+        angle -= TMath::Pi();
+      } else if (doPiAdd) {
+        angle += TMath::Pi();
+      }
+      return angle;
+
+    }  // end 'GetWrappedSpinHadronAngle(double)'
+
+
+
+    // ------------------------------------------------------------------------
     //! Divide a range into a certain number of bins
     // ------------------------------------------------------------------------
     std::vector<double> GetBinEdges(
@@ -199,19 +273,37 @@ namespace PHEnergyCorrelator {
     // ------------------------------------------------------------------------
     TVector3 GetWeightedAvgVector(
       const TVector3& va,
-      const TVector3& vb
+      const TVector3& vb,
+      const bool norm = false
     ) {
 
       // calculate weights
       const double wa = va.Mag() / (va.Mag() + vb.Mag());
       const double wb = vb.Mag() / (va.Mag() + vb.Mag());
 
-      // scale and sum vectors
+      // scale vectors
       const TVector3 sva = va * wa;
       const TVector3 svb = vb * wb;
-      return sva + svb;
 
-    }  // end 'GetWeightedAvgVector(TVector3& x 2)'
+      // sum and norm (if needed)
+      TVector3 sum = sva + svb;
+      if (norm) {
+        sum *= (1.0 / sum.Mag());
+      }
+      return sum;
+
+    }  // end 'GetWeightedAvgVector(TVector3& x 2, bool)'
+
+
+
+    // ------------------------------------------------------------------------
+    //! Get beam directions
+    // ------------------------------------------------------------------------
+    std::pair<TVector3, TVector3> GetBeams() {
+
+      return std::make_pair(Const::BlueBeam(), Const::YellowBeam());
+
+    }  // end 'GetBeams()'
 
 
 

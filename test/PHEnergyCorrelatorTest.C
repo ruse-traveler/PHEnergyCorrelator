@@ -41,6 +41,7 @@ void PHEnergyCorrelatorTest() {
   for (std::size_t iedge = 0; iedge < edges.size(); ++iedge) {
     std::cout << "      --- R_{L}: edge[" << iedge << "] = " << edges[iedge] << std::endl;
   }
+  std::cout << "      --- [PASS] tested R_{L} binning" << std::endl;
 
   // --------------------------------------------------------------------------
   // Test histogram manager
@@ -57,21 +58,29 @@ void PHEnergyCorrelatorTest() {
   std::vector< std::pair<float, float> > cfjetbins;
   cfjetbins.push_back( std::make_pair(0.3, 0.6) );
 
+  // charge jet bins
+  std::vector< std::pair<float, float> > chjetbins;
+  chjetbins.push_back( std::make_pair(-100., 0.0) );
+  chjetbins.push_back( std::make_pair(0.0, 100.) );
+
   // instantiate calculator
   PHEC::Calculator calc_a(PHEC::Type::Pt);
   calc_a.SetPtJetBins(ptjetbins);
   calc_a.SetCFJetBins(cfjetbins);
+  calc_a.SetChargeBins(chjetbins);
   calc_a.SetHistTag("FirstCalculation");
 
   // check no. of bins
   std::cout << "      --- N pt bins = " << calc_a.GetManager().GetNPtJetBins() << "\n"
-            << "      --- N CF bins = " << calc_a.GetManager().GetNCFJetBins()
+            << "      --- N CF bins = " << calc_a.GetManager().GetNCFJetBins() << "\n"
+            << "      --- N ch bins = " << calc_a.GetManager().GetNChargeBins()
             << std::endl;
 
   // create histograms
   calc_a.Init(true);
   std::cout << "      --- N tags    = " << calc_a.GetManager().GetNIndexTags() << "\n"
-            << "      --- N hists   = " << calc_a.GetManager().GetNHists()
+            << "      --- N hists   = " << calc_a.GetManager().GetNHists()     << "\n"
+            << "      --- [PASS] tested histogram manager"
             << std::endl;
 
   // --------------------------------------------------------------------------
@@ -89,30 +98,43 @@ void PHEnergyCorrelatorTest() {
   const double pi4Div3 = 4. * piDiv3;
 
   // jet values (enough to cover all spin patterns)
+  // jet ctor arguments:
+  //   0 --> cf
+  //   1 --> pt
+  //   2 --> eta
+  //   3 --> phi
+  //   4 --> charge
+  //   5 --> spin pattern
   std::vector<PHEC::Type::Jet> jets;
   jets.push_back(
-    PHEC::Type::Jet(0.40, 9.0, 0.75, piDiv3, 0)
+    PHEC::Type::Jet(0.40, 9.0, 0.75, piDiv3, -0.5, 0)
   );
   jets.push_back(
-    PHEC::Type::Jet(0.25, 8.0, 0.2, piDiv4, 1)
+    PHEC::Type::Jet(0.25, 8.0, 0.2, piDiv4, 0.5, 1)
   );
   jets.push_back(
-    PHEC::Type::Jet(0.75, 13., -0.2, pi5Div4, 2)
+    PHEC::Type::Jet(0.75, 13., -0.2, pi5Div4, -2.3, 2)
   );
   jets.push_back(
-    PHEC::Type::Jet(0.90, 5.0, 0.1, piDiv3, 3)
+    PHEC::Type::Jet(0.90, 5.0, 0.1, piDiv3, 3.2, 3)
   );
   jets.push_back(
-    PHEC::Type::Jet(1.0, 7.0, -0.05, pi4Div3, 4)
+    PHEC::Type::Jet(1.0, 7.0, -0.05, pi4Div3, -1.7, 4)
   );
   jets.push_back(
-    PHEC::Type::Jet(0.50, 3.0, -0.75, pi4Div3, 5)
+    PHEC::Type::Jet(0.50, 3.0, -0.75, pi4Div3, 1.3, 5)
   );
   jets.push_back(
-    PHEC::Type::Jet(0.66, 4.0, -0.05, pi4Div3, 6)
+    PHEC::Type::Jet(0.66, 4.0, -0.05, pi4Div3, 0.4, 6)
   );
 
   // cst values (enough to make sure calculations run)
+  // cst ctor arguments:
+  //   0 --> z
+  //   1 --> jt
+  //   2 --> eta
+  //   3 --> phi
+  //   4 --> chrg
   std::vector< std::vector< PHEC::Type::Cst > > csts( jets.size() );
   for (std::size_t ijet = 0; ijet < jets.size(); ++ijet) {
     if ((ijet % 2) == 0) {
@@ -124,6 +146,7 @@ void PHEnergyCorrelatorTest() {
       csts[ijet].push_back( PHEC::Type::Cst(0.09, 0.1, -0.19, pi5Div4, 1.)        );
     }
   }
+  std::cout << "    Dummy jet/cst values prepared" << std::endl;
 
   // --------------------------------------------------------------------------
   // Test calculator
@@ -141,6 +164,7 @@ void PHEnergyCorrelatorTest() {
       }
     }
   }
+  std::cout << "      --- [PASS] ran 1st calculation" << std::endl;
 
   // --------------------------------------------------------------------------
   // Test adding 2nd calculator
@@ -151,6 +175,7 @@ void PHEnergyCorrelatorTest() {
   PHEC::Calculator calc_b(PHEC::Type::Pt);
   calc_b.SetPtJetBins(ptjetbins);
   calc_b.SetCFJetBins(cfjetbins);
+  calc_b.SetChargeBins(chjetbins);
   calc_b.SetHistTag("SecondCalculation");
   calc_b.Init(true);
 
@@ -167,6 +192,7 @@ void PHEnergyCorrelatorTest() {
       }
     }
   }
+  std::cout << "      --- [PASS] ran second calculation" << std::endl;
 
   // --------------------------------------------------------------------------
   // Test spin sorting
@@ -177,9 +203,11 @@ void PHEnergyCorrelatorTest() {
   PHEC::Calculator calc_c(PHEC::Type::Pt);
   calc_c.SetPtJetBins(ptjetbins);
   calc_c.SetCFJetBins(cfjetbins);
+  calc_c.SetChargeBins(chjetbins);
   calc_c.SetDoSpinBins(true);
   calc_c.SetHistTag("ThirdCalculation");
   calc_c.Init(true);
+  std::cout << "      --- initialized third calculation" << std::endl;
 
   // run calculations
   for (std::size_t ijet = 0; ijet < jets.size(); ++ijet) {
@@ -195,6 +223,7 @@ void PHEnergyCorrelatorTest() {
     }
     std::cout << "      --- ran calculation for spin pattern " << jets[ijet].pattern << std::endl;
   }
+  std::cout << "      --- [PASS] ran third calculation" << std::endl;
 
   // --------------------------------------------------------------------------
   // Save histograms
@@ -208,6 +237,7 @@ void PHEnergyCorrelatorTest() {
   calc_a.End(output);
   calc_b.End(output);
   calc_c.End(output);
+  std::cout << "      --- [PASS] histograms saved" << std::endl;
 
   // --------------------------------------------------------------------------
   // Tests complete

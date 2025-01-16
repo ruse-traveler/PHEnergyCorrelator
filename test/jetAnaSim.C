@@ -803,9 +803,11 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 
 // define flags to turn off certain calculations
 #define doTrueEEC 1
-#define doTrueEECChargedOnly 0 
+#define doTrueEECChargedOnly 0
+#define doTrueJetChargeBins 1
 #define doRecoEEC 1
-#define doRecoEECChargedOnly 0 
+#define doRecoEECChargedOnly 0
+#define doRecoJetChargeBins 1
 
   // pt jet bins
   std::vector< std::pair<float, float> > ptJetBins;
@@ -817,6 +819,11 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   std::vector< std::pair<float, float> > cfJetBins;
   cfJetBins.push_back( std::make_pair(0., 1.0) );
 
+  // jet charge bins
+  std::vector< std::pair<float, float> > chJetBins;
+  chJetBins.push_back( std::make_pair(-100., 0.0) );
+  chJetBins.push-Back( std::make_pair(0.0, 100.) );
+
   // now declare calculators
   //   - 1st argument: quantity used for weights (pt, et, or e)
   //   - 2nd argument: power to raise weights to
@@ -827,13 +834,19 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   trueEEC.SetHistTag( "TrueJet" );
   recoEEC.SetHistTag( "RecoJet" );
 
-  // set pt jet bins
+  // set pt and cf jet bins
   trueEEC.SetPtJetBins( ptJetBins );
   recoEEC.SetPtJetBins( ptJetBins );
-
-  // set cf bins 
   trueEEC.SetCFJetBins( cfJetBins );
   recoEEC.SetCFJetBins( cfJetBins );
+
+  // if needed, set jet charged bins
+  if (doTrueJetChargeBins) {
+    trueEEC.SetChargeBins( chJetBins );
+  }
+  if (doRecoJetChargeBins) {
+    recoEEC.SetChargeBins( chJetBins );
+  }
 
   // turn on spin sorting
   trueEEC.SetDoSpinBins( true );
@@ -2193,12 +2206,16 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
                  */
                 if (doTrue && doTrueEEC && (max_truth_idx>=0)) {
 
+                  // calculate truth jet charge
+                  const double jetChargeTrue = JetChargeTrue(max_truth_idx);
+
                   // collect jet and spin information into a handy struct
-                  PHEC::Type::Jet jet(
-		    t_cf[indexMax],
+                  PHEC::Type::Jet jet_true(
+		    t_cf[max_truth_idx],
                     t_pT[max_truth_idx],
                     t_eta[max_truth_idx],
                     t_phi[max_truth_idx],
+                    jetChargeTrue,
                     r_spinPat
                   );
 
@@ -2226,14 +2243,14 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 		      }
 
                       // collect cst information into a handy struct
-                      PHEC::Type::Cst cstA(
+                      PHEC::Type::Cst cstA_true(
                         tr_cs_z->at(max_truth_idx).at(iTruthCstA),
                         tr_cs_jT->at(max_truth_idx).at(iTruthCstA),
                         tr_cs_eta->at(max_truth_idx).at(iTruthCstA),
                         tr_cs_phi->at(max_truth_idx).at(iTruthCstA),
                         tr_cs_charge->at(max_truth_idx).at(iTruthCstA)
                       );
-                      PHEC::Type::Cst cstB(
+                      PHEC::Type::Cst cstB_true(
                         tr_cs_z->at(max_truth_idx).at(iTruthCstB),
                         tr_cs_jT->at(max_truth_idx).at(iTruthCstB),
                         tr_cs_eta->at(max_truth_idx).at(iTruthCstB),
@@ -2242,7 +2259,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
                       );
 
                       // run 2-point calculation for pair
-                      trueEEC.CalcEEC( jet, std::make_pair(cstA, cstB), evWeight );
+                      trueEEC.CalcEEC( jet_true, std::make_pair(cstA_true, cstB_true), evWeight );
 
                     }  // end 2nd cst loop
                   }  // end 1st cst loop
@@ -2259,11 +2276,12 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
                 if (doRecoEEC) {
 
                   // collect jet and spin information into a handy struct
-                  PHEC::Type::Jet jet(
+                  PHEC::Type::Jet jet_reco(
                     r_cf[indexMax],
                     r_pT[indexMax],
                     r_eta[indexMax],
                     r_phi[indexMax],
+                    jetCharge,
                     r_spinPat
                   );
 
@@ -2291,14 +2309,14 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
                       }
 
                       // collect cst information into a handy struct
-                      PHEC::Type::Cst cstA(
+                      PHEC::Type::Cst cstA_reco(
                         re_cs_z->at(indexMax).at(iRecoCstA),
                         re_cs_jT->at(indexMax).at(iRecoCstA),
                         re_cs_eta->at(indexMax).at(iRecoCstA),
                         re_cs_phi->at(indexMax).at(iRecoCstA),
                         re_cs_charge->at(indexMax).at(iRecoCstA)
                       );
-                      PHEC::Type::Cst cstB(
+                      PHEC::Type::Cst cstB_reco(
                         re_cs_z->at(indexMax).at(iRecoCstB),
                         re_cs_jT->at(indexMax).at(iRecoCstB),
                         re_cs_eta->at(indexMax).at(iRecoCstB),
@@ -2307,7 +2325,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
                       );
 
                       // run 2-point calculation for pair
-                      recoEEC.CalcEEC( jet, std::make_pair(cstA, cstB), evWeight );
+                      recoEEC.CalcEEC( jet_reco, std::make_pair(cstA_reco, cstB_reco), evWeight );
 
                     }  // end 2nd cst loop
                   }  // end 1st cst loop
