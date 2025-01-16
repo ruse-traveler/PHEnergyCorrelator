@@ -282,6 +282,8 @@ namespace PHEnergyCorrelator {
         const double evt_weight = 1.0
       ) {
 
+        // calculate jet, cst kinematics --------------------------------------
+
         // get jet 4-momenta
         TLorentzVector vecJet4  = Tools::GetJetLorentz(jet, false);
         TLorentzVector unitJet4 = Tools::GetJetLorentz(jet, true);
@@ -297,41 +299,68 @@ namespace PHEnergyCorrelator {
         );
 
         // get average of cst 3-vectors
-        TVector3 avgCst3 = Tools::GetWeightedAvgVector(
+        TVector3 vecAvgCst3 = Tools::GetWeightedAvgVector(
           vecCst4.first.Vect(),
-          vecCst4.second.Vect()
+          vecCst4.second.Vect(),
+          false
+        );
+        TVector3 unitAvgCst3 = Tools::GetWeightedAvgVector(
+          vecCst4.first.Vect(),
+          vecCst4.second.Vect(),
+          true
         );
 
+        // collins & boer-mulders angle calculations --------------------------
+
         // (0) get beam and spin directions
+        //   first  = blue beam/spin
+        //   second = yellow beam/spin
         std::pair<TVector3, TVector3> vecBeam3 = Tools::GetBeams();
         std::pair<TVector3, TVector3> vecSpin3 = Tools::GetSpins( jet.pattern );
 
-        // (1) get angle between the jet-beam plane and spin
-        /* TODO do that here */
-
-        // now calculate vectors normal to hadron-spin and jet-spin planes
-        std::pair<TVector3, TVector3> normHadSpin3 = std::make_pair(
-          ( vecSpin3.first.Cross(avgCst3) ).Unit(),
-          ( vecSpin3.second.Cross(avgCst3) ).Unit()
-        );
-        std::pair<TVector3, TVector3> normJetSpin3 = std::make_pair(
-          ( vecSpin3.first.Cross(unitJet4.Vect()) ).Unit(),
-          ( vecSpin3.second.Cross(unitJet4.Vect()) ).Unit()
+        // (1) get vectors normal to the jet-beam plane
+        std::pair<TVector3, TVector3> normJetBeam3 = std::make_pair(
+          ( vecBeam3.first.Cross(unitJet4.Vect()) ).Unit(),
+          ( vecBeam3.second.Cross(unitJet4.Vect()) ).Unit()
         );
 
-        // next calculate vectors normal to hadron-hadron and hadron-jet planes
-        TVector3 normHadHad3 = ( unitCst4.first.Vect().Cross(unitCst4.second.Vect()) ).Unit();
-        TVector3 normJetHad3 = ( unitJet4.Vect().Cross(avgCst3) ).Unit();
+        // (2) get phiSpin: angles between the jet-beam plane and spin
+        //   - n.b. for spin pattern >= 4, yellow spin = (0, 0, 0)
+        const double phiSpinBlue = TMath::PiOver2() - acos( normJetBeam3.first.Dot(vecSpin3.first) );
+        const double phiSpinYell = TMath::PiOver2() - acos( normJetBeam3.second.Dot(vecSpin3.second) );
 
-        // and finally, compute angles wrt to spins
-        double phiHadBlue = acos( normHadSpin3.first.Dot(normHadHad3) );
-        double phiHadYell = acos( normHadSpin3.second.Dot(normHadHad3) );
-        double phiJetBlue = acos( normJetSpin3.first.Dot(normJetHad3) );
-        double phiJetYell = acos( normJetSpin3.second.Dot(normJetHad3) );
-        if (phiHadBlue > TMath::PiOver2()) phiHadBlue -= TMath::Pi();
-        if (phiHadYell > TMath::PiOver2()) phiHadYell -= TMath::Pi();
-        if (phiJetBlue > TMath::PiOver2()) phiJetBlue -= TMath::Pi();
-        if (phiJetYell > TMath::PiOver2()) phiJetYell -= TMath::Pi();
+        // (3) get vector normal to hadron average-jet plane
+        TVector3 normHadJet3 = ( unitJet4.Vect().Cross(unitAvgCst3) ).Unit();
+
+        // (4) get phiHadron: angle between the jet-beam plane and the
+        //     jet-hadron plane, constrain to (-pi/2, pi/2)
+        double phiHadBlue = acos( normJetBeam3.first.Dot(normHadJet3) );
+        double phiHadYell = acos( normJetBeam3.second.Dot(normHadJet3) );
+        phiHadBlue = Tools::GetWrappedHadronAngle( phiHadBlue );
+        phiHadYell = Tools::GetWrappedHadronAngle( phiHadYell );
+
+        // (5) double phiHadron for boer-mulders, constrain to
+        //     (-pi/2, pi/2)
+        double phiHadBlue2 = 2.0 * phiHadBlue;
+        double phiHadYell2 = 2.0 * phiHadYell;
+        phiHadBlue2 = Tools::GetWrappedDoubledHadronAngle( phiHadBlue2 );
+        phiHadYell2 = Tools::GetWrappedDoubledHadronAngle( phiHadYell2 );
+
+        // (6) now calculate phiColl: phiSpin - phiHadron, constrain
+        //     to (0, pi)
+        double phiCollBlue = phiSpinBlue - phiHadBlue;
+        double phiCollYell = phiSpinYell - phiHadYell;
+        phiCollBlue = Tools::GetWrappedSpinHadronAngle( phiCollBlue );
+        phiCollYell = Tools::GetWrappedSpinHadronAngle( phiCollYell );
+
+        // (6) now calculate phiBoer: phiSpin - (2 * phiHadron), constain
+        //     to (0, pi)
+        double phiBoerBlue = phiSpinBlue - phiHadBlue2;
+        double phiBoerYell = phiSpinYell - phiHadYell2;
+        phiBoerBlue = Tools::GetWrappedSpinHadronAngle( phiBoerBlue );
+        phiBoerYell = Tools::GetWrappedSpinHadronAngle( phiBoerYell );
+
+        // calculate eec quantities -------------------------------------------
 
         // get EEC weights
         std::pair<double, double> cst_weights = std::make_pair(
@@ -343,6 +372,8 @@ namespace PHEnergyCorrelator {
         const double dist    = Tools::GetCstDist(csts);
         const double weight  = cst_weights.first * cst_weights.second * evt_weight;
 
+        // fill histograms ---------------------------------------------------=
+
         // fill histograms if needed
         if (m_manager.GetDoEECHists()) {
 
@@ -352,12 +383,12 @@ namespace PHEnergyCorrelator {
           // collect quantities to be histogrammed
           Type::HistContent content(weight, dist);
           if (m_manager.GetDoSpinBins()) {
-            content.phiHAvgB = phiHadBlue;
-            content.phiHAvgY = phiHadYell;
-            content.phiCollB = phiJetBlue;
-            content.phiCollY = phiJetYell;
+            content.phiCollB = phiCollBlue;
+            content.phiCollY = phiCollYell;
+            content.phiBoerB = phiBoerBlue;
+            content.phiBoerY = phiBoerYell;
             content.spinB    = vecSpin3.first.Y();
-            content.spinY    = vecSpin3.second.y();
+            content.spinY    = vecSpin3.second.Y();
             content.pattern  = jet.pattern;
           }
 
