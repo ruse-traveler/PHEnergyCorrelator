@@ -264,6 +264,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 // define flags to turn off eec calculations
 #define doDataEEC 1
 #define doDataEECChargedOnly 0
+#define doDataJetChargeBins 1
 
   // pt jet bins
   std::vector< std::pair<float, float> > ptJetBins;
@@ -275,6 +276,11 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
   std::vector< std::pair<float, float> > cfJetBins;
   cfJetBins.push_back( std::make_pair(0., 1.0) );
 
+  // jet charge bins
+  std::vector< std::pair<float, float> > chJetBins;
+  chJetBins.push_back( std::make_pair(-100., 0.0) );
+  chJetBins.push-Back( std::make_pair(0.0, 100.) );
+
   // now declare calculators
   //   - 1st argument: quantity used for weights (pt, et, or e)
   //   - 2nd argument: power to raise weights to
@@ -283,9 +289,14 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
   // set histogram tags
   dataEEC.SetHistTag( "DataJet" );
 
-  // set pt, cf bins
+  // set pt and cf jet bins
   dataEEC.SetPtJetBins( ptJetBins );
   dataEEC.SetCFJetBins( cfJetBins );
+
+  // if needed, set jet charge bisn
+  if (doDataJetChargeBins) {
+    dataEEC.SetChargeBins( chJetBins );
+  }
 
   // turn on spin sorting
   dataEEC.SetDoSpinBins( true );
@@ -1095,6 +1106,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
                 r_pT[indexMax],
                 r_eta[indexMax],
                 r_phi[indexMax],
+                jetCharge,
                 r_spinPat
               );
 

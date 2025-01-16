@@ -56,6 +56,7 @@ namespace PHEnergyCorrelator {
       double pt;
       double eta;
       double phi;
+      double charge;
       int    pattern;
 
       //! default ctor/dtor
@@ -68,12 +69,14 @@ namespace PHEnergyCorrelator {
         const double parg,
         const double harg,
         const double farg,
+        const double qarg = Const::DoubleDefault(),
         const int    aarg = Const::IntDefault()
       ) {
         cf      = carg;
         pt      = parg;
         eta     = harg;
         phi     = farg;
+        charge  = qarg;
         pattern = aarg; 
       };
 
@@ -124,6 +127,7 @@ namespace PHEnergyCorrelator {
       // data members
       std::size_t pt;
       std::size_t cf;
+      std::size_t chrg;
       std::size_t spin;
 
       //! default ctor/dtor
@@ -134,12 +138,14 @@ namespace PHEnergyCorrelator {
       HistIndex(
         const std::size_t ipt,
         const std::size_t icf = Const::IndexDefault(),
+        const std::size_t ich = Const::IndexDefault(),
         const std::size_t isp = Const::IndexDefault()
       ) {
         pt   = ipt;
         cf   = icf;
+        chrg = ich;
         spin = isp;
-      }  // end ctor(std::size_t, std::size_t, std::size_t)
+      }  // end ctor(std::size_t x 4)
 
     };  // end HistIndex
 

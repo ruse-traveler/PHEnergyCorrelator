@@ -78,11 +78,13 @@ namespace PHEnergyCorrelator {
       bool m_do_lec_hist;
       bool m_do_pt_bins;
       bool m_do_cf_bins;
+      bool m_do_ch_bins;
       bool m_do_sp_bins;
 
       // data members (no. of bins)
       std::size_t m_nbins_pt;
       std::size_t m_nbins_cf;
+      std::size_t m_nbins_ch;
       std::size_t m_nbins_sp;
 
       // data members (tags)
@@ -170,6 +172,7 @@ namespace PHEnergyCorrelator {
         // add appropriate indices
         if (m_do_pt_bins) tag += Const::PtTag() + StringifyIndex(index.pt);
         if (m_do_cf_bins) tag += Const::CFTag() + StringifyIndex(index.cf);
+        if (m_do_ch_bins) tag += Const::ChrgTag() + StringifyIndex(index.chrg);
         if (m_do_sp_bins) tag += Const::SpinTag() + GetSpinTag(index.spin);
         return tag;
 
@@ -239,8 +242,10 @@ namespace PHEnergyCorrelator {
         std::vector<Type::HistIndex> indices;
         for (std::size_t ipt = 0; ipt < m_nbins_pt; ++ipt) {
           for (std::size_t icf = 0; icf < m_nbins_cf; ++icf) {
-            for (std::size_t isp = 0; isp < m_nbins_sp; ++isp) {
-              indices.push_back( Type::HistIndex(ipt, icf, isp) );
+            for (std::size_t ich = 0; ich < m_nbins_ch; ++ich) {
+              for (std::size_t isp = 0; isp < m_nbins_sp; ++isp) {
+                indices.push_back( Type::HistIndex(ipt, icf, ich, isp) );
+              }
             }
           }
         }
@@ -358,7 +363,7 @@ namespace PHEnergyCorrelator {
         for (std::size_t index = 0; index < m_index_tags.size(); ++index) {
           for (std::size_t iset = 0; iset < to_set.size(); ++iset) {
             Histogram::SetHist1DErrToVar(
-              m_hist_1d[ MakeHistName(to_set[iset], m_index_tags[index]) ]
+              m_hist_1d.at( MakeHistName(to_set[iset], m_index_tags[index]) )
             );
           }
         }
@@ -371,21 +376,23 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       //! Getters
       // ----------------------------------------------------------------------
-      std::string GetHistTag()     const {return m_hist_tag;}
-      std::size_t GetNPtJetBins()  const {return m_nbins_pt;}
-      std::size_t GetNCFJetBins()  const {return m_nbins_cf;}
-      std::size_t GetNSpinBins()   const {return m_nbins_sp;}
-      std::size_t GetNIndexTags()  const {return m_index_tags.size();}
-      std::size_t GetNHist1D()     const {return m_hist_1d.size();}
-      std::size_t GetNHist2D()     const {return m_hist_2d.size();}
-      std::size_t GetNHist3D()     const {return m_hist_3d.size();}
-      std::size_t GetNHists()      const {return GetNHist1D() + GetNHist2D() + GetNHist3D();}
-      bool        GetDoPtJetBins() const {return m_do_pt_bins;}
-      bool        GetDoCFJetBins() const {return m_do_cf_bins;}
-      bool        GetDoSpinBins()  const {return m_do_sp_bins;}
-      bool        GetDoEECHists()  const {return m_do_eec_hist;}
-      bool        GetDoE3CHists()  const {return m_do_e3c_hist;}
-      bool        GetDoLECHists()  const {return m_do_lec_hist;}
+      std::string GetHistTag()      const {return m_hist_tag;}
+      std::size_t GetNPtJetBins()   const {return m_nbins_pt;}
+      std::size_t GetNCFJetBins()   const {return m_nbins_cf;}
+      std::size_t GetNChargeBins()  const {return m_nbins_ch;}
+      std::size_t GetNSpinBins()    const {return m_nbins_sp;}
+      std::size_t GetNIndexTags()   const {return m_index_tags.size();}
+      std::size_t GetNHist1D()      const {return m_hist_1d.size();}
+      std::size_t GetNHist2D()      const {return m_hist_2d.size();}
+      std::size_t GetNHist3D()      const {return m_hist_3d.size();}
+      std::size_t GetNHists()       const {return GetNHist1D() + GetNHist2D() + GetNHist3D();}
+      bool        GetDoPtJetBins()  const {return m_do_pt_bins;}
+      bool        GetDoCFJetBins()  const {return m_do_cf_bins;}
+      bool        GetDoChargeBins() const {return m_do_ch_bins;}
+      bool        GetDoSpinBins()   const {return m_do_sp_bins;}
+      bool        GetDoEECHists()   const {return m_do_eec_hist;}
+      bool        GetDoE3CHists()   const {return m_do_e3c_hist;}
+      bool        GetDoLECHists()   const {return m_do_lec_hist;}
 
       // ----------------------------------------------------------------------
       //! Setters
@@ -418,6 +425,17 @@ namespace PHEnergyCorrelator {
       }  // end 'DoCFJetBins(std::size_t)'
 
       // ----------------------------------------------------------------------
+      //! Bin on jet charge
+      // ----------------------------------------------------------------------
+      void DoChargeBins(const std::size_t nbins) {
+
+        m_nbins_ch   = nbins;
+        m_do_ch_bins = true;
+        return;
+
+      }  // end 'DoChargeBins(std::size_t)'
+
+      // ----------------------------------------------------------------------
       //! Bin on spin
       // ----------------------------------------------------------------------
       void DoSpinBins(const bool spin) {
@@ -435,6 +453,7 @@ namespace PHEnergyCorrelator {
         // 1st make sure there'll be at least 1 index
         m_nbins_pt = m_do_pt_bins ? m_nbins_pt : (std::size_t) 1;
         m_nbins_cf = m_do_cf_bins ? m_nbins_cf : (std::size_t) 1;
+        m_nbins_ch = m_do_ch_bins ? m_nbins_ch : (std::size_t) 1;
         m_nbins_sp = m_do_sp_bins ? m_nbins_sp : (std::size_t) 1;
 
         // then create tags for each bin and histogrma prefixes
@@ -457,27 +476,27 @@ namespace PHEnergyCorrelator {
         const std::string tag = MakeIndexTag(index);
 
         // fill 1d histograms
-        m_hist_1d[MakeHistName("EECStat", tag)] -> Fill(content.rl, content.weight);
-        m_hist_1d[MakeHistName("EECWidth", tag)] -> Fill(content.rl, content.weight);
-        m_hist_1d[MakeHistName("SpinBlue", tag)] -> Fill(content.spinB);
-        m_hist_1d[MakeHistName("SpinYellow", tag)] -> Fill(content.spinY);
-        m_hist_1d[MakeHistName("SpinPattern", tag)] -> Fill(content.pattern);
-        m_hist_1d[MakeHistName("CollinsBlueStat", tag)] -> Fill(content.phiCollB);
-        m_hist_1d[MakeHistName("CollinsYellStat", tag)] -> Fill(content.phiCollY);
-        m_hist_1d[MakeHistName("BoerMuldersBlueStat", tag)] -> Fill(content.phiBoerB);
-        m_hist_1d[MakeHistName("BoerMuldersYellStat", tag)] -> Fill(content.phiBoerY);
+        m_hist_1d.at( MakeHistName("EECStat", tag) ) -> Fill(content.rl, content.weight);
+        m_hist_1d.at( MakeHistName("EECWidth", tag) ) -> Fill(content.rl, content.weight);
+        m_hist_1d.at( MakeHistName("SpinBlue", tag) ) -> Fill(content.spinB);
+        m_hist_1d.at( MakeHistName("SpinYellow", tag) ) -> Fill(content.spinY);
+        m_hist_1d.at( MakeHistName("SpinPattern", tag) ) -> Fill(content.pattern);
+        m_hist_1d.at( MakeHistName("CollinsBlueStat", tag) ) -> Fill(content.phiCollB);
+        m_hist_1d.at( MakeHistName("CollinsYellStat", tag) ) -> Fill(content.phiCollY);
+        m_hist_1d.at( MakeHistName("BoerMuldersBlueStat", tag) ) -> Fill(content.phiBoerB);
+        m_hist_1d.at( MakeHistName("BoerMuldersYellStat", tag) ) -> Fill(content.phiBoerY);
 
         // fill 2d histograms
-        m_hist_2d[MakeHistName("CollinsBlueVsRStat", tag)] -> Fill(
+        m_hist_2d.at( MakeHistName("CollinsBlueVsRStat", tag) ) -> Fill(
           content.rl, content.phiCollB, content.weight
         );
-        m_hist_2d[MakeHistName("CollinsYellVsRStat", tag)] -> Fill(
+        m_hist_2d.at( MakeHistName("CollinsYellVsRStat", tag) ) -> Fill(
           content.rl, content.phiCollY, content.weight
         );
-        m_hist_2d[MakeHistName("BoerMuldersBlueVsRStat", tag)] -> Fill(
+        m_hist_2d.at( MakeHistName("BoerMuldersBlueVsRStat", tag) ) -> Fill(
           content.rl, content.phiBoerB, content.weight
         );
-        m_hist_2d[MakeHistName("BoerMuldersYellVsRStat", tag)] -> Fill(
+        m_hist_2d.at( MakeHistName("BoerMuldersYellVsRStat", tag) ) -> Fill(
           content.rl, content.phiBoerY, content.weight
         );
         return;
@@ -577,9 +596,11 @@ namespace PHEnergyCorrelator {
         m_do_lec_hist = false;
         m_do_pt_bins  = false;
         m_do_cf_bins  = false;
+        m_do_ch_bins  = false;
         m_do_sp_bins  = false;
         m_nbins_pt    = 1;
         m_nbins_cf    = 1;
+        m_nbins_ch    = 1;
         m_nbins_sp    = 9;
         m_hist_tag    = "";
         m_hist_pref   = "";
@@ -601,9 +622,11 @@ namespace PHEnergyCorrelator {
         m_do_lec_hist = do_lec;
         m_do_pt_bins  = false;
         m_do_cf_bins  = false;
+        m_do_ch_bins  = false;
         m_do_sp_bins  = false;
         m_nbins_pt    = 1;
         m_nbins_cf    = 1;
+        m_nbins_ch    = 1;
         m_nbins_sp    = 9;
         m_hist_tag    = "";
         m_hist_pref   = "";

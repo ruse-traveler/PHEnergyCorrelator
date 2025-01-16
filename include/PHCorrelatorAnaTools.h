@@ -97,8 +97,7 @@ namespace PHEnergyCorrelator {
     // ------------------------------------------------------------------------
     //! Get doubled hadron angle controlled for wraparounds
     // ------------------------------------------------------------------------
-    /*! Takes an angle and constrains it to (-pi/2, pi/2). Anticipates that
-     *  the angle is in (-pi, pi).
+    /*! Takes an angle and constrains it to (-pi/2, pi/2).
      */
     double GetWrappedDoubledHadronAngle(double angle) {
 

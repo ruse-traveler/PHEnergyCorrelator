@@ -44,6 +44,7 @@ namespace PHEnergyCorrelator {
       // data members (bins)
       std::vector< std::pair<float, float> > m_ptjet_bins;
       std::vector< std::pair<float, float> > m_cfjet_bins;
+      std::vector< std::pair<float, float> > m_chrg_bins;
 
       // data member (hist manager)
       HistManager m_manager;
@@ -116,13 +117,13 @@ namespace PHEnergyCorrelator {
 
         // for pt and cf, index will correspond to what bin
         // the jet falls in
-        Type::HistIndex iptcf(0, 0, 0);
+        Type::HistIndex index(0, 0, 0, 0);
 
         // determine pt bin
         if (m_manager.GetDoPtJetBins()) {
           for (std::size_t ipt = 0; ipt < m_ptjet_bins.size(); ++ipt) {
             if ((jet.pt >= m_ptjet_bins[ipt].first) && (jet.pt < m_ptjet_bins[ipt].second)) {
-              iptcf.pt = ipt;
+              index.pt = ipt;
             }
           }  // end pt bin loop
         }
@@ -131,14 +132,23 @@ namespace PHEnergyCorrelator {
         if (m_manager.GetDoCFJetBins()) {
           for (std::size_t icf = 0; icf < m_cfjet_bins.size(); ++icf) {
             if ((jet.cf >= m_cfjet_bins[icf].first) && (jet.cf < m_cfjet_bins[icf].second)) {
-              iptcf.cf = icf;
+              index.cf = icf;
             }
-          }  // end cf bin loop
+          }  // end charge bin loop
+        }
+
+        // determine cf bin
+        if (m_manager.GetDoChargeBins()) {
+          for (std::size_t ich = 0; ich < m_chrg_bins.size(); ++ich) {
+            if ((jet.charge >= m_chrg_bins[ich].first) && (jet.charge < m_chrg_bins[ich].second)) {
+              index.chrg = ich;
+            }
+          }  // end charge bin loop
         }
 
         // By default, add spin-integrated bin
         std::vector<Type::HistIndex> indices;
-        indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::Int) );
+        indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::Int) );
 
         // if needed, determine spin bins
         if (m_manager.GetDoSpinBins()) {
@@ -146,40 +156,40 @@ namespace PHEnergyCorrelator {
 
               // blue up, yellow up (pp)
               case Type::PPBUYU:
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::BU) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::YU) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::BUYU) );
+                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::BU) );
+                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::YU) );
+                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::BUYU) );
                 break;
 
               // blue down, yellow up (pp)
               case Type::PPBDYU:
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::BD) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::YU) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::BDYU) );
+                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::BD) );
+                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::YU) );
+                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::BDYU) );
                 break;
 
               // blue up, yellow down (pp)
               case Type::PPBUYD:
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::BU) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::YD) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::BUYD) );
+                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::BU) );
+                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::YD) );
+                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::BUYD) );
                 break;
 
               // blue down, yellow down (pp)
               case Type::PPBDYD:
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::BD) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::YD) );
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::BDYD) );
+                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::BD) );
+                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::YD) );
+                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::BDYD) );
                 break;
 
               // blue up (pAu)
               case Type::PABU:
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::BU) );
+                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::BU) );
                 break;
 
               // blue down (pAu)
               case Type::PABD:
-                indices.push_back( Type::HistIndex(iptcf.pt, iptcf.cf, HistManager::BD) );
+                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::BD) );
                 break;
 
               // by default, only add integrated
@@ -241,6 +251,21 @@ namespace PHEnergyCorrelator {
         return;
 
       }  // end 'SetCFJetBins(std::vector<std::pair<float, float>>&)'
+
+      // ----------------------------------------------------------------------
+      //! Set jet charge bins
+      // ----------------------------------------------------------------------
+      void SetChargeBins(const std::vector< std::pair<float, float> >& bins) {
+
+        // copy bins to member
+        m_chrg_bins.resize( bins.size() );
+        std::copy(bins.begin(), bins.end(), m_chrg_bins.begin());
+
+        // update hist manager and exit
+        m_manager.DoChargeBins( m_chrg_bins.size() );
+        return;
+
+      }  // end 'SetChargeBins(std::vector<std::pair<float, float>>&)'
 
       // ----------------------------------------------------------------------
       //! Turn on/off spin binning
