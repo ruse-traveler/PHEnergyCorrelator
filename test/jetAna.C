@@ -1090,7 +1090,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
             if (doDataEEC) {
 
               // collect jet and spin information into a handy struct
-              PHEC::Type::Jet jet(
+              PHEC::Type::Jet jet_data(
                 r_cf[indexMax],
                 r_pT[indexMax],
                 r_eta[indexMax],
@@ -1122,14 +1122,14 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
                   }
 
                   // collect cst information into a handy struct
-                  PHEC::Type::Cst cstA(
+                  PHEC::Type::Cst cstA_data(
                     re_cs_z->at(indexMax).at(iCstA),
                     re_cs_jT->at(indexMax).at(iCstA),
                     re_cs_eta->at(indexMax).at(iCstA),
                     re_cs_phi->at(indexMax).at(iCstA),
                     re_cs_charge->at(indexMax).at(iCstA)
                   );
-                  PHEC::Type::Cst cstB(
+                  PHEC::Type::Cst cstB_data(
                     re_cs_z->at(indexMax).at(iCstB),
                     re_cs_jT->at(indexMax).at(iCstB),
                     re_cs_eta->at(indexMax).at(iCstB),
@@ -1138,7 +1138,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
                   );
 
                   // run 2-point calculation for pair
-                  dataEEC.CalcEEC( jet, std::make_pair(cstA, cstB) );
+                  dataEEC.CalcEEC( jet_data, std::make_pair(cstA_data, cstB_data) );
 
                 }  // end 2nd cst loop
               }  // end 1st cst loop
