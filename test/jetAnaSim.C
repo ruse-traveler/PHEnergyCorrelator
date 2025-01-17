@@ -1639,14 +1639,14 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
       centWeightFactor[i] = centWeightFactor12[i]; 
     }
   }
-  else if( (runno==15) && (centLow==0.0) && (centHigh==84.0) ){
-    nMBCombine = 4; 
-    for(int i=0; i<nMBCombine; i++){
-      centlow[i] = centlow15[i]; 
-      centhigh[i] = centhigh15[i]; 
-      centWeightFactor[i] = centWeightFactor15[i]; 
-    }
-  }
+  // else if( (runno==15) && (centLow==0.0) && (centHigh==84.0) ){
+  //   nMBCombine = 4; 
+  //   for(int i=0; i<nMBCombine; i++){
+  //     centlow[i] = centlow15[i]; 
+  //     centhigh[i] = centhigh15[i]; 
+  //     centWeightFactor[i] = centWeightFactor15[i]; 
+  //   }
+  // }
 
   // Loop over each CKIN, create a TChain and process events
 
