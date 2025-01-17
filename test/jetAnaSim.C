@@ -822,7 +822,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   // jet charge bins
   std::vector< std::pair<float, float> > chJetBins;
   chJetBins.push_back( std::make_pair(-100., 0.0) );
-  chJetBins.push-Back( std::make_pair(0.0, 100.) );
+  chJetBins.push_back( std::make_pair(0.0, 100.) );
 
   // now declare calculators
   //   - 1st argument: quantity used for weights (pt, et, or e)

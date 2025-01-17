@@ -318,10 +318,6 @@ namespace PHEnergyCorrelator {
           Tools::GetCstLorentz(csts.first, jet.pt, false),
           Tools::GetCstLorentz(csts.second, jet.pt, false)
         );
-        std::pair<TLorentzVector, TLorentzVector> unitCst4 = std::make_pair(
-          Tools::GetCstLorentz(csts.first, jet.pt, true),
-          Tools::GetCstLorentz(csts.second, jet.pt, true)
-        );
 
         // get average of cst 3-vectors
         TVector3 vecAvgCst3 = Tools::GetWeightedAvgVector(
@@ -351,39 +347,43 @@ namespace PHEnergyCorrelator {
 
         // (2) get phiSpin: angles between the jet-beam plane and spin
         //   - n.b. for spin pattern >= 4, yellow spin = (0, 0, 0)
-        const double phiSpinBlue = TMath::PiOver2() - acos( normJetBeam3.first.Dot(vecSpin3.first) );
-        const double phiSpinYell = TMath::PiOver2() - acos( normJetBeam3.second.Dot(vecSpin3.second) );
+	// angle between jet plane and spin 
+	// note that we get the full [0,2pi) range for these angles
+        double phiSpinBlue = TMath::PiOver2() - atan2( normJetBeam3.first.Cross(vecSpin3.first).Mag(), normJetBeam3.first.Dot(vecSpin3.first) );
+	if(phiSpinBlue<0) phiSpinBlue += TMath::TwoPi(); 
+        double phiSpinYell = TMath::PiOver2() - atan2( normJetBeam3.second.Cross(vecSpin3.second).Mag(), normJetBeam3.second.Dot(vecSpin3.second) );
+	if(phiSpinYell<0) phiSpinYell += TMath::TwoPi(); 
 
         // (3) get vector normal to hadron average-jet plane
         TVector3 normHadJet3 = ( unitJet4.Vect().Cross(unitAvgCst3) ).Unit();
 
         // (4) get phiHadron: angle between the jet-beam plane and the
-        //     jet-hadron plane, constrain to (-pi/2, pi/2)
-        double phiHadBlue = acos( normJetBeam3.first.Dot(normHadJet3) );
-        double phiHadYell = acos( normJetBeam3.second.Dot(normHadJet3) );
-        phiHadBlue = Tools::GetWrappedHadronAngle( phiHadBlue );
-        phiHadYell = Tools::GetWrappedHadronAngle( phiHadYell );
+        //     jet-hadron plane, range [0,2pi)
+        double phiHadBlue = atan2( normJetBeam3.first.Cross(normHadJet3).Mag(), normJetBeam3.first.Dot(normHadJet3) );
+        double phiHadYell = atan2( normJetBeam3.second.Cross(normHadJet3).Mag(), normJetBeam3.second.Dot(normHadJet3) );
 
         // (5) double phiHadron for boer-mulders, constrain to
-        //     (-pi/2, pi/2)
+        //     [0, 2pi)
         double phiHadBlue2 = 2.0 * phiHadBlue;
+	if(phiHadBlue2>=TMath::TwoPi()) phiHadBlue2 -= TMath::TwoPi();
         double phiHadYell2 = 2.0 * phiHadYell;
-        phiHadBlue2 = Tools::GetWrappedDoubledHadronAngle( phiHadBlue2 );
-        phiHadYell2 = Tools::GetWrappedDoubledHadronAngle( phiHadYell2 );
+	if(phiHadYell2>=TMath::TwoPi()) phiHadYell2 -= TMath::TwoPi();
 
         // (6) now calculate phiColl: phiSpin - phiHadron, constrain
-        //     to (0, pi)
+        //     to [0, 2pi)
         double phiCollBlue = phiSpinBlue - phiHadBlue;
+	if(phiCollBlue<0) phiCollBlue += TMath::TwoPi(); 
         double phiCollYell = phiSpinYell - phiHadYell;
-        phiCollBlue = Tools::GetWrappedSpinHadronAngle( phiCollBlue );
-        phiCollYell = Tools::GetWrappedSpinHadronAngle( phiCollYell );
+	if(phiCollYell<0) phiCollYell += TMath::TwoPi(); 
 
         // (6) now calculate phiBoer: phiSpin - (2 * phiHadron), constain
-        //     to (0, pi)
+        //     to [0, 2pi)
         double phiBoerBlue = phiSpinBlue - phiHadBlue2;
+	if(phiBoerBlue<0 && phiBoerBlue>=-TMath::TwoPi()) phiBoerBlue += TMath::TwoPi(); 
+	if(phiBoerBlue<-2.0*TMath::TwoPi()) phiBoerBlue += 2.0*TMath::TwoPi(); 
         double phiBoerYell = phiSpinYell - phiHadYell2;
-        phiBoerBlue = Tools::GetWrappedSpinHadronAngle( phiBoerBlue );
-        phiBoerYell = Tools::GetWrappedSpinHadronAngle( phiBoerYell );
+	if(phiBoerYell<0 && phiBoerYell>=-TMath::TwoPi()) phiBoerYell += TMath::TwoPi(); 
+	if(phiBoerYell<-2.0*TMath::TwoPi()) phiBoerYell += 2.0*TMath::TwoPi(); 
 
         // calculate eec quantities -------------------------------------------
 
