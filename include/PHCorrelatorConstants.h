@@ -16,10 +16,13 @@
 #include <string>
 // root libraries
 #include <TVector3.h>
-
-
+#include <TRandom3.h>
 
 namespace PHEnergyCorrelator {
+
+  // Random generator for null spin vector
+
+  TRandom3 *rand = new TRandom3(); 
 
   // ==========================================================================
   //! PHEnergyCorrelator Constants
@@ -124,10 +127,13 @@ namespace PHEnergyCorrelator {
 
     // ------------------------------------------------------------------------
     //! Null spin in lab coordinates
+    // We actually return a random normalized spin in the x-y plane to avoid
+    // problems with the vector calculations.  Since there is in principle no 
+    // spin dependence this should be a valid thing to do. 
     // ------------------------------------------------------------------------
     inline TVector3 SpinNull() {
-      const TVector3 null(0.0, 0.0, 0.0);
-      return null;
+      const TVector3 null(rand->Uniform(), rand->Uniform(), 0.0);
+      return null.Unit();
     }
 
   }   // end Const namespace
