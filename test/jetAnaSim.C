@@ -864,6 +864,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 
   //TString PPAdd = "_Pythia8"; 
   TString PPAdd = ""; 
+  TString HIAdd = "EmbedPythia"; 
 
   saved_embed = embed; 
   saved_Suffix = inSuffix; 
@@ -1140,11 +1141,24 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
       nCkinRuns = nRuns_r15e; 
       for(unsigned int i=0; i<nCkinRuns; i++){
 	ckins[i] = ckins_r15e[i]; 
-	crossSec[i] = crossSec_r15e[i]; 
-	nFiles[i] = nFiles_r15e[i]; 
+
+	if(HIAdd=="EmbedHerwig"){	  
+	  crossSec[i] = crossSecH_r15e[i];
+	  nFiles[i] = nFiles_r15e[i]; 
+	}
+	else if(HIAdd=="EmbedPythia8"){	  
+	  crossSec[i] = crossSecP8_r15e[i];
+	  nFiles[i] = nFiles_r15e[i]; 
+	}
+	else{
+	  crossSec[i] = crossSec_r15e[i]; 
+	  nFiles[i] = nFiles_r15e[i]; 
+	}
+
 	evPerFile[i] = evPerFile_r15e[i];
         tpT_cutoff[i] = tpT_cutoff_r15e[i];  
         rpT_cutoff[i] = rpT_cutoff_r15e[i];  
+
       }
 
       NPTBINS = NPTBINS_RECO_12; 
@@ -1282,9 +1296,9 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   TH1F *hRecoOppPatP2_odd = new TH1F("hRecoOppPat_odd_ERTfiredP2", "Opp spin: +-/-+, odd crossing", NPTBINS, PTBINS);
   hRecoOppPatP2_odd->Sumw2();
 
-  TH1F *hRecoSpinPat[2][6];
+  TH1F *hRecoSpinPat[2][7];
   for(unsigned int j = 0; j < 2; j++){
-    for(unsigned int i = 0; i < 6; i++){
+    for(unsigned int i = 0; i < 7; i++){
       hRecoSpinPat[j][i] = new TH1F(Form("hRecoSpinPat_%i_%i", j, i), Form("Reco Jets, spinPat: %i %i", j, i), NPTBINS, PTBINS);
       hRecoSpinPat[j][i]->Sumw2();
     }
@@ -1309,8 +1323,8 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   TH1F *hTrueOppPat = new TH1F("hTrueOppPat", "Opp spin: +-/-+", NPTBINS, PTBINS);
   hTrueOppPat->Sumw2();
 
-  TH1F *hTrueSpinPat[6];
-  for(unsigned int i = 0; i < 6; i++){
+  TH1F *hTrueSpinPat[7];
+  for(unsigned int i = 0; i < 7; i++){
     hTrueSpinPat[i] = new TH1F(Form("hTrueSpinPat_%i", i), Form("True Jets, spinPat: %i", i), NPTBINS, PTBINS);
     hTrueSpinPat[i]->Sumw2();
   }
@@ -1350,9 +1364,9 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   TH2D *hOangNoUETrig = new TH2D("hOangNoUETrig", "oang vs. reco p_{T} (no UE)", NPTBINS, PTBINS, NOANGBINS, OANGBINS);
   hOangNoUETrig->Sumw2(); 
 
-  TH2D *hZgSpinPat[2][6];
+  TH2D *hZgSpinPat[2][7];
   for(unsigned int j = 0; j < 2; j++){
-    for(unsigned int i = 0; i < 6; i++){
+    for(unsigned int i = 0; i < 7; i++){
       hZgSpinPat[j][i] = new TH2D(Form("hZgSpinPat_%i_%i", j, i), Form("hZgSpinPat_%i_%i", j, i), NPTBINS, PTBINS, NZGBINS, ZGBINS);
       hZgSpinPat[j][i]->Sumw2(); 
     }
@@ -1375,9 +1389,9 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   TH2D *hFFZNoUETrig = new TH2D("hFFZNoUETrig", "z vs. reco p_{T} (no UE)", NPTBINS, PTBINS, NFFZBINS, FFZBINS);
   hFFZNoUETrig->Sumw2(); 
 
-  TH2D *hFFZSpinPat[2][6];
+  TH2D *hFFZSpinPat[2][7];
   for(unsigned int j = 0; j < 2; j++){
-    for(unsigned int i = 0; i < 6; i++){
+    for(unsigned int i = 0; i < 7; i++){
       hFFZSpinPat[j][i] = new TH2D(Form("hFFZSpinPat_%i_%i", j, i), Form("hFFZSpinPat_%i_%i", j, i), NPTBINS, PTBINS, NFFZBINS, FFZBINS);
       hFFZSpinPat[j][i]->Sumw2(); 
     }
@@ -1400,9 +1414,9 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   TH2D *hFFXINoUETrig = new TH2D("hFFXINoUETrig", "z vs. reco p_{T} (no UE)", NPTBINS, PTBINS, NFFXIBINS, FFXIBINS);
   hFFXINoUETrig->Sumw2(); 
 
-  TH2D *hFFXISpinPat[2][6];
+  TH2D *hFFXISpinPat[2][7];
   for(unsigned int j = 0; j < 2; j++){
-    for(unsigned int i = 0; i < 6; i++){
+    for(unsigned int i = 0; i < 7; i++){
       hFFXISpinPat[j][i] = new TH2D(Form("hFFXISpinPat_%i_%i", j, i), Form("hFFXISpinPat_%i_%i", j, i), NPTBINS, PTBINS, NFFXIBINS, FFXIBINS);
       hFFXISpinPat[j][i]->Sumw2(); 
     }
@@ -1428,9 +1442,9 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   TH2D *hFFJTNoUETrig = new TH2D("hFFJTNoUETrig", "jT/pT vs. reco p_{T} (no UE)", NPTBINS, PTBINS, NFFJTBINS, FFJTBINS);
   hFFJTNoUETrig->Sumw2(); 
 
-  TH2D *hFFJTSpinPat[2][6];
+  TH2D *hFFJTSpinPat[2][7];
   for(unsigned int j = 0; j < 2; j++){
-    for(unsigned int i = 0; i < 6; i++){
+    for(unsigned int i = 0; i < 7; i++){
       hFFJTSpinPat[j][i] = new TH2D(Form("hFFJTSpinPat_%i_%i", j, i), Form("hFFJTSpinPat_%i_%i", j, i), NPTBINS, PTBINS, NFFJTBINS, FFJTBINS);
       hFFJTSpinPat[j][i]->Sumw2(); 
     }
@@ -1453,9 +1467,9 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   TH2D *hFFdRNoUETrig = new TH2D("hFFdRNoUETrig", "dR vs. reco p_{T} (noUE)", NPTBINS, PTBINS, NFFDRBINS, FFDRBINS);
   hFFdRNoUETrig->Sumw2(); 
 
-  TH2D *hFFdRSpinPat[2][6];
+  TH2D *hFFdRSpinPat[2][7];
   for(unsigned int j = 0; j < 2; j++){
-    for(unsigned int i = 0; i < 6; i++){
+    for(unsigned int i = 0; i < 7; i++){
       hFFdRSpinPat[j][i] = new TH2D(Form("hFFdRSpinPat_%i_%i", j, i), Form("hFFdRSpinPat_%i_%i", j, i), NPTBINS, PTBINS, NFFDRBINS, FFDRBINS);
       hFFdRSpinPat[j][i]->Sumw2(); 
     }
@@ -1581,7 +1595,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 
   // check for consistency/relative luminosity
   double nEvenOdd[2] = {0.0,0.0}; 
-  double nSpinPat[2][6] = {{0.0,0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0,0.0}}; 
+  double nSpinPat[2][7] = {{0.0,0.0,0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0,0.0,0.0}}; 
 
   // Weight function to reweight PYTHIA to partonic NLO
 
@@ -1666,12 +1680,12 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
     //if(runno==15) fileLoc =  Form("/phenix/crs/phnxreco/jrunchey/ISUSim/FullSim/Run%i_PP/%i", runno, cmsE);
 
     if(embed) { 
-      if(runno==8) fileLoc =  Form("/phenix/crs/phnxreco/lajoie/SimOut/Run%i_DAUEmbedPythia_%i_%i/%i", runno, (int)centlow[ic], (int)centhigh[ic], cmsE);
-      if(runno==15) fileLoc =  Form("/phenix/crs/phnxreco/lajoie/SimOut/Run%i_PAUEmbedPythia_%i_%i/%i", runno, (int)centlow[ic], (int)centhigh[ic], cmsE);
+      if(runno==8) fileLoc =  Form("/phenix/crs/phnxreco/lajoie/SimOut/Run%i_DAU%s_%i_%i/%i", runno, HIAdd.Data(), (int)centlow[ic], (int)centhigh[ic], cmsE);
+      if(runno==15) fileLoc =  Form("/phenix/crs/phnxreco/lajoie/SimOut/Run%i_PAU%s_%i_%i/%i", runno, HIAdd.Data(), (int)centlow[ic], (int)centhigh[ic], cmsE);
       if((runno==12) && Run12EmbedJewel) 
-	fileLoc =  Form("/phenix/crs/phnxreco/lajoie/SimOut/Run%i_CUAUEmbedJewel_%i_%i/%i", runno, (int)centlow[ic], (int)centhigh[ic], cmsE);
+	fileLoc =  Form("/phenix/crs/phnxreco/lajoie/SimOut/Run%i_CUAU%s_%i_%i/%i", runno, HIAdd.Data(), (int)centlow[ic], (int)centhigh[ic], cmsE);
       if((runno==12) && !Run12EmbedJewel) 
-	fileLoc =  Form("/phenix/crs/phnxreco/lajoie/SimOut/Run%i_CUAUEmbedPythia_%i_%i/%i", runno, (int)centlow[ic], (int)centhigh[ic], cmsE);
+	fileLoc =  Form("/phenix/crs/phnxreco/lajoie/SimOut/Run%i_CUAU%s_%i_%i/%i", runno, HIAdd.Data(), (int)centlow[ic], (int)centhigh[ic], cmsE);
     }
 
     TString fNormName = Form("%s/CHAINS/simChain_Run%i_CKIN%i%s_%s%s.root", fileLoc.Data(), runno, ckins[normIdx], p_or_h.Data(),RString.Data(),Suffix.Data()); 
