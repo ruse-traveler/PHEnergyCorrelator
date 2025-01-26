@@ -61,6 +61,8 @@ float r_oang[maxRecoJets];
 float r_cf[maxRecoJets];
 int r_nc[maxRecoJets]; 
 
+int crossingShift = 0; 
+
 bool arm0FiredTrigger; 
 bool arm1FiredTrigger; 
 
@@ -764,13 +766,6 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
     if((RUNNUM==8) && (isHI==1) && ((r_centrality<centLow) || (r_centrality>=centHigh))) continue; 
     if((RUNNUM==15) && (isHI==1) && ((r_centrality<centLow) || (r_centrality>=centHigh))) continue; 
 
-    // Check for valid spin information
-
-    if( (r_ip12_clock_cross<0) || (r_ip12_clock_cross>120) ){
-      cout << "Bad clock cross, event skipped, run = " << r_runNumber << " ip12_clock_cross = " << r_ip12_clock_cross << endl; 
-      continue; 
-    }
-    
     // Bad pAu run - not in spin database
     if(r_runNumber==434147) continue; 
 
@@ -793,6 +788,8 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 	currRunNumber = r_runNumber; // don't keep hammering the DB
 	continue; 
       }
+
+      crossingShift = spin_cont.GetCrossingShift();
 
       for(int ip12_clock_cross = 0; ip12_clock_cross<120; ip12_clock_cross++){
 
@@ -835,7 +832,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 	  }
 	}
 
-	double R_lumi[2][6] = {{0.0, 0.0, 0.0, 0.0, 0.0, 0.0},{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}}; 
+	double R_lumi[2][7] = {{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}}; 
 
 	for(int ip12_clock_cross = 0; ip12_clock_cross<120; ip12_clock_cross++){
 
@@ -869,7 +866,21 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
       currRunNumber = r_runNumber; 
 
     }
-    
+
+    // Check for valid spin information
+    // For Run-15 pAu this needs to be recalculated
+
+    if((RUNNUM==15) && (isHI==1)){
+      r_ip12_clock_cross = (r_level1_clock_cross + crossingShift)%120;
+    }
+
+    // sanity check clock crossing number
+
+    if( (r_ip12_clock_cross<0) || (r_ip12_clock_cross>120) ){
+      cout << "Bad clock cross, event skipped, run = " << r_runNumber << " ip12_clock_cross = " << r_ip12_clock_cross << endl; 
+      continue; 
+    }
+        
     // Set polarization 
 
     if((RUNNUM==13)||(RUNNUM==15)){
