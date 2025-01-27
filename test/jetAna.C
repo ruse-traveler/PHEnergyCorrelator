@@ -766,8 +766,8 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
     if((RUNNUM==8) && (isHI==1) && ((r_centrality<centLow) || (r_centrality>=centHigh))) continue; 
     if((RUNNUM==15) && (isHI==1) && ((r_centrality<centLow) || (r_centrality>=centHigh))) continue; 
 
-    // Bad pAu run - not in spin database
-    if(r_runNumber==434147) continue; 
+    // Bad pAu runs - not in spin database
+    if((r_runNumber==434147)||(r_runNumber==434148)||(r_runNumber==434150)||(r_runNumber==434151)) continue; 
 
     // Check for run number change, update polarization
     if(((RUNNUM==13)||(RUNNUM==15)) && (r_runNumber!=currRunNumber)){
