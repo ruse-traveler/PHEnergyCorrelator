@@ -346,44 +346,78 @@ namespace PHEnergyCorrelator {
         );
 
         // (2) get phiSpin: angles between the jet-beam plane and spin
-        //   - n.b. for spin pattern >= 4, yellow spin = (0, 0, 0)
-	// angle between jet plane and spin 
-	// note that we get the full [0,2pi) range for these angles
+        //   - n.b. for spin pattern >= 4, the yellow spin is randomized
+	//   - angle between jet plane and spin 
+	//   - note that we get the full [0,2pi) range for these angles
         double phiSpinBlue = TMath::PiOver2() - atan2( normJetBeam3.first.Cross(vecSpin3.first).Mag(), normJetBeam3.first.Dot(vecSpin3.first) );
-	if(phiSpinBlue<0) phiSpinBlue += TMath::TwoPi(); 
         double phiSpinYell = TMath::PiOver2() - atan2( normJetBeam3.second.Cross(vecSpin3.second).Mag(), normJetBeam3.second.Dot(vecSpin3.second) );
-	if(phiSpinYell<0) phiSpinYell += TMath::TwoPi(); 
+	if (phiSpinBlue < 0)               phiSpinBlue += TMath::TwoPi();
+        if (phiSpinBlue >= TMath::TwoPi()) phiSpinBlue -= TMath::TwoPi();
+	if (phiSpinYell < 0)               phiSpinYell += TMath::TwoPi();
+        if (phiSpinYell >= TMath::TwoPi()) phiSpinYell -= TMath::TwoPi();
 
         // (3) get vector normal to hadron average-jet plane
         TVector3 normHadJet3 = ( unitJet4.Vect().Cross(unitAvgCst3) ).Unit();
 
         // (4) get phiHadron: angle between the jet-beam plane and the
-        //     jet-hadron plane, range [0,2pi)
+        //   - angle between jet-hadron plane
+        //   - constrain to range [0,2pi)
         double phiHadBlue = atan2( normJetBeam3.first.Cross(normHadJet3).Mag(), normJetBeam3.first.Dot(normHadJet3) );
         double phiHadYell = atan2( normJetBeam3.second.Cross(normHadJet3).Mag(), normJetBeam3.second.Dot(normHadJet3) );
+        if (phiHadBlue < 0)               phiHadBlue += TMath::TwoPi();
+        if (phiHadBlue >= TMath::TwoPi()) phiHadBlue -= TMath::TwoPi();
+        if (phiHadYell < 0)               phiHadYell += TMath::TwoPi();
+        if (phiHadYell >= TMath::TwoPi()) phiHadYell -= TMath::TwoPi();
 
-        // (5) double phiHadron for boer-mulders, constrain to
-        //     [0, 2pi)
+        // (5) double phiHadron for boer-mulders,
+        //   - constrain to [0, 2pi)
         double phiHadBlue2 = 2.0 * phiHadBlue;
-	if(phiHadBlue2>=TMath::TwoPi()) phiHadBlue2 -= TMath::TwoPi();
         double phiHadYell2 = 2.0 * phiHadYell;
-	if(phiHadYell2>=TMath::TwoPi()) phiHadYell2 -= TMath::TwoPi();
+	if (phiHadBlue2 < 0)               phiHadBlue2 += TMath::TwoPi();
+	if (phiHadBlue2 >= TMath::TwoPi()) phiHadBlue2 -= TMath::TwoPi();
+        if (phiHadYell2 < 0)               phiHadYell2 += TMath::TwoPi();
+	if (phiHadYell2 >= TMath::TwoPi()) phiHadYell2 -= TMath::TwoPi();
 
-        // (6) now calculate phiColl: phiSpin - phiHadron, constrain
-        //     to [0, 2pi)
+        // (6) now calculate phiColl: phiSpin - phiHadron,
+        //   - constrain to [0, 2pi)
         double phiCollBlue = phiSpinBlue - phiHadBlue;
-	if(phiCollBlue<0) phiCollBlue += TMath::TwoPi(); 
         double phiCollYell = phiSpinYell - phiHadYell;
-	if(phiCollYell<0) phiCollYell += TMath::TwoPi(); 
+	if (phiCollBlue < 0)               phiCollBlue += TMath::TwoPi();
+	if (phiCollBlue >= TMath::TwoPi()) phiCollBlue -= TMath::TwoPi();
+	if (phiCollYell < 0)               phiCollYell += TMath::TwoPi();
+	if (phiCollYell >= TMath::TwoPi()) phiCollYell -= TMath::TwoPi();
 
-        // (6) now calculate phiBoer: phiSpin - (2 * phiHadron), constain
-        //     to [0, 2pi)
+        // (7) now calculate phiBoer: phiSpin - (2 * phiHadron),
         double phiBoerBlue = phiSpinBlue - phiHadBlue2;
-	if(phiBoerBlue<0 && phiBoerBlue>=-TMath::TwoPi()) phiBoerBlue += TMath::TwoPi(); 
-	if(phiBoerBlue<-2.0*TMath::TwoPi()) phiBoerBlue += 2.0*TMath::TwoPi(); 
         double phiBoerYell = phiSpinYell - phiHadYell2;
-	if(phiBoerYell<0 && phiBoerYell>=-TMath::TwoPi()) phiBoerYell += TMath::TwoPi(); 
-	if(phiBoerYell<-2.0*TMath::TwoPi()) phiBoerYell += 2.0*TMath::TwoPi(); 
+
+        // (8) constrain phiBoerBlue to [0, 2pi)
+	if ((phiBoerBlue < 0) && (phiBoerBlue >= -TMath::TwoPi())) {
+          phiBoerBlue += TMath::TwoPi();
+        }
+	if (phiBoerBlue < (-2.0 * TMath::TwoPi())) {
+          phiBoerBlue += (2.0 * TMath::TwoPi());
+        }
+        if ((phiBoerBlue >= TMath::TwoPi()) && (phiBoerBlue < (2.0 * TMath::TwoPi()))) {
+          phiBoerBlue -= TMath::TwoPi();
+        }
+        if (phiBoerBlue >= (2.0 * TMath::TwoPi())) {
+          phiBoerBlue -= (2.0 * TMath::TwoPi());
+        }
+
+        // (9) constrain to phiBoerYell to [0, 2pi)
+	if ((phiBoerYell < 0) && (phiBoerYell >= -TMath::TwoPi())) {
+          phiBoerYell += TMath::TwoPi();
+        }
+	if (phiBoerYell < (-2.0 * TMath::TwoPi())) {
+          phiBoerYell += (2.0 * TMath::TwoPi());
+        }
+        if ((phiBoerYell >= TMath::TwoPi()) && (phiBoerYell < (2.0 * TMath::TwoPi()))) {
+          phiBoerYell -= TMath::TwoPi();
+        }
+        if (phiBoerYell >= (2.0 * TMath::TwoPi())) {
+          phiBoerYell -= (2.0 * TMath::TwoPi());
+        }
 
         // calculate eec quantities -------------------------------------------
 
