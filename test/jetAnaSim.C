@@ -804,10 +804,12 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 // define flags to turn off certain calculations
 #define doTrueEEC 1
 #define doTrueEECChargedOnly 0
-#define doTrueJetChargeBins 1
 #define doRecoEEC 1
 #define doRecoEECChargedOnly 0
-#define doRecoJetChargeBins 1
+
+// define flags to turn on/off certain binnings
+#define doJetCFBins 0
+#define doJetChargeBins 1
 
   // pt jet bins
   std::vector< std::pair<float, float> > ptJetBins;
@@ -834,17 +836,15 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   trueEEC.SetHistTag( "TrueJet" );
   recoEEC.SetHistTag( "RecoJet" );
 
-  // set pt and cf jet bins
+  // set pt, cf, charge jet bins
   trueEEC.SetPtJetBins( ptJetBins );
   recoEEC.SetPtJetBins( ptJetBins );
-  trueEEC.SetCFJetBins( cfJetBins );
-  recoEEC.SetCFJetBins( cfJetBins );
-
-  // if needed, set jet charged bins
-  if (doTrueJetChargeBins) {
-    trueEEC.SetChargeBins( chJetBins );
+  if (doJetCFBins) {
+    trueEEC.SetCFJetBins( cfJetBins );
+    recoEEC.SetCFJetBins( cfJetBins );
   }
-  if (doRecoJetChargeBins) {
+  if (doJetChargeBins) {
+    trueEEC.SetChargeBins( chJetBins );
     recoEEC.SetChargeBins( chJetBins );
   }
 
