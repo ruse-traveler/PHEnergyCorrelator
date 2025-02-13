@@ -392,33 +392,13 @@ namespace PHEnergyCorrelator {
         double phiBoerYell = phiSpinYell - phiHadYell2;
 
         // (8) constrain phiBoerBlue to [0, 2pi)
-	if ((phiBoerBlue < 0) && (phiBoerBlue >= -TMath::TwoPi())) {
-          phiBoerBlue += TMath::TwoPi();
-        }
-	if (phiBoerBlue < (-2.0 * TMath::TwoPi())) {
-          phiBoerBlue += (2.0 * TMath::TwoPi());
-        }
-        if ((phiBoerBlue >= TMath::TwoPi()) && (phiBoerBlue < (2.0 * TMath::TwoPi()))) {
-          phiBoerBlue -= TMath::TwoPi();
-        }
-        if (phiBoerBlue >= (2.0 * TMath::TwoPi())) {
-          phiBoerBlue -= (2.0 * TMath::TwoPi());
-        }
+	if (phiBoerBlue < 0)               phiBoerBlue += TMath::TwoPi();
+	if (phiBoerBlue >= TMath::TwoPi()) phiBoerBlue -= TMath::TwoPi();
 
         // (9) constrain to phiBoerYell to [0, 2pi)
-	if ((phiBoerYell < 0) && (phiBoerYell >= -TMath::TwoPi())) {
-          phiBoerYell += TMath::TwoPi();
-        }
-	if (phiBoerYell < (-2.0 * TMath::TwoPi())) {
-          phiBoerYell += (2.0 * TMath::TwoPi());
-        }
-        if ((phiBoerYell >= TMath::TwoPi()) && (phiBoerYell < (2.0 * TMath::TwoPi()))) {
-          phiBoerYell -= TMath::TwoPi();
-        }
-        if (phiBoerYell >= (2.0 * TMath::TwoPi())) {
-          phiBoerYell -= (2.0 * TMath::TwoPi());
-        }
-
+	if (phiBoerYell < 0)               phiBoerYell += TMath::TwoPi();
+	if (phiBoerYell >= TMath::TwoPi()) phiBoerYell -= TMath::TwoPi();
+ 
         // calculate eec quantities -------------------------------------------
 
         // get EEC weights
