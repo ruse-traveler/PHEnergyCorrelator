@@ -123,7 +123,7 @@ namespace PHEnergyCorrelator {
         if (ipt < m_nbins_pt) {
           return StringifyIndex(ipt);
         } else {
-          return "Int";
+          return Const::IntTag();
         }
 
       }  // end 'GetPtLabel(std::size_t, std::size_t)'
@@ -136,7 +136,7 @@ namespace PHEnergyCorrelator {
         if (ich < m_nbins_ch) {
           return StringifyIndex(ich);
         } else {
-          return "Int";
+          return Const::IntTag();
         }
 
       }  // end 'GetChrgLabel(std::size_t, std::size_t)'
@@ -153,7 +153,7 @@ namespace PHEnergyCorrelator {
         std::string label = "";
         switch (isp) {
           case Int:
-            label = "Int";
+            label = Const::IntTag();
             break;
           case BU:
             label = "BU";
