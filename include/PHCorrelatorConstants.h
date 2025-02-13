@@ -30,7 +30,41 @@ namespace PHEnergyCorrelator {
   namespace Const {
 
     // ------------------------------------------------------------------------
-    // Default value for index arguments
+    //! Total number of bins per spin case
+    // -----------------------------------------------------------------------
+    /*! This is the number of "bins" you'll get for each possible spin:
+     *    [0] integrated pt and charge;
+     *    [1] binned pt, integrated charge;
+     *    [2] integrated pt, binned charge;
+     *    [3] binned pt and charge
+     */
+    inline std::size_t NBinsPerSpin() {
+      const std::size_t num = 4;
+      return num;
+    }
+
+    // ------------------------------------------------------------------------
+    //! Blue spin start point
+    // ------------------------------------------------------------------------
+    /*! Starting point in index vector for blue spins
+     */
+    inline std::size_t BlueSpinStart() {
+      const std::size_t start = NBinsPerSpin();
+      return start;
+    }
+
+    // ------------------------------------------------------------------------
+    //! Yellow spin start point
+    // ------------------------------------------------------------------------
+    /*! Starting point in index vector for blue spins
+     */
+    inline std::size_t YellSpinStart() {
+      const std::size_t start = 2 * NBinsPerSpin();
+      return start;
+    }
+
+    // ------------------------------------------------------------------------
+    //! Default value for index arguments
     // ------------------------------------------------------------------------
     inline std::size_t IndexDefault() {
       const std::size_t def = 0;
@@ -38,7 +72,7 @@ namespace PHEnergyCorrelator {
     }
 
     // ------------------------------------------------------------------------
-    // Default value for int arguments
+    //! Default value for int arguments
     // ------------------------------------------------------------------------
     inline int IntDefault() {
       const int def = std::numeric_limits<int>::max();
@@ -46,7 +80,7 @@ namespace PHEnergyCorrelator {
     }
 
     // ------------------------------------------------------------------------
-    // Default value for double arguments
+    //! Default value for double arguments
     // ------------------------------------------------------------------------
     inline double DoubleDefault() {
       const int def = std::numeric_limits<double>::max();

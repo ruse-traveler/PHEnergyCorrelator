@@ -95,60 +95,64 @@ namespace PHEnergyCorrelator {
       //! Get hist index/indices
       // ----------------------------------------------------------------------
       /*! Returns a vector of indices of histograms to be filled. If not doing
-       *  spin sorting, vector will only have ONE entry, which is the pt (and
-       *  maybe CF) index.
+       *  spin sorting, vector will only have FOUR entries, which are
+       *    [0] = integrated pt, charge (+cf bin)
+       *    [1] = pt bin, integrated charge (+cf bin)
+       *    [2] = charge bin, integrated pt (+cf bin)
+       *    [3] = pt bin, charge bin (+cf bin)
        *
-       *  If doing spin sorting, the vector will have either 1, 2, or 4
+       *  If doing spin sorting, the vector will have either 4, 8, or 16
        *  entries.
-       *    - `size() == 4`: pp case; entries correspond to spin-integrated,
+       *    - `size() == 16`: pp case; entries correspond to spin-integrated,
        *       blue-only, yellow-only, and blue-and-yellow indices.
-       *    - `size() == 2`: pAu case; entries correspond to spin-integrated
+       *    - `size() == 8`: pAu case; entries correspond to spin-integrated
        *       and blue-only indices.
-       *    - `size() == 1`: an unexpected spin pattern was provided, only
+       *    - `size() == 4`: an unexpected spin pattern was provided, only
        *       spin-integrated case returned.
        *
-       *  The order of the vector will always be
-       *    [0] = integrated
-       *    [1] = blue beam index
-       *    [2] = yellow beam index
-       *    [3] = blue and yellow index
+       *  The order of the vector of indices will always be
+       *    [0 - 3]   = spin integrated
+       *    [4 - 7]   = blue beam index
+       *    [8 - 11]  = yellow beam index
+       *    [12 - 15] = blue and yellow index
        */
       std::vector<Type::HistIndex> GetHistIndices(const Type::Jet& jet) {
 
         // for pt and cf, index will correspond to what bin
-        // the jet falls in
-        Type::HistIndex index(0, 0, 0, 0);
+        // the jet falls in PLUS integrated pt/charge bin
+        Type::HistIndex base_index(0, 0, 0, 0);
 
         // determine pt bin
         if (m_manager.GetDoPtJetBins()) {
           for (std::size_t ipt = 0; ipt < m_ptjet_bins.size(); ++ipt) {
             if ((jet.pt >= m_ptjet_bins[ipt].first) && (jet.pt < m_ptjet_bins[ipt].second)) {
-              index.pt = ipt;
+              base_index.pt = ipt;
             }
           }  // end pt bin loop
         }
 
         // determine cf bin
+        //   - n.b. there is NO integrated bin for cf
         if (m_manager.GetDoCFJetBins()) {
           for (std::size_t icf = 0; icf < m_cfjet_bins.size(); ++icf) {
             if ((jet.cf >= m_cfjet_bins[icf].first) && (jet.cf < m_cfjet_bins[icf].second)) {
-              index.cf = icf;
+              base_index.cf = icf;
             }
           }  // end charge bin loop
         }
 
-        // determine cf bin
+        // determine charge bin
         if (m_manager.GetDoChargeBins()) {
           for (std::size_t ich = 0; ich < m_chrg_bins.size(); ++ich) {
             if ((jet.charge >= m_chrg_bins[ich].first) && (jet.charge < m_chrg_bins[ich].second)) {
-              index.chrg = ich;
+              base_index.chrg = ich;
             }
           }  // end charge bin loop
         }
 
-        // By default, add spin-integrated bin
-        std::vector<Type::HistIndex> indices;
-        indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::Int) );
+        // By default, only add spin-integrated bin
+        std::vector<std::size_t> spin_indices;
+        spin_indices.push_back( HistManager::Int );
 
         // if needed, determine spin bins
         if (m_manager.GetDoSpinBins()) {
@@ -156,40 +160,40 @@ namespace PHEnergyCorrelator {
 
               // blue up, yellow up (pp)
               case Type::PPBUYU:
-                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::BU) );
-                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::YU) );
-                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::BUYU) );
+                spin_indices.push_back( HistManager::BU );
+                spin_indices.push_back( HistManager::YU );
+                spin_indices.push_back( HistManager::BUYU );
                 break;
 
               // blue down, yellow up (pp)
               case Type::PPBDYU:
-                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::BD) );
-                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::YU) );
-                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::BDYU) );
+                spin_indices.push_back( HistManager::BD );
+                spin_indices.push_back( HistManager::YU );
+                spin_indices.push_back( HistManager::BDYU );
                 break;
 
               // blue up, yellow down (pp)
               case Type::PPBUYD:
-                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::BU) );
-                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::YD) );
-                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::BUYD) );
+                spin_indices.push_back( HistManager::BU );
+                spin_indices.push_back( HistManager::YD );
+                spin_indices.push_back( HistManager::BUYD );
                 break;
 
               // blue down, yellow down (pp)
               case Type::PPBDYD:
-                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::BD) );
-                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::YD) );
-                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::BDYD) );
+                spin_indices.push_back( HistManager::BD );
+                spin_indices.push_back( HistManager::YD );
+                spin_indices.push_back( HistManager::BDYD );
                 break;
 
               // blue up (pAu)
               case Type::PABU:
-                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::BU) );
+                spin_indices.push_back( HistManager::BU );
                 break;
 
               // blue down (pAu)
               case Type::PABD:
-                indices.push_back( Type::HistIndex(index.pt, index.cf, index.chrg, HistManager::BD) );
+                spin_indices.push_back( HistManager::BD );
                 break;
 
               // by default, only add integrated
@@ -197,6 +201,51 @@ namespace PHEnergyCorrelator {
                 break;
 
           }
+        }
+
+        // now assemble list of indices to fill
+        std::vector<Type::HistIndex> indices;
+        for (std::size_t isp = 0; isp < spin_indices.size(); ++isp) {
+
+          // integrated everything (except cf)
+          indices.push_back(
+            Type::HistIndex(
+              m_ptjet_bins.size(),
+              base_index.cf,
+              m_chrg_bins.size(),
+              spin_indices[isp]
+            )
+          );
+
+          // binned pt, integrated charge
+          indices.push_back(
+            Type::HistIndex(
+              base_index.pt,
+              base_index.cf,
+              m_chrg_bins.size(),
+              spin_indices[isp]
+            )
+          );
+
+          // binned charge, integrated pt
+          indices.push_back(
+            Type::HistIndex(
+              m_ptjet_bins.size(),
+              base_index.cf,
+              base_index.chrg,
+              spin_indices[isp]
+            )
+          );
+
+          // binned everything
+          indices.push_back(
+            Type::HistIndex(
+              base_index.pt,
+              base_index.cf,
+              base_index.chrg,
+              spin_indices[isp]
+            )
+          );
         }
         return indices;
 
@@ -432,14 +481,31 @@ namespace PHEnergyCorrelator {
           }
 
           // fill spin-integrated histograms
-          m_manager.FillEECHists(indices[0], content);
+          for (std::size_t idx = 0; idx < Const::NBinsPerSpin(); ++idx) {
+            m_manager.FillEECHists(indices[idx], content);
+          }
 
           // if needed, fill spin sorted histograms
-          if (m_manager.GetDoSpinBins() && (indices.size() > 1)) {
-            m_manager.FillEECHists(indices[1], content);
-            if (indices.size() > 2) {
-              m_manager.FillEECHists(indices[2], content);
-              m_manager.FillEECHists(indices[3], content);
+          if (m_manager.GetDoSpinBins() && (indices.size() > Const::BlueSpinStart())) {
+
+            // fill blue spins
+            for (
+              std::size_t idx = Const::BlueSpinStart();
+              idx < Const::YellSpinStart();
+              ++idx
+            ) {
+              m_manager.FillEECHists(indices[idx], content);
+            }
+
+            // fill yellow and both spins
+            if (indices.size() > Const::YellSpinStart()) {
+              for (
+                std::size_t idx = Const::YellSpinStart();
+                idx < indices.size();
+                ++idx
+              ) {
+                m_manager.FillEECHists(indices[idx], content);
+              }
             }
           }  // end spin hist filling
         }  // end hist filing
