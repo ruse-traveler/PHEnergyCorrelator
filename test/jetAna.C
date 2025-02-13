@@ -266,7 +266,10 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 // define flags to turn off eec calculations
 #define doDataEEC 1
 #define doDataEECChargedOnly 0
-#define doDataJetChargeBins 1
+
+// define flags to turn on/off certain binnings
+#define doJetCFBins 0
+#define doJetChargeBins 1
 
   // pt jet bins
   std::vector< std::pair<float, float> > ptJetBins;
@@ -291,12 +294,12 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
   // set histogram tags
   dataEEC.SetHistTag( "DataJet" );
 
-  // set pt and cf jet bins
+  // set pt, cf, and charge jet bins
   dataEEC.SetPtJetBins( ptJetBins );
-  dataEEC.SetCFJetBins( cfJetBins );
-
-  // if needed, set jet charge bisn
-  if (doDataJetChargeBins) {
+  if (doJetCFBins) {
+    dataEEC.SetCFJetBins( cfJetBins );
+  }
+  if (doJetChargeBins) {
     dataEEC.SetChargeBins( chJetBins );
   }
 

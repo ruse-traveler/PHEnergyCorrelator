@@ -116,50 +116,76 @@ namespace PHEnergyCorrelator {
       }  // end 'StringifyIndex(std::size_t)'
 
       // ----------------------------------------------------------------------
-      //! Translate spin index into a tag
+      //! Translate pt index into a label
+      // ----------------------------------------------------------------------
+      std::string GetPtLabel(const std::size_t ipt) const {
+
+        if (ipt < m_nbins_pt) {
+          return StringifyIndex(ipt);
+        } else {
+          return Const::IntTag();
+        }
+
+      }  // end 'GetPtLabel(std::size_t, std::size_t)'
+
+      // ----------------------------------------------------------------------
+      //! Translate charge index into a label
+      // ----------------------------------------------------------------------
+      std::string GetChrgLabel(const std::size_t ich) const {
+
+        if (ich < m_nbins_ch) {
+          return StringifyIndex(ich);
+        } else {
+          return Const::IntTag();
+        }
+
+      }  // end 'GetChrgLabel(std::size_t, std::size_t)'
+
+      // ----------------------------------------------------------------------
+      //! Translate spin index into a label
       // ----------------------------------------------------------------------
       /*! Spin "bins" correspond to different combinations of
        *  blue/yellow polarizations, indexed by the enum `Spin`.
        *  They are
        */ 
-      std::string GetSpinTag(const std::size_t isp) const {
+      std::string GetSpinLabel(const std::size_t isp) const {
 
-        std::string tag = "";
+        std::string label = "";
         switch (isp) {
           case Int:
-            tag = "Int";
+            label = Const::IntTag();
             break;
           case BU:
-            tag = "BU";
+            label = "BU";
             break;
           case BD:
-            tag = "BD";
+            label = "BD";
             break;
           case YU:
-            tag = "YU";
+            label = "YU";
             break;
           case YD:
-            tag = "YD";
+            label = "YD";
             break;
           case BUYU:
-            tag = "BUYU";
+            label = "BUYU";
             break;
           case BUYD:
-            tag = "BUYD";
+            label = "BUYD";
             break;
           case BDYU:
-            tag = "BDYU";
+            label = "BDYU";
             break;
           case BDYD:
-            tag = "BDYD";
+            label = "BDYD";
             break;
           default:
-            tag = "";
+            label = "";
             break;
         }
-        return tag;
+        return label;
 
-      }  // end 'GetSpinTag(std::size_t)'
+      }  // end 'GetSpinLabel(std::size_t)'
 
       // ----------------------------------------------------------------------
       //! Make a tag from a histogram index 
@@ -170,10 +196,10 @@ namespace PHEnergyCorrelator {
         std::string tag = "";
 
         // add appropriate indices
-        if (m_do_pt_bins) tag += Const::PtTag() + StringifyIndex(index.pt);
+        if (m_do_pt_bins) tag += Const::PtTag() + GetPtLabel(index.pt);
         if (m_do_cf_bins) tag += Const::CFTag() + StringifyIndex(index.cf);
-        if (m_do_ch_bins) tag += Const::ChrgTag() + StringifyIndex(index.chrg);
-        if (m_do_sp_bins) tag += Const::SpinTag() + GetSpinTag(index.spin);
+        if (m_do_ch_bins) tag += Const::ChrgTag() + GetChrgLabel(index.chrg);
+        if (m_do_sp_bins) tag += Const::SpinTag() + GetSpinLabel(index.spin);
         return tag;
 
       }  // end 'MakeIndexTag(Type::HistIndex&)'
@@ -239,10 +265,12 @@ namespace PHEnergyCorrelator {
       void GenerateIndexTags() {
 
         // build list of indices
+        //   - n.b. the pt and charge bins will have 1 additional "bin",
+        //     corresponding to integrating over pt or charge
         std::vector<Type::HistIndex> indices;
-        for (std::size_t ipt = 0; ipt < m_nbins_pt; ++ipt) {
+        for (std::size_t ipt = 0; ipt < m_nbins_pt + 1; ++ipt) {
           for (std::size_t icf = 0; icf < m_nbins_cf; ++icf) {
-            for (std::size_t ich = 0; ich < m_nbins_ch; ++ich) {
+            for (std::size_t ich = 0; ich < m_nbins_ch + 1; ++ich) {
               for (std::size_t isp = 0; isp < m_nbins_sp; ++isp) {
                 indices.push_back( Type::HistIndex(ipt, icf, ich, isp) );
               }
