@@ -3,6 +3,7 @@
 *.pcm
 *.root
 test/*
+output/
 !test/bins.h
 !test/SimStats.h
 !test/jetAna.C
