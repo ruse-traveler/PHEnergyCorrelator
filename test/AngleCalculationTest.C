@@ -32,8 +32,8 @@
 //! Test macro for anglue calculations
 // ============================================================================
 void AngleCalculationTest(
-  const std::string oFile = "test.root",
-  const std::size_t nIter = 100000,
+  const std::string oFile = "angleCalcTest.nIter10K_doWrap.d18m2y2025.root",
+  const std::size_t nIter = 10000,
   const bool doWrap = true
 ) {
 
@@ -386,6 +386,7 @@ void AngleCalculationTest(
     hInputPhiJet     -> Draw("same");
     hInputPhiHad     -> Draw("same");
     hCalcPhiJetBeamB -> Draw("same");
+    hCalcPhiHadJet   -> Draw("same");
     lInputPhiB       -> Draw();
     fOutput          -> cd();
     cInputPhiB       -> Write();
@@ -412,6 +413,7 @@ void AngleCalculationTest(
     hInputPhiJet     -> Draw("same");
     hInputPhiHad     -> Draw("same");
     hCalcPhiJetBeamY -> Draw("same");
+    hCalcPhiHadJet   -> Draw("same");
     lInputPhiY       -> Draw();
     fOutput          -> cd();
     cInputPhiY       -> Write();
@@ -442,6 +444,7 @@ void AngleCalculationTest(
     hInputThetaJet     -> Draw("same");
     hInputThetaHad     -> Draw("same");
     hCalcThetaJetBeamB -> Draw("same");
+    hCalcThetaHadJet   -> Draw("same");
     lInputThetaB       -> Draw();
     fOutput            -> cd();
     cInputThetaB       -> Write();
@@ -466,6 +469,7 @@ void AngleCalculationTest(
     hInputThetaJet     -> Draw("same");
     hInputThetaHad     -> Draw("same");
     hCalcThetaJetBeamY -> Draw("same");
+    hCalcThetaHadJet   -> Draw("same");
     lInputThetaY       -> Draw();
     fOutput            -> cd();
     cInputThetaY       -> Write();
@@ -563,6 +567,7 @@ void AngleCalculationTest(
     hInputPhiJet     -> Draw("same");
     hInputPhiHad     -> Draw("same");
     hCalcPhiJetBeamB -> Draw("same");
+    hCalcPhiHadJet   -> Draw("same");
     hPhiSpinB        -> Draw("same");
     hPhiHadB         -> Draw("same");
     hPhiHad2B        -> Draw("same");
@@ -599,6 +604,7 @@ void AngleCalculationTest(
     hInputPhiJet     -> Draw("same");
     hInputPhiHad     -> Draw("same");
     hCalcPhiJetBeamY -> Draw("same");
+    hCalcPhiHadJet   -> Draw("same");
     hPhiSpinB        -> Draw("same");
     hPhiHadB         -> Draw("same");
     hPhiHad2B        -> Draw("same");
