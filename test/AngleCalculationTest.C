@@ -32,9 +32,10 @@
 //! Test macro for anglue calculations
 // ============================================================================
 void AngleCalculationTest(
-  const std::string oFile = "angleCalcTest.nIter10K_doWrap.d18m2y2025.root",
+  const std::string oFile = "angleCalcTest.nIter10K_uniformSphere_doWrap.d18m2y2025.root",
   const std::size_t nIter = 10000,
-  const bool doWrap = true
+  const bool doWrap = true,
+  const bool doBatch = true
 ) {
 
   // announce start
@@ -95,10 +96,13 @@ void AngleCalculationTest(
   for (std::size_t iIter = 0; iIter < nIter; ++iIter) {
 
     // announce progress
-    if ((iIter + 1) == nIter) {
-      std::cout << "      iter " << iIter << "/" << nIter << "..." << std::endl;
+    std::size_t iProg = iIter + 1;
+    if (iProg == nIter) {
+      std::cout << "      iter " << iProg << "/" << nIter << "..." << std::endl;
+    } else if (doBatch) {
+      std::cout << "      iter " << iProg << "/" << nIter << "..." << std::endl;
     } else {
-      std::cout << "      iter " << iIter << "/" << nIter << "...\r" << std::flush;
+      std::cout << "      iter " << iProg << "/" << nIter << "...\r" << std::flush;
     }
 
     // set up vectors ---------------------------------------------------------
@@ -107,15 +111,45 @@ void AngleCalculationTest(
     TVector3 vecBeamB3(0.0, 0.0, 1.0);
     TVector3 vecBeamY3(0.0, 0.0, -1.0);
 
-    // get random spin directions, fill input histograms
-    TVector3 vecSpinB3(rando -> Uniform(), rando -> Uniform(), 0.0);
-    TVector3 vecSpinY3(rando -> Uniform(), rando -> Uniform(), 0.0);
+    // get random phi = (0, 2pi) for spins
+    const double phiRandSpinB = rando -> Uniform(0.0, TMath::TwoPi());
+    const double phiRandSpinY = rando -> Uniform(0.0, TMath::TwoPi());
+
+    // now translate into (x, y) values (assuming
+    // r = 1.0)
+    const double xRandSpinB = cos(phiRandSpinB);
+    const double yRandSpinB = sin(phiRandSpinB);
+    const double xRandSpinY = cos(phiRandSpinY);
+    const double yRandSpinY = sin(phiRandSpinY);
+
+    // set spin directions, fill input histograms
+    TVector3 vecSpinB3(xRandSpinB, yRandSpinB, 0.0);
+    TVector3 vecSpinY3(xRandSpinY, yRandSpinB, 0.0);
     hInputPhiSpinB -> Fill( vecSpinB3.Phi() );
     hInputPhiSpinY -> Fill( vecSpinY3.Phi() );
 
+    // get random phi = (0, 2pi) and cos-theta = (-1, 1) for jet/hadron
+    const double phiRandJet = rando -> Uniform(0.0, TMath::TwoPi());
+    const double phiRandHad = rando -> Uniform(0.0, TMath::TwoPi());
+    const double cosRandJet = rando -> Uniform(-1.0, 1.0);
+    const double cosRandHad = rando -> Uniform(-1.0, 1.0);
+
+    // translate cos-theta into theta
+    const double thetaRandJet = acos(cosRandJet);
+    const double thetaRandHad = acos(cosRandHad);
+
+    // now translate into (x, y, z) values (assuming
+    // r = 1.0)
+    const double xRandJet = sin(thetaRandJet) * cos(phiRandJet);
+    const double yRandJet = sin(thetaRandJet) * sin(phiRandJet);
+    const double zRandJet = cos(thetaRandJet);
+    const double xRandHad = sin(thetaRandHad) * cos(phiRandHad);
+    const double yRandHad = sin(thetaRandHad) * sin(phiRandHad);
+    const double zRandHad = cos(thetaRandHad);
+
     // get random jet/hadron directions, fill input histograms
-    TVector3 vecJet3(rando -> Uniform(), rando -> Uniform(), rando -> Uniform());
-    TVector3 vecHad3(rando -> Uniform(), rando -> Uniform(), rando -> Uniform());
+    TVector3 vecJet3(xRandJet, yRandJet, zRandJet);
+    TVector3 vecHad3(xRandHad, yRandHad, zRandHad);
     hInputPhiJet   -> Fill( vecJet3.Phi() );
     hInputThetaJet -> Fill( vecJet3.Theta() );
     hInputPhiHad   -> Fill( vecHad3.Phi() );
