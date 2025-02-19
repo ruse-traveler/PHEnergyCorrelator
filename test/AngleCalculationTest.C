@@ -35,7 +35,7 @@
 //! Test macro for anglue calculations
 // ============================================================================
 void AngleCalculationTest(
-  const std::string oFile = "angleCalcTest.nIter10K_uniformSphereWithXYPlots_doWrap.d19m2y2025.root",
+  const std::string oFile = "angleCalcTest.nIter10K_uniformSphereWithXYPlotsAndBugfix_doWrap.d19m2y2025.root",
   const std::size_t nIter = 10000,
   const bool doWrap = true,
   const bool doBatch = true
@@ -135,11 +135,11 @@ void AngleCalculationTest(
 
     // set spin directions, fill input histograms
     TVector3 vecSpinB3(xRandSpinB, yRandSpinB, 0.0);
-    TVector3 vecSpinY3(xRandSpinY, yRandSpinB, 0.0);
+    TVector3 vecSpinY3(xRandSpinY, yRandSpinY, 0.0);
     hInputPhiSpinB -> Fill( vecSpinB3.Phi() );
     hInputPhiSpinY -> Fill( vecSpinY3.Phi() );
     hInputXYSpinB  -> Fill( vecSpinB3.X(), vecSpinB3.Y() );
-    hInputXYSpinY  -> Fill( vecSpinB3.X(), vecSpinB3.Y() );
+    hInputXYSpinY  -> Fill( vecSpinY3.X(), vecSpinY3.Y() );
 
     // get random phi = (0, 2pi), cos-theta = (-1, 1), and u
     // for jet/hadron
