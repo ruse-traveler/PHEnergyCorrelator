@@ -12,6 +12,7 @@
 #define ANGLECALCULATIONTEST_C
 
 // c++ utilities
+#include <cmath>
 #include <iostream>
 #include <string>
 #include <utility>
@@ -20,8 +21,10 @@
 #include <TDatime.h>
 #include <TFile.h>
 #include <TH1.h>
+#include <TH2.h>
 #include <TLegend.h>
 #include <TMath.h>
+#include <TPad.h>
 #include <TRandom.h>
 #include <TRandom3.h>
 #include <TVector3.h>
@@ -32,7 +35,7 @@
 //! Test macro for anglue calculations
 // ============================================================================
 void AngleCalculationTest(
-  const std::string oFile = "angleCalcTest.nIter10K_uniformSphere_doWrap.d18m2y2025.root",
+  const std::string oFile = "angleCalcTest.nIter10K_uniformSphereWithXYPlots_doWrap.d19m2y2025.root",
   const std::size_t nIter = 10000,
   const bool doWrap = true,
   const bool doBatch = true
@@ -57,19 +60,27 @@ void AngleCalculationTest(
 
   // histogram binning
   const int   nAngBins  = 180;
+  const int   nXYBins   = 400;
   const float xAngStart = -12.60;
+  const float xXYStart  = -2.0;
   const float xAngStop  = 12.60; 
+  const float xXYStop   = 2.0;
 
   // turn on errors
   TH1::SetDefaultSumw2(true);
+  TH2::SetDefaultSumw2(true);
 
   // initialize histograms
   TH1D* hInputPhiSpinB     = new TH1D("hInputPhiSpinB", "#phi_{spin}^{B} input", nAngBins, xAngStart, xAngStop);
   TH1D* hInputPhiSpinY     = new TH1D("hInputPhiSpinY", "#phi_{spin}^{Y} input", nAngBins, xAngStart, xAngStop);
+  TH2D* hInputXYSpinB      = new TH2D("hInputXYSpinB", "(x,y) sampled (spin B)", nXYBins, xXYStart, xXYStop, nXYBins, xXYStart, xXYStop); 
+  TH2D* hInputXYSpinY      = new TH2D("hInputXYSpinY", "(x,y) sampled (spin Y)", nXYBins, xXYStart, xXYStop, nXYBins, xXYStart, xXYStop); 
   TH1D* hInputPhiJet       = new TH1D("hInputPhiJet", "#phi_{jet} input", nAngBins, xAngStart, xAngStop);
   TH1D* hInputThetaJet     = new TH1D("hInputThetaJet", "#theta_{jet} input", nAngBins, xAngStart, xAngStop);
+  TH2D* hInputXYJet        = new TH2D("hInputXYJet", "(x,y) sampled (jet)", nXYBins, xXYStart, xXYStop, nXYBins, xXYStart, xXYStop);
   TH1D* hInputPhiHad       = new TH1D("hInputPhiHad", "#phi_{h} input", nAngBins, xAngStart, xAngStop);
   TH1D* hInputThetaHad     = new TH1D("hInputThetaHad", "#theta_{h} input", nAngBins, xAngStart, xAngStop);
+  TH2D* hInputXYHad        = new TH2D("hInputXYHad", "(x,y) sampled (had)", nXYBins, xXYStart, xXYStop, nXYBins, xXYStart, xXYStop);
   TH1D* hCalcPhiJetBeamB   = new TH1D("hCalcPhiJetBeamB", "#phi_{jet-beam}^{B}", nAngBins, xAngStart, xAngStop);
   TH1D* hCalcThetaJetBeamB = new TH1D("hCalcThetaJetBeamB", "#theta_{jet-beam}^{B}", nAngBins, xAngStart, xAngStop);
   TH1D* hCalcPhiJetBeamY   = new TH1D("hCalcPhiJetBeamY", "#phi_{jet-beam}^{Y}", nAngBins, xAngStart, xAngStop);
@@ -127,33 +138,42 @@ void AngleCalculationTest(
     TVector3 vecSpinY3(xRandSpinY, yRandSpinB, 0.0);
     hInputPhiSpinB -> Fill( vecSpinB3.Phi() );
     hInputPhiSpinY -> Fill( vecSpinY3.Phi() );
+    hInputXYSpinB  -> Fill( vecSpinB3.X(), vecSpinB3.Y() );
+    hInputXYSpinY  -> Fill( vecSpinB3.X(), vecSpinB3.Y() );
 
-    // get random phi = (0, 2pi) and cos-theta = (-1, 1) for jet/hadron
+    // get random phi = (0, 2pi), cos-theta = (-1, 1), and u
+    // for jet/hadron
     const double phiRandJet = rando -> Uniform(0.0, TMath::TwoPi());
     const double phiRandHad = rando -> Uniform(0.0, TMath::TwoPi());
     const double cosRandJet = rando -> Uniform(-1.0, 1.0);
     const double cosRandHad = rando -> Uniform(-1.0, 1.0);
+    const double uRandJet   = rando -> Uniform(0.0, 1.0);
+    const double uRandHad   = rando -> Uniform(0.0, 1.0);
 
-    // translate cos-theta into theta
+    // translate cos-theta, u into theta, r
     const double thetaRandJet = acos(cosRandJet);
     const double thetaRandHad = acos(cosRandHad);
+    const double rRandJet     = pow(uRandJet, 1.0/3.0);
+    const double rRandHad     = pow(uRandHad, 1.0/3.0);
 
     // now translate into (x, y, z) values (assuming
     // r = 1.0)
-    const double xRandJet = sin(thetaRandJet) * cos(phiRandJet);
-    const double yRandJet = sin(thetaRandJet) * sin(phiRandJet);
-    const double zRandJet = cos(thetaRandJet);
-    const double xRandHad = sin(thetaRandHad) * cos(phiRandHad);
-    const double yRandHad = sin(thetaRandHad) * sin(phiRandHad);
-    const double zRandHad = cos(thetaRandHad);
+    const double xRandJet = rRandJet * sin(thetaRandJet) * cos(phiRandJet);
+    const double yRandJet = rRandJet * sin(thetaRandJet) * sin(phiRandJet);
+    const double zRandJet = rRandJet * cos(thetaRandJet);
+    const double xRandHad = rRandHad * sin(thetaRandHad) * cos(phiRandHad);
+    const double yRandHad = rRandHad * sin(thetaRandHad) * sin(phiRandHad);
+    const double zRandHad = rRandHad * cos(thetaRandHad);
 
     // get random jet/hadron directions, fill input histograms
     TVector3 vecJet3(xRandJet, yRandJet, zRandJet);
     TVector3 vecHad3(xRandHad, yRandHad, zRandHad);
     hInputPhiJet   -> Fill( vecJet3.Phi() );
     hInputThetaJet -> Fill( vecJet3.Theta() );
+    hInputXYJet    -> Fill( vecJet3.X(), vecJet3.Y() );
     hInputPhiHad   -> Fill( vecHad3.Phi() );
     hInputThetaHad -> Fill( vecHad3.Theta() );
+    hInputXYHad    -> Fill( vecHad3.X(), vecHad3.Y() );
 
     // now normalize spin/jet/hadron vectors
     TVector3 unitSpinB3 = vecSpinB3.Unit();
@@ -262,6 +282,7 @@ void AngleCalculationTest(
   std::cout << "    MC loop finished!" << std::endl;
 
   // normalize histograms
+  //   - n.b. (x,y) hists NOT normalized
   hInputPhiSpinB     -> Scale(1. / (double) nIter);
   hInputPhiSpinY     -> Scale(1. / (double) nIter);
   hInputPhiJet       -> Scale(1. / (double) nIter);
@@ -512,6 +533,40 @@ void AngleCalculationTest(
   }  // end input theta plot making
   std::cout << "    Created theta input plots." << std::endl;
 
+  // create (x,y) inuput plot
+  {
+
+    // create (x,y) plot
+    TCanvas* cInputXY = new TCanvas("cInputXY", "", 1250, 1250);
+    TPad*    pSpinB   = new TPad("pSpinB", "", 0.00, 0.50, 0.50, 1.00);
+    TPad*    pSpinY   = new TPad("pSpinY", "", 0.50, 0.50, 1.00, 1.00);
+    TPad*    pJet     = new TPad("pJet", "", 0.00, 0.00, 0.50, 0.50);
+    TPad*    pHad     = new TPad("pHad", "", 0.50, 0.00, 1.00, 0.50);
+    cInputXY      -> SetGrid(0, 0);
+    pSpinB        -> SetGrid(0, 0);
+    pSpinY        -> SetGrid(0, 0);
+    pJet          -> SetGrid(0, 0);
+    pHad          -> SetGrid(0, 0);
+    cInputXY      -> cd();
+    pSpinB        -> Draw();
+    pSpinY        -> Draw();
+    pJet          -> Draw();
+    pHad          -> Draw();
+    pSpinB        -> cd();
+    hInputXYSpinB -> Draw();
+    pSpinY        -> cd();
+    hInputXYSpinY -> Draw();
+    pJet          -> cd();
+    hInputXYJet   -> Draw();
+    pHad          -> cd();
+    hInputXYHad   -> Draw();
+    fOutput       -> cd();
+    cInputXY      -> Write();
+    cInputXY      -> Close();
+
+  }
+  std::cout << "    Created (x,y) input plot." << std::endl;
+
   // create phi output plots
   {
 
@@ -656,10 +711,14 @@ void AngleCalculationTest(
   fOutput            -> cd();
   hInputPhiSpinB     -> Write();
   hInputPhiSpinY     -> Write();
+  hInputXYSpinB      -> Write();
+  hInputXYSpinY      -> Write();
   hInputPhiJet       -> Write();
   hInputThetaJet     -> Write();
+  hInputXYJet        -> Write();
   hInputPhiHad       -> Write();
   hInputThetaHad     -> Write();
+  hInputXYHad        -> Write();
   hCalcPhiJetBeamB   -> Write();
   hCalcThetaJetBeamB -> Write();
   hCalcPhiJetBeamY   -> Write();
