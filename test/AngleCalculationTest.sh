@@ -1,16 +1,13 @@
 #!/usr/bin/bash
 # =============================================================================
-# \file   wipe-build
+# \file   AngleCalculationTest.sh
 # \author Derek Anderson
-# \date   09.24.2024
+# \date   02.18.2025
 #
-# Clean up build files from directory.
+# Runs angle calculation test.
 # ============================================================================
 
-rm *.d
-rm *.so
-rm AutoDict*
-rm test.root
+root -b -q AngleCalculationTest.C
 
 # end =========================================================================
 
