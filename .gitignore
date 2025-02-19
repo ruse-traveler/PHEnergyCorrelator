@@ -8,6 +8,7 @@ output/
 !test/SimStats.h
 !test/jetAna.C
 !test/AngleCalculationTest.C
+!test/AngleCalculationTest.sh
 !test/PHEnergyCorrelatorTest.C
 !test/root-build
 !test/wipe-build
