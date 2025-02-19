@@ -348,7 +348,7 @@ void AngleCalculationTest(
   hInputThetaHad     -> SetMarkerStyle(mar[2]);
   hCalcPhiJetBeamB   -> SetLineColor(col[3]);
   hCalcPhiJetBeamB   -> SetMarkerColor(col[3]);
-  hCalcPhiJetBeamB   -> SetMarkerStyle(col[3]);
+  hCalcPhiJetBeamB   -> SetMarkerStyle(mar[3]);
   hCalcThetaJetBeamB -> SetLineColor(col[3]);
   hCalcThetaJetBeamB -> SetMarkerColor(col[3]);
   hCalcThetaJetBeamB -> SetMarkerStyle(mar[3]);
