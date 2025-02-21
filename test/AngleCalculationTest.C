@@ -38,7 +38,7 @@ void AngleCalculationTest(
   const std::string oFile = "angleCalcTest.nIter10K_uniformSphereWithXYPlotsAndBugfix_doWrap.d19m2y2025.root",
   const std::size_t nIter = 10000,
   const bool doWrap = true,
-  const bool doBatch = true
+  const bool doBatch = false
 ) {
 
   // announce start
@@ -60,10 +60,13 @@ void AngleCalculationTest(
 
   // histogram binning
   const int   nAngBins  = 180;
+  const int   nCosBins  = 40;
   const int   nXYBins   = 400;
   const float xAngStart = -12.60;
+  const float xCosStart = -1.0;
   const float xXYStart  = -2.0;
   const float xAngStop  = 12.60; 
+  const float xCosStop  = 1.0;
   const float xXYStop   = 2.0;
 
   // turn on errors
@@ -77,16 +80,21 @@ void AngleCalculationTest(
   TH2D* hInputXYSpinY      = new TH2D("hInputXYSpinY", "(x,y) sampled (spin Y)", nXYBins, xXYStart, xXYStop, nXYBins, xXYStart, xXYStop);
   TH1D* hInputPhiJet       = new TH1D("hInputPhiJet", "#phi_{jet} input", nAngBins, xAngStart, xAngStop);
   TH1D* hInputThetaJet     = new TH1D("hInputThetaJet", "#theta_{jet} input", nAngBins, xAngStart, xAngStop);
+  TH1D* hInputCosThJet     = new TH1D("hInputCosThJet", "cos#theta_{jet} input", nCosBins, xCosStart, xCosStop);
   TH2D* hInputXYJet        = new TH2D("hInputXYJet", "(x,y) sampled (jet)", nXYBins, xXYStart, xXYStop, nXYBins, xXYStart, xXYStop);
   TH1D* hInputPhiHad       = new TH1D("hInputPhiHad", "#phi_{h} input", nAngBins, xAngStart, xAngStop);
   TH1D* hInputThetaHad     = new TH1D("hInputThetaHad", "#theta_{h} input", nAngBins, xAngStart, xAngStop);
+  TH1D* hInputCosThHad     = new TH1D("hInputCosThHad", "cos#theta_{h} input", nCosBins, xCosStart, xCosStop);
   TH2D* hInputXYHad        = new TH2D("hInputXYHad", "(x,y) sampled (had)", nXYBins, xXYStart, xXYStop, nXYBins, xXYStart, xXYStop);
   TH1D* hCalcPhiJetBeamB   = new TH1D("hCalcPhiJetBeamB", "#phi_{jet-beam}^{B}", nAngBins, xAngStart, xAngStop);
   TH1D* hCalcThetaJetBeamB = new TH1D("hCalcThetaJetBeamB", "#theta_{jet-beam}^{B}", nAngBins, xAngStart, xAngStop);
+  TH1D* hCalcCosThJetBeamB = new TH1D("hCalcCosThJetBeamB", "cos#theta_{jet-beam}^{B}", nCosBins, xCosStart, xCosStop);
   TH1D* hCalcPhiJetBeamY   = new TH1D("hCalcPhiJetBeamY", "#phi_{jet-beam}^{Y}", nAngBins, xAngStart, xAngStop);
   TH1D* hCalcThetaJetBeamY = new TH1D("hCalcThetaJetBeamY", "#theta_{jet-beam}^{Y}", nAngBins, xAngStart, xAngStop);
+  TH1D* hCalcCosThJetBeamY = new TH1D("hCalcCosThJetBeamY", "cos#theta_{jet-beam}^{Y}", nCosBins, xCosStart, xCosStop);
   TH1D* hCalcPhiHadJet     = new TH1D("hCalcPhiJetHad", "#phi_{jet-h}", nAngBins, xAngStart, xAngStop);
   TH1D* hCalcThetaHadJet   = new TH1D("hCalcThetaJetHad", "#theta_{jet-h}", nAngBins, xAngStart, xAngStop);
+  TH1D* hCalcCosThHadJet   = new TH1D("hCalcCosThJetHad", "cos#theta_{jet-h}", nCosBins, xCosStart, xCosStop);
   TH1D* hPhiSpinB          = new TH1D("hPhiSpinB", "#phi_{spin}^{B}", nAngBins, xAngStart, xAngStop);
   TH1D* hPhiSpinY          = new TH1D("hPhiSpinY", "#phi_{spin}^{Y}", nAngBins, xAngStart, xAngStop);
   TH1D* hPhiHadB           = new TH1D("hPhiHadB", "#phi_{h}^{B}", nAngBins, xAngStart, xAngStop);
@@ -170,9 +178,11 @@ void AngleCalculationTest(
     TVector3 vecHad3(xRandHad, yRandHad, zRandHad);
     hInputPhiJet   -> Fill( vecJet3.Phi() );
     hInputThetaJet -> Fill( vecJet3.Theta() );
+    hInputCosThJet -> Fill( cos(vecJet3.Theta()) );
     hInputXYJet    -> Fill( vecJet3.X(), vecJet3.Y() );
     hInputPhiHad   -> Fill( vecHad3.Phi() );
     hInputThetaHad -> Fill( vecHad3.Theta() );
+    hInputCosThHad -> Fill( cos(vecHad3.Theta()) );
     hInputXYHad    -> Fill( vecHad3.X(), vecHad3.Y() );
 
     // now normalize spin/jet/hadron vectors
@@ -191,8 +201,10 @@ void AngleCalculationTest(
     );
     hCalcPhiJetBeamB   -> Fill( normJetBeam3.first.Phi() );
     hCalcThetaJetBeamB -> Fill( normJetBeam3.first.Theta() );
+    hCalcCosThJetBeamB -> Fill( cos(normJetBeam3.first.Theta()) );
     hCalcPhiJetBeamY   -> Fill( normJetBeam3.second.Phi() );
     hCalcThetaJetBeamY -> Fill( normJetBeam3.second.Theta() );
+    hCalcCosThJetBeamY -> Fill( cos(normJetBeam3.second.Theta()) );
 
     // (2) get phiSpin: angles between the jet-beam plane and spin
     //   - n.b. for spin pattern >= 4, the yellow spin is randomized
@@ -216,6 +228,7 @@ void AngleCalculationTest(
     TVector3 normHadJet3 = ( unitJet3.Cross(unitHad3) ).Unit();
     hCalcPhiHadJet   -> Fill( normHadJet3.Phi() );
     hCalcThetaHadJet -> Fill( normHadJet3.Theta() );
+    hCalcCosThHadJet -> Fill( cos(normHadJet3.Theta()) );
 
     // (4) get phiHadron: angle between the jet-beam plane and the
     //   - angle between jet-hadron plane
@@ -287,14 +300,19 @@ void AngleCalculationTest(
   hInputPhiSpinY     -> Scale(1. / (double) nIter);
   hInputPhiJet       -> Scale(1. / (double) nIter);
   hInputThetaJet     -> Scale(1. / (double) nIter);
+  hInputCosThJet     -> Scale(1. / (double) nIter);
   hInputPhiHad       -> Scale(1. / (double) nIter);
   hInputThetaHad     -> Scale(1. / (double) nIter);
+  hInputCosThHad     -> Scale(1. / (double) nIter);
   hCalcPhiJetBeamB   -> Scale(1. / (double) nIter);
   hCalcThetaJetBeamB -> Scale(1. / (double) nIter);
+  hCalcCosThJetBeamB -> Scale(1. / (double) nIter);
   hCalcPhiJetBeamY   -> Scale(1. / (double) nIter);
   hCalcThetaJetBeamY -> Scale(1. / (double) nIter);
+  hCalcCosThJetBeamY -> Scale(1. / (double) nIter);
   hCalcPhiHadJet     -> Scale(1. / (double) nIter);
   hCalcThetaHadJet   -> Scale(1. / (double) nIter);
+  hCalcCosThHadJet   -> Scale(1. / (double) nIter);
   hPhiSpinB          -> Scale(1. / (double) nIter);
   hPhiSpinY          -> Scale(1. / (double) nIter);
   hPhiHadB           -> Scale(1. / (double) nIter);
@@ -310,12 +328,16 @@ void AngleCalculationTest(
   // create frame histograms
   TH1D* hPhiFrame   = hInputPhiSpinB -> Clone();
   TH1D* hThetaFrame = hInputThetaJet -> Clone();
+  TH1D* hCosThFrame = hInputCosThJet -> Clone();
   hPhiFrame   -> Reset("ICES");
   hPhiFrame   -> SetName("hPhiFrame");
   hPhiFrame   -> SetTitle(";#phi [rad]");
   hThetaFrame -> Reset("ICES");
   hThetaFrame -> SetName("hThetaFrame");
   hThetaFrame -> SetTitle(";#theta [rad]");
+  hCosThFrame -> Reset("ICES");
+  hCosThFrame -> SetName("hCosThFrame");
+  hCosThFrame -> SetTitle(";cos#theta");
 
   // create header
   TString sHeader("#bf{");
@@ -361,30 +383,45 @@ void AngleCalculationTest(
   hInputThetaJet     -> SetLineColor(col[1]);
   hInputThetaJet     -> SetMarkerColor(col[1]);
   hInputThetaJet     -> SetMarkerStyle(mar[1]);
+  hInputCosThJet     -> SetLineColor(col[1]);
+  hInputCosThJet     -> SetMarkerColor(col[1]);
+  hInputCosThJet     -> SetMarkerStyle(mar[1]);
   hInputPhiHad       -> SetLineColor(col[2]);
   hInputPhiHad       -> SetMarkerColor(col[2]);
   hInputPhiHad       -> SetMarkerStyle(mar[2]);
   hInputThetaHad     -> SetLineColor(col[2]);
   hInputThetaHad     -> SetMarkerColor(col[2]);
   hInputThetaHad     -> SetMarkerStyle(mar[2]);
+  hInputCosThHad     -> SetLineColor(col[2]);
+  hInputCosThHad     -> SetMarkerColor(col[2]);
+  hInputCosThHad     -> SetMarkerStyle(mar[2]);
   hCalcPhiJetBeamB   -> SetLineColor(col[3]);
   hCalcPhiJetBeamB   -> SetMarkerColor(col[3]);
   hCalcPhiJetBeamB   -> SetMarkerStyle(mar[3]);
   hCalcThetaJetBeamB -> SetLineColor(col[3]);
   hCalcThetaJetBeamB -> SetMarkerColor(col[3]);
   hCalcThetaJetBeamB -> SetMarkerStyle(mar[3]);
+  hCalcCosThJetBeamB -> SetLineColor(col[3]);
+  hCalcCosThJetBeamB -> SetMarkerColor(col[3]);
+  hCalcCosThJetBeamB -> SetMarkerStyle(mar[3]);
   hCalcPhiJetBeamY   -> SetLineColor(col[3]);
   hCalcPhiJetBeamY   -> SetMarkerColor(col[3]);
   hCalcPhiJetBeamY   -> SetMarkerStyle(mar[3]);
   hCalcThetaJetBeamY -> SetLineColor(col[3]);
   hCalcThetaJetBeamY -> SetMarkerColor(col[3]);
   hCalcThetaJetBeamY -> SetMarkerStyle(mar[3]);
+  hCalcCosThJetBeamY -> SetLineColor(col[3]);
+  hCalcCosThJetBeamY -> SetMarkerColor(col[3]);
+  hCalcCosThJetBeamY -> SetMarkerStyle(mar[3]);
   hCalcPhiHadJet     -> SetLineColor(col[4]);
   hCalcPhiHadJet     -> SetMarkerColor(col[4]);
   hCalcPhiHadJet     -> SetMarkerStyle(mar[4]);
   hCalcThetaHadJet   -> SetLineColor(col[4]);
   hCalcThetaHadJet   -> SetMarkerColor(col[4]);
   hCalcThetaHadJet   -> SetMarkerStyle(mar[4]);
+  hCalcCosThHadJet   -> SetLineColor(col[4]);
+  hCalcCosThHadJet   -> SetMarkerColor(col[4]);
+  hCalcCosThHadJet   -> SetMarkerStyle(mar[4]);
   hPhiSpinB          -> SetLineColor(col[5]);
   hPhiSpinB          -> SetMarkerColor(col[5]);
   hPhiSpinB          -> SetMarkerStyle(mar[5]);
@@ -529,6 +566,56 @@ void AngleCalculationTest(
     fOutput            -> cd();
     cInputThetaY       -> Write();
     cInputThetaY       -> Close();
+
+    // create legend for blue cos-th
+    TLegend* lInputCosThB = new TLegend(0.1, 0.1, 0.3, 0.35, sHeader.Data());
+    lInputCosThB -> SetFillColor(0);
+    lInputCosThB -> SetLineColor(0);
+    lInputCosThB -> SetTextFont(42);
+    lInputCosThB -> SetTextAlign(12);
+    lInputCosThB -> AddEntry(hInputCosThJet, hInputCosThJet -> GetTitle(), "P");
+    lInputCosThB -> AddEntry(hInputCosThHad, hInputCosThHad -> GetTitle(), "P");
+    lInputCosThB -> AddEntry(hCalcCosThJetBeamB, hCalcCosThJetBeamB -> GetTitle(), "P");
+    lInputCosThB -> AddEntry(hCalcCosThHadJet, hCalcCosThHadJet -> GetTitle(), "P");
+
+    // create plot for blue cos-th
+    TCanvas* cInputCosThB = new TCanvas("cInputCosThBlue", "", 750, 750);
+    cInputCosThB       -> SetGrid(0, 0);
+    cInputCosThB       -> cd();
+    hCosThFrame        -> Draw();
+    hInputCosThJet     -> Draw("same");
+    hInputCosThHad     -> Draw("same");
+    hCalcCosThJetBeamB -> Draw("same");
+    hCalcCosThHadJet   -> Draw("same");
+    lInputCosThB       -> Draw();
+    fOutput            -> cd();
+    cInputCosThB       -> Write();
+
+    // create legend for blue cos-th
+    TLegend* lInputCosThY = new TLegend(0.1, 0.1, 0.3, 0.35, sHeader.Data());
+    lInputCosThY -> SetFillColor(0);
+    lInputCosThY -> SetLineColor(0);
+    lInputCosThY -> SetTextFont(42);
+    lInputCosThY -> SetTextAlign(12);
+    lInputCosThY -> AddEntry(hInputCosThJet, hInputCosThJet -> GetTitle(), "P");
+    lInputCosThY -> AddEntry(hInputCosThHad, hInputCosThHad -> GetTitle(), "P");
+    lInputCosThY -> AddEntry(hCalcCosThJetBeamY, hCalcCosThJetBeamY -> GetTitle(), "P");
+    lInputCosThY -> AddEntry(hCalcCosThHadJet, hCalcCosThHadJet -> GetTitle(), "P");
+
+    // create plot for blue cos-th
+    TCanvas* cInputCosThY = new TCanvas("cInputCosThYellow", "", 750, 750);
+    cInputCosThY       -> SetGrid(0, 0);
+    cInputCosThY       -> cd();
+    hCosThFrame        -> Draw();
+    hInputCosThJet     -> Draw("same");
+    hInputCosThHad     -> Draw("same");
+    hCalcCosThJetBeamY -> Draw("same");
+    hCalcCosThHadJet   -> Draw("same");
+    lInputCosThY       -> Draw();
+    fOutput            -> cd();
+    cInputCosThY       -> Write();
+    cInputCosThY       -> Close();
+    cInputCosThY       -> Close();
 
   }  // end input theta plot making
   std::cout << "    Created theta input plots." << std::endl;
@@ -715,16 +802,21 @@ void AngleCalculationTest(
   hInputXYSpinY      -> Write();
   hInputPhiJet       -> Write();
   hInputThetaJet     -> Write();
+  hInputCosThJet     -> Write();
   hInputXYJet        -> Write();
   hInputPhiHad       -> Write();
   hInputThetaHad     -> Write();
+  hInputCosThHad     -> Write();
   hInputXYHad        -> Write();
   hCalcPhiJetBeamB   -> Write();
   hCalcThetaJetBeamB -> Write();
+  hCalcCosThJetBeamB -> Write();
   hCalcPhiJetBeamY   -> Write();
   hCalcThetaJetBeamY -> Write();
+  hCalcCosThJetBeamY -> Write();
   hCalcPhiHadJet     -> Write();
   hCalcThetaHadJet   -> Write();
+  hCalcCosThHadJet   -> Write();
   hPhiSpinB          -> Write();
   hPhiSpinY          -> Write();
   hPhiHadB           -> Write();
