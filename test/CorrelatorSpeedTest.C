@@ -30,8 +30,8 @@
 void CorrelatorSpeedTest(
   const std::string outfile = "test.root",
   const std::size_t nIter = 100, 
-  const std::size_t nJetMax = 10,
-  const std::size_t nCstMax = 5,
+  const std::size_t nJet = 1,
+  const std::size_t nCst = 3,
   const bool doBatch = true
 ) {
 
@@ -106,8 +106,8 @@ void CorrelatorSpeedTest(
       }
     }
 
-    const std::size_t nJetRNG = rando -> Uniform(1, nJetMax);
-    for (std::size_t iJet = 0; iJet < nJetRNG; ++iJet) {
+    // generate nJet jets each with nCst cst.s
+    for (std::size_t iJet = 0; iJet < nJet; ++iJet) {
 
       // generate random jet
       PHEC::Type::Jet jet(
@@ -123,8 +123,7 @@ void CorrelatorSpeedTest(
       csts.clear();
 
       // generate random cst.s
-      const std::size_t nCstRNG = rando -> Uniform(2, nCstMax);
-      for (std::size_t iCst = 0; iCst < nCstRNG; ++iCst) {
+      for (std::size_t iCst = 0; iCst < nCst; ++iCst) {
         csts.push_back(
           PHEC::Type::Cst(
             rando -> Uniform(zCstRNG[0], zCstRNG[1]),
@@ -137,8 +136,8 @@ void CorrelatorSpeedTest(
       }
 
       // now run calculation
-      for (std::size_t iCstA = 0; iCstA < nCstRNG; ++iCstA) {
-        for (std::size_t iCstB = 0; iCstB < nCstRNG; ++iCstB) {
+      for (std::size_t iCstA = 0; iCstA < nCst; ++iCstA) {
+        for (std::size_t iCstB = 0; iCstB < nCst; ++iCstB) {
           calc.CalcEEC(
             jet,
             std::make_pair(csts[iCstA], csts[iCstB])
