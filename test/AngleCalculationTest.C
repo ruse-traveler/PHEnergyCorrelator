@@ -34,9 +34,15 @@
 // ============================================================================
 //! Test macro for anglue calculations
 // ============================================================================
+/*! Note: wrapMode sets what wrapping to do on the
+ *  collins angle
+ *    0 = wrap to [0, 2pi)
+ *    1 = wrap to [0, pi)
+ */
 void AngleCalculationTest(
-  const std::string oFile = "angleCalcTest.nIter10K_withAltPhiCalc_doWrap.d23m2y2025.root",
-  const std::size_t nIter = 10000,
+  const std::string oFile = "angleCalcTest.nIter10K_wrapCollByPi_noWrap.d23m2y2025.root",
+  const std::size_t nIter = 1000,
+  const std::size_t wrapMode = 1,
   const bool doWrap = true,
   const bool doBatch = false
 ) {
@@ -286,14 +292,21 @@ void AngleCalculationTest(
     hPhiHad2Y -> Fill(phiHadYell2);
 
     // (6) now calculate phiColl: phiSpin - phiHadron,
-    //   - constrain to [0, 2pi)
+    //   - constrain to [0, 2pi) OR [0, pi)
     double phiCollBlue = phiSpinBlue - phiHadBlue;
     double phiCollYell = phiSpinYell - phiHadYell;
-      if (doWrap) {
-      if (phiCollBlue < 0)               phiCollBlue += TMath::TwoPi();
-      if (phiCollBlue >= TMath::TwoPi()) phiCollBlue -= TMath::TwoPi();
-      if (phiCollYell < 0)               phiCollYell += TMath::TwoPi();
-      if (phiCollYell >= TMath::TwoPi()) phiCollYell -= TMath::TwoPi();
+    if (doWrap) {
+      if (wrapMode == 1) {
+        if (phiCollBlue < 0)            phiCollBlue += TMath::Pi();
+        if (phiCollBlue >= TMath::Pi()) phiCollBlue -= TMath::Pi();
+        if (phiCollYell < 0)            phiCollYell += TMath::Pi();
+        if (phiCollYell >= TMath::Pi()) phiCollYell -= TMath::Pi();
+      } else {
+        if (phiCollBlue < 0)               phiCollBlue += TMath::TwoPi();
+        if (phiCollBlue >= TMath::TwoPi()) phiCollBlue -= TMath::TwoPi();
+        if (phiCollYell < 0)               phiCollYell += TMath::TwoPi();
+        if (phiCollYell >= TMath::TwoPi()) phiCollYell -= TMath::TwoPi();
+      }
     }
 
     // fill histograms
@@ -367,14 +380,21 @@ void AngleCalculationTest(
     hAltPhiHad2Y -> Fill(phiHadYellAlt2);
 
     // (6) now calculate phiColl: phiSpin - phiHadron,
-    //   - constrain to [0, 2pi)
+    //   - constrain to [0, 2pi) OR [0, pi)
     double phiCollBlueAlt = phiSpinBlueAlt - phiHadBlueAlt;
     double phiCollYellAlt = phiSpinYellAlt - phiHadYellAlt;
     if (doWrap) {
-      if (phiCollBlueAlt < 0)               phiCollBlueAlt += TMath::TwoPi();
-      if (phiCollBlueAlt >= TMath::TwoPi()) phiCollBlueAlt -= TMath::TwoPi();
-      if (phiCollYellAlt < 0)               phiCollYellAlt += TMath::TwoPi();
-      if (phiCollYellAlt >= TMath::TwoPi()) phiCollYellAlt -= TMath::TwoPi();
+      if (wrapMode == 1) {
+        if (phiCollBlueAlt < 0)            phiCollBlueAlt += TMath::Pi();
+        if (phiCollBlueAlt >= TMath::Pi()) phiCollBlueAlt -= TMath::Pi();
+        if (phiCollYellAlt < 0)            phiCollYellAlt += TMath::Pi();
+        if (phiCollYellAlt >= TMath::Pi()) phiCollYellAlt -= TMath::Pi();
+      } else {
+        if (phiCollBlueAlt < 0)               phiCollBlueAlt += TMath::TwoPi();
+        if (phiCollBlueAlt >= TMath::TwoPi()) phiCollBlueAlt -= TMath::TwoPi();
+        if (phiCollYellAlt < 0)               phiCollYellAlt += TMath::TwoPi();
+        if (phiCollYellAlt >= TMath::TwoPi()) phiCollYellAlt -= TMath::TwoPi();
+      }
     }
 
     // fill histograms
