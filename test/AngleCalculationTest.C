@@ -69,14 +69,17 @@ void AngleCalculationTest(
   const int   nCosBins  = 40;
   const int   nXYBins   = 400;
   const int   nZBins    = 400;
+  const int   nMagBins  = 100;
   const float xAngStart = -12.60;
   const float xCosStart = -1.0;
   const float xXYStart  = -2.0;
   const float xZStart   = -2.0;
+  const float xMagStart = -5.;
   const float xAngStop  = 12.60; 
   const float xCosStop  = 1.0;
   const float xXYStop   = 2.0;
   const float xZStop    = 2.0;
+  const float xMagStop  = 5.;
 
   // turn on errors
   TH1::SetDefaultSumw2(true);
@@ -109,6 +112,10 @@ void AngleCalculationTest(
   TH1D* hCalcThetaHadJet   = new TH1D("hCalcThetaJetHad", "#theta_{jet-h}", nAngBins, xAngStart, xAngStop);
   TH1D* hCalcCosThHadJet   = new TH1D("hCalcCosThJetHad", "cos#theta_{jet-h}", nCosBins, xCosStart, xCosStop);
   TH2D* hCalcZThHadJet     = new TH2D("hCalcZThHadJet", "(z,#theta) sampled (jet-hadron)", nZBins, xZStart, xZStop, nAngBins, xAngStart, xAngStop);
+  TH1D* hCalcJHBCrossMagB  = new TH1D("hCalcJHBCrossMagB", "|#bf{v}_{jet-beam}^{B} #times #bf{v}_{jet-had}|", nMagBins, xMagStart, xMagStop);
+  TH1D* hCalcJHBDotMagB    = new TH1D("hCalcJHBDotMagB", "#bf{v}_{jet-beam}^{B} #upoint #bf{v}_{jet-had}", nMagBins, xMagStart, xMagStop);
+  TH1D* hCalcJHBCrossMagY  = new TH1D("hCalcJHBCrossMagY", "|#bf{v}_{jet-beam}^{Y} #times #bf{v}_{jet-had}|", nMagBins, xMagStart, xMagStop);
+  TH1D* hCalcJHBDotMagY    = new TH1D("hCalcJHBDotMagY", "#bf{v}_{jet-beam}^{Y} #upoint #bf{v}_{jet-had}", nMagBins, xMagStart, xMagStop);
   TH1D* hPhiSpinB          = new TH1D("hPhiSpinB", "#phi_{spin}^{B}", nAngBins, xAngStart, xAngStop);
   TH1D* hPhiSpinY          = new TH1D("hPhiSpinY", "#phi_{spin}^{Y}", nAngBins, xAngStart, xAngStop);
   TH1D* hPhiHadB           = new TH1D("hPhiHadB", "#phi_{h}^{B}", nAngBins, xAngStart, xAngStop);
@@ -260,11 +267,23 @@ void AngleCalculationTest(
     hCalcCosThHadJet -> Fill( cos(normHadJet3.Theta()) );
     hCalcZThHadJet   -> Fill( normHadJet3.Z(), normHadJet3.Theta() );
 
+    // cross/dot jet-beam and jet-hadron normals
+    double jhbCrossB = normJetBeam3.first.Cross(normHadJet3).Mag();
+    double jhbDotB   = normJetBeam3.first.Dot(normHadJet3);
+    double jhbCrossY = normJetBeam3.second.Cross(normHadJet3).Mag();
+    double jhbDotY   = normJetBeam3.second.Dot(normHadJet3);
+
+    // fill intermediate histograms
+    hCalcJHBCrossMagB -> Fill(jhbCrossB); 
+    hCalcJHBDotMagB   -> Fill(jhbDotB);
+    hCalcJHBCrossMagY -> Fill(jhbCrossY);
+    hCalcJHBDotMagY   -> Fill(jhbDotY);
+
     // (4) get phiHadron: angle between the jet-beam plane and the
     //   - angle between jet-hadron plane
     //   - constrain to range [0,2pi)
-    double phiHadBlue = atan2( normJetBeam3.first.Cross(normHadJet3).Mag(), normJetBeam3.first.Dot(normHadJet3) );
-    double phiHadYell = atan2( normJetBeam3.second.Cross(normHadJet3).Mag(), normJetBeam3.second.Dot(normHadJet3) );
+    double phiHadBlue = atan2( jhbCrossB, jhbDotB );
+    double phiHadYell = atan2( jhbCrossY, jhbDotY );
     if (doWrap) {
       if (phiHadBlue < 0)               phiHadBlue += TMath::TwoPi();
       if (phiHadBlue >= TMath::TwoPi()) phiHadBlue -= TMath::TwoPi();
@@ -420,8 +439,8 @@ void AngleCalculationTest(
   std::cout << "    MC loop finished!" << std::endl;
 
   // normalize histograms
-  //   - n.b. (x,y) and (z,theta) hists
-  //     NOT normalized
+  //   - n.b. (x,y), (z,theta), and magnitude
+  //     hists NOT normalized
   hInputPhiSpinB     -> Scale(1. / (double) nIter);
   hInputPhiSpinY     -> Scale(1. / (double) nIter);
   hInputPhiJet       -> Scale(1. / (double) nIter);
@@ -1085,6 +1104,10 @@ void AngleCalculationTest(
   hCalcThetaHadJet   -> Write();
   hCalcCosThHadJet   -> Write();
   hCalcZThHadJet     -> Write();
+  hCalcJHBCrossMagB  -> Write(); 
+  hCalcJHBDotMagB    -> Write();
+  hCalcJHBCrossMagY  -> Write();
+  hCalcJHBDotMagY    -> Write();
   hPhiSpinB          -> Write();
   hPhiSpinY          -> Write();
   hPhiHadB           -> Write();
