@@ -7,7 +7,7 @@
 # Runs angle calculation test.
 # ============================================================================
 
-root -b -q AngleCalculationTest.C
+root -b -q AngleCalculationTest.C++
 
 # end =========================================================================
 
