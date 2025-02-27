@@ -273,6 +273,12 @@ void AngleCalculationTest(
     double jhbCrossY = normJetBeam3.second.Cross(normHadJet3).Mag();
     double jhbDotY   = normJetBeam3.second.Dot(normHadJet3);
 
+    // compute dot product b/n jet-beam and jet-beam-cross-jet-hadron
+    double jhcDotB = normJetBeam3.first.Dot( normJetBeam3.first.Cross(normHadJet3) );
+    double jhcDotY = normJetBeam3.second.Dot( normJetBeam3.second.Cross(normHadJet3) );
+    if (jhcDotB < 0) jhbCrossB *= -1.;
+    if (jhcDotY < 0) jhbCrossY *= -1.;
+
     // fill intermediate histograms
     hCalcJHBCrossMagB -> Fill(jhbCrossB); 
     hCalcJHBDotMagB   -> Fill(jhbDotB);
@@ -352,7 +358,7 @@ void AngleCalculationTest(
     // (2) starting at get phiSpin: angles between the jet-beam plane and spin
     //   - n.b. for spin pattern >= 4, the yellow spin is randomized
     //   - angle between jet plane and spin
-    //   - note that we get the full [0,2pi) range for these angles
+    //   - constrain to [0,2pi)
     double phiSpinBlueAlt = TMath::PiOver2() - acos( normJetBeam3.first.Dot(unitSpinB3) / (normJetBeam3.first.Mag() * unitSpinB3.Mag()) );
     double phiSpinYellAlt = TMath::PiOver2() - acos( normJetBeam3.second.Dot(unitSpinY3) / (normJetBeam3.second.Mag() * unitSpinY3.Mag()) );
     if (doWrap) {
@@ -369,9 +375,14 @@ void AngleCalculationTest(
     // (4) now jump to phiHadron: angle between the jet-beam plane and the
     //     jet-hadron plane
     //   - angle between jet-hadron plane
-    //   - constrain to range [0,2pi)
     double phiHadBlueAlt = acos( normJetBeam3.first.Dot(normHadJet3) / (normJetBeam3.first.Mag() * normHadJet3.Mag()) );
     double phiHadYellAlt = acos( normJetBeam3.second.Dot(normHadJet3) /  (normJetBeam3.second.Mag() * normHadJet3.Mag()) );
+
+    // if the dot product is neative, that indicates we should take the outer angle
+    if (normJetBeam3.first.Dot(normHadJet3) < 0)  TMath::TwoPi() - phiHadBlueAlt;
+    if (normJetBeam3.second.Dot(normHadJet3) < 0) TMath::TwoPi() - phiHadYellAlt;
+
+    //   - constrain to range [0,2pi)
     if (doWrap) {
       if (phiHadBlueAlt < 0)               phiHadBlueAlt += TMath::TwoPi();
       if (phiHadBlueAlt >= TMath::TwoPi()) phiHadBlueAlt -= TMath::TwoPi();
