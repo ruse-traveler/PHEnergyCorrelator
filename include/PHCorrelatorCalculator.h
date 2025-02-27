@@ -397,13 +397,21 @@ namespace PHEnergyCorrelator {
         // (2) get phiSpin: angles between the jet-beam plane and spin
         //   - n.b. for spin pattern >= 4, the yellow spin is randomized
 	//   - angle between jet plane and spin 
-	//   - note that we get the full [0,2pi) range for these angles
-        double phiSpinBlue = TMath::PiOver2() - atan2( normJetBeam3.first.Cross(vecSpin3.first).Mag(), normJetBeam3.first.Dot(vecSpin3.first) );
-        double phiSpinYell = TMath::PiOver2() - atan2( normJetBeam3.second.Cross(vecSpin3.second).Mag(), normJetBeam3.second.Dot(vecSpin3.second) );
-	if (phiSpinBlue < 0)               phiSpinBlue += TMath::TwoPi();
-        if (phiSpinBlue >= TMath::TwoPi()) phiSpinBlue -= TMath::TwoPi();
-	if (phiSpinYell < 0)               phiSpinYell += TMath::TwoPi();
-        if (phiSpinYell >= TMath::TwoPi()) phiSpinYell -= TMath::TwoPi();
+
+        // get vectors normal to the spin-beam plane
+        std::pair<TVector3, TVector3> normJetSpin = std::make_pair(
+          ( vecBeam3.first.Cross(vecSpin3.first) ).Unit(),
+          ( vecBeam3.second.Cross(vecSpin3.second) ).Unit()
+        );
+
+        double phiSpinBlue = atan2( normJetBeam3.first.Cross(normJetSpin.first).Mag(), normJetBeam3.first.Dot(normJetSpin.first) );
+        double phiSpinYell = atan2( normJetBeam3.second.Cross(normJetSpin.second).Mag(), normJetBeam3.second.Dot(normJetSpin.second) );
+
+	// define the zero of phiSpin as the jet-beam plane and the sense of rotation 
+	// the result will be in [0,2pi]
+
+	if(normJetBeam3.first.Dot(vecSpin3.first)<0.0) phiSpinBlue = TMath::TwoPi() - phiSpinBlue; 
+	if(normJetBeam3.second.Dot(vecSpin3.second)<0.0) phiSpinYell = TMath::TwoPi() - phiSpinYell; 
 
         // (3) get vector normal to hadron average-jet plane
         TVector3 normHadJet3 = ( unitJet4.Vect().Cross(unitAvgCst3) ).Unit();
@@ -413,10 +421,12 @@ namespace PHEnergyCorrelator {
         //   - constrain to range [0,2pi)
         double phiHadBlue = atan2( normJetBeam3.first.Cross(normHadJet3).Mag(), normJetBeam3.first.Dot(normHadJet3) );
         double phiHadYell = atan2( normJetBeam3.second.Cross(normHadJet3).Mag(), normJetBeam3.second.Dot(normHadJet3) );
-        if (phiHadBlue < 0)               phiHadBlue += TMath::TwoPi();
-        if (phiHadBlue >= TMath::TwoPi()) phiHadBlue -= TMath::TwoPi();
-        if (phiHadYell < 0)               phiHadYell += TMath::TwoPi();
-        if (phiHadYell >= TMath::TwoPi()) phiHadYell -= TMath::TwoPi();
+	
+	// define the zero of phiHad as the jet-beam plane and the sense of rotation
+	// the result will be in [0,2pi]
+
+	if(normJetBeam3.first.Dot(unitAvgCst3)<0.0) phiHadBlue = TMath::TwoPi() - phiHadBlue; 
+	if(normJetBeam3.second.Dot(unitAvgCst3)<0.0) phiHadYell = TMath::TwoPi() - phiHadYell; 
 
         // (5) double phiHadron for boer-mulders,
         //   - constrain to [0, 2pi)
