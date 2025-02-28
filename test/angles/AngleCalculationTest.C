@@ -14,6 +14,7 @@
 // c++ utilities
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include <string>
 #include <utility>
 // root libraries
@@ -38,13 +39,18 @@
  *  collins angle
  *    0 = wrap to [0, 2pi)
  *    1 = wrap to [0, pi)
+ *  
+ *  Note: doDot turns on adjusting phiHad based on
+ *  the sign of the dot-product between the jet-
+ *  beam and jet-hadron normals
  */
 void AngleCalculationTest(
-  const std::string oFile = "angleCalcTest.nIter10K_wrapCollByPi_noWrap.d23m2y2025.root",
-  const std::size_t nIter = 1000,
-  const std::size_t wrapMode = 1,
+  const std::string oFile = "angleCalcTest.nIter10K_copyingMinimalCalc_doWrap.d28m2y2025.root",
+  const std::size_t nIter = 10000,
+  const std::size_t wrapMode = 2,
   const bool doWrap = true,
-  const bool doBatch = false
+  const bool doDot = true,
+  const bool doBatch = true
 ) {
 
   // announce start
@@ -69,66 +75,79 @@ void AngleCalculationTest(
   const int   nCosBins  = 40;
   const int   nXYBins   = 400;
   const int   nZBins    = 400;
+  const int   nMagBins  = 100;
   const float xAngStart = -12.60;
   const float xCosStart = -1.0;
   const float xXYStart  = -2.0;
   const float xZStart   = -2.0;
+  const float xMagStart = -5.;
   const float xAngStop  = 12.60; 
   const float xCosStop  = 1.0;
   const float xXYStop   = 2.0;
   const float xZStop    = 2.0;
+  const float xMagStop  = 5.;
 
   // turn on errors
   TH1::SetDefaultSumw2(true);
   TH2::SetDefaultSumw2(true);
 
   // initialize histograms
-  TH1D* hInputPhiSpinB     = new TH1D("hInputPhiSpinB", "#phi_{spin}^{B} input", nAngBins, xAngStart, xAngStop);
-  TH1D* hInputPhiSpinY     = new TH1D("hInputPhiSpinY", "#phi_{spin}^{Y} input", nAngBins, xAngStart, xAngStop);
-  TH2D* hInputXYSpinB      = new TH2D("hInputXYSpinB", "(x,y) sampled (spin B)", nXYBins, xXYStart, xXYStop, nXYBins, xXYStart, xXYStop);
-  TH2D* hInputXYSpinY      = new TH2D("hInputXYSpinY", "(x,y) sampled (spin Y)", nXYBins, xXYStart, xXYStop, nXYBins, xXYStart, xXYStop);
-  TH1D* hInputPhiJet       = new TH1D("hInputPhiJet", "#phi_{jet} input", nAngBins, xAngStart, xAngStop);
-  TH1D* hInputThetaJet     = new TH1D("hInputThetaJet", "#theta_{jet} input", nAngBins, xAngStart, xAngStop);
-  TH1D* hInputCosThJet     = new TH1D("hInputCosThJet", "cos#theta_{jet} input", nCosBins, xCosStart, xCosStop);
-  TH2D* hInputXYJet        = new TH2D("hInputXYJet", "(x,y) sampled (jet)", nXYBins, xXYStart, xXYStop, nXYBins, xXYStart, xXYStop);
-  TH2D* hInputZThJet       = new TH2D("hInputZThJet", "(z,#theta) sampled (jet)", nZBins, xZStart, xZStop, nAngBins, xAngStart, xAngStop);
-  TH1D* hInputPhiHad       = new TH1D("hInputPhiHad", "#phi_{h} input", nAngBins, xAngStart, xAngStop);
-  TH1D* hInputThetaHad     = new TH1D("hInputThetaHad", "#theta_{h} input", nAngBins, xAngStart, xAngStop);
-  TH1D* hInputCosThHad     = new TH1D("hInputCosThHad", "cos#theta_{h} input", nCosBins, xCosStart, xCosStop);
-  TH2D* hInputXYHad        = new TH2D("hInputXYHad", "(x,y) sampled (had)", nXYBins, xXYStart, xXYStop, nXYBins, xXYStart, xXYStop);
-  TH2D* hInputZThHad       = new TH2D("hInputZThHad", "(z,#theta) sampled (had)", nZBins, xZStart, xZStop, nAngBins, xAngStart, xAngStop);
-  TH1D* hCalcPhiJetBeamB   = new TH1D("hCalcPhiJetBeamB", "#phi_{jet-beam}^{B}", nAngBins, xAngStart, xAngStop);
-  TH1D* hCalcThetaJetBeamB = new TH1D("hCalcThetaJetBeamB", "#theta_{jet-beam}^{B}", nAngBins, xAngStart, xAngStop);
-  TH1D* hCalcCosThJetBeamB = new TH1D("hCalcCosThJetBeamB", "cos#theta_{jet-beam}^{B}", nCosBins, xCosStart, xCosStop);
-  TH2D* hCalcZThJetBeamB   = new TH2D("hCalcZThJetBeamB", "(z,#theta) sampled (jet-blue beam)", nZBins, xZStart, xZStop, nAngBins, xAngStart, xAngStop);
-  TH1D* hCalcPhiJetBeamY   = new TH1D("hCalcPhiJetBeamY", "#phi_{jet-beam}^{Y}", nAngBins, xAngStart, xAngStop);
-  TH1D* hCalcThetaJetBeamY = new TH1D("hCalcThetaJetBeamY", "#theta_{jet-beam}^{Y}", nAngBins, xAngStart, xAngStop);
-  TH1D* hCalcCosThJetBeamY = new TH1D("hCalcCosThJetBeamY", "cos#theta_{jet-beam}^{Y}", nCosBins, xCosStart, xCosStop);
-  TH2D* hCalcZThJetBeamY   = new TH2D("hCalcZThJetBeamY", "(z,#theta) sampled (jet-yellow beam)", nZBins, xZStart, xZStop, nAngBins, xAngStart, xAngStop);
-  TH1D* hCalcPhiHadJet     = new TH1D("hCalcPhiJetHad", "#phi_{jet-h}", nAngBins, xAngStart, xAngStop);
-  TH1D* hCalcThetaHadJet   = new TH1D("hCalcThetaJetHad", "#theta_{jet-h}", nAngBins, xAngStart, xAngStop);
-  TH1D* hCalcCosThHadJet   = new TH1D("hCalcCosThJetHad", "cos#theta_{jet-h}", nCosBins, xCosStart, xCosStop);
-  TH2D* hCalcZThHadJet     = new TH2D("hCalcZThHadJet", "(z,#theta) sampled (jet-hadron)", nZBins, xZStart, xZStop, nAngBins, xAngStart, xAngStop);
-  TH1D* hPhiSpinB          = new TH1D("hPhiSpinB", "#phi_{spin}^{B}", nAngBins, xAngStart, xAngStop);
-  TH1D* hPhiSpinY          = new TH1D("hPhiSpinY", "#phi_{spin}^{Y}", nAngBins, xAngStart, xAngStop);
-  TH1D* hPhiHadB           = new TH1D("hPhiHadB", "#phi_{h}^{B}", nAngBins, xAngStart, xAngStop);
-  TH1D* hPhiHadY           = new TH1D("hPhiHadY", "#phi_{h}^{Y}", nAngBins, xAngStart, xAngStop);
-  TH1D* hPhiHad2B          = new TH1D("hPhiHad2B", "2#phi_{h}^{B}", nAngBins, xAngStart, xAngStop);
-  TH1D* hPhiHad2Y          = new TH1D("hPhiHad2Y", "2#phi_{h}^{Y}", nAngBins, xAngStart, xAngStop);
-  TH1D* hPhiCollB          = new TH1D("hPhiCollB", "#phi_{collins}^{B}", nAngBins, xAngStart, xAngStop);
-  TH1D* hPhiCollY          = new TH1D("hPhiCollY", "#phi_{collins}^{Y}", nAngBins, xAngStart, xAngStop);
-  TH1D* hPhiBoerB          = new TH1D("hPhiBoerB", "#phi_{boer}^{B}", nAngBins, xAngStart, xAngStop);
-  TH1D* hPhiBoerY          = new TH1D("hPhiBoerY", "#phi_{boer}^{Y}", nAngBins, xAngStart, xAngStop);
-  TH1D* hAltPhiSpinB       = new TH1D("hAltPhiSpinB", "#phi_{spin}^{B}", nAngBins, xAngStart, xAngStop);
-  TH1D* hAltPhiSpinY       = new TH1D("hAltPhiSpinY", "#phi_{spin}^{Y}", nAngBins, xAngStart, xAngStop);
-  TH1D* hAltPhiHadB        = new TH1D("hAltPhiHadB", "#phi_{h}^{B}", nAngBins, xAngStart, xAngStop);
-  TH1D* hAltPhiHadY        = new TH1D("hAltPhiHadY", "#phi_{h}^{Y}", nAngBins, xAngStart, xAngStop);
-  TH1D* hAltPhiHad2B       = new TH1D("hAltPhiHad2B", "2#phi_{h}^{B}", nAngBins, xAngStart, xAngStop);
-  TH1D* hAltPhiHad2Y       = new TH1D("hAltPhiHad2Y", "2#phi_{h}^{Y}", nAngBins, xAngStart, xAngStop);
-  TH1D* hAltPhiCollB       = new TH1D("hAltPhiCollB", "#phi_{collins}^{B}", nAngBins, xAngStart, xAngStop);
-  TH1D* hAltPhiCollY       = new TH1D("hAltPhiCollY", "#phi_{collins}^{Y}", nAngBins, xAngStart, xAngStop);
-  TH1D* hAltPhiBoerB       = new TH1D("hAltPhiBoerB", "#phi_{boer}^{B}", nAngBins, xAngStart, xAngStop);
-  TH1D* hAltPhiBoerY       = new TH1D("hAltPhiBoerY", "#phi_{boer}^{Y}", nAngBins, xAngStart, xAngStop);
+  TH1D* hInputPhiSpinB        = new TH1D("hInputPhiSpinB", "#phi_{spin}^{B} input", nAngBins, xAngStart, xAngStop);
+  TH1D* hInputPhiSpinY        = new TH1D("hInputPhiSpinY", "#phi_{spin}^{Y} input", nAngBins, xAngStart, xAngStop);
+  TH2D* hInputXYSpinB         = new TH2D("hInputXYSpinB", "(x,y) sampled (spin B)", nXYBins, xXYStart, xXYStop, nXYBins, xXYStart, xXYStop);
+  TH2D* hInputXYSpinY         = new TH2D("hInputXYSpinY", "(x,y) sampled (spin Y)", nXYBins, xXYStart, xXYStop, nXYBins, xXYStart, xXYStop);
+  TH1D* hInputPhiJet          = new TH1D("hInputPhiJet", "#phi_{jet} input", nAngBins, xAngStart, xAngStop);
+  TH1D* hInputThetaJet        = new TH1D("hInputThetaJet", "#theta_{jet} input", nAngBins, xAngStart, xAngStop);
+  TH1D* hInputCosThJet        = new TH1D("hInputCosThJet", "cos#theta_{jet} input", nCosBins, xCosStart, xCosStop);
+  TH2D* hInputXYJet           = new TH2D("hInputXYJet", "(x,y) sampled (jet)", nXYBins, xXYStart, xXYStop, nXYBins, xXYStart, xXYStop);
+  TH2D* hInputZThJet          = new TH2D("hInputZThJet", "(z,#theta) sampled (jet)", nZBins, xZStart, xZStop, nAngBins, xAngStart, xAngStop);
+  TH1D* hInputPhiHad          = new TH1D("hInputPhiHad", "#phi_{h} input", nAngBins, xAngStart, xAngStop);
+  TH1D* hInputThetaHad        = new TH1D("hInputThetaHad", "#theta_{h} input", nAngBins, xAngStart, xAngStop);
+  TH1D* hInputCosThHad        = new TH1D("hInputCosThHad", "cos#theta_{h} input", nCosBins, xCosStart, xCosStop);
+  TH2D* hInputXYHad           = new TH2D("hInputXYHad", "(x,y) sampled (had)", nXYBins, xXYStart, xXYStop, nXYBins, xXYStart, xXYStop);
+  TH2D* hInputZThHad          = new TH2D("hInputZThHad", "(z,#theta) sampled (had)", nZBins, xZStart, xZStop, nAngBins, xAngStart, xAngStop);
+  TH1D* hCalcPhiJetBeamB      = new TH1D("hCalcPhiJetBeamB", "#phi_{jet-beam}^{B}", nAngBins, xAngStart, xAngStop);
+  TH1D* hCalcThetaJetBeamB    = new TH1D("hCalcThetaJetBeamB", "#theta_{jet-beam}^{B}", nAngBins, xAngStart, xAngStop);
+  TH1D* hCalcCosThJetBeamB    = new TH1D("hCalcCosThJetBeamB", "cos#theta_{jet-beam}^{B}", nCosBins, xCosStart, xCosStop);
+  TH2D* hCalcZThJetBeamB      = new TH2D("hCalcZThJetBeamB", "(z,#theta) sampled (jet-blue beam)", nZBins, xZStart, xZStop, nAngBins, xAngStart, xAngStop);
+  TH1D* hCalcPhiJetBeamY      = new TH1D("hCalcPhiJetBeamY", "#phi_{jet-beam}^{Y}", nAngBins, xAngStart, xAngStop);
+  TH1D* hCalcThetaJetBeamY    = new TH1D("hCalcThetaJetBeamY", "#theta_{jet-beam}^{Y}", nAngBins, xAngStart, xAngStop);
+  TH1D* hCalcCosThJetBeamY    = new TH1D("hCalcCosThJetBeamY", "cos#theta_{jet-beam}^{Y}", nCosBins, xCosStart, xCosStop);
+  TH2D* hCalcZThJetBeamY      = new TH2D("hCalcZThJetBeamY", "(z,#theta) sampled (jet-yellow beam)", nZBins, xZStart, xZStop, nAngBins, xAngStart, xAngStop);
+  TH1D* hCalcPhiHadJet        = new TH1D("hCalcPhiJetHad", "#phi_{jet-h}", nAngBins, xAngStart, xAngStop);
+  TH1D* hCalcThetaHadJet      = new TH1D("hCalcThetaJetHad", "#theta_{jet-h}", nAngBins, xAngStart, xAngStop);
+  TH1D* hCalcCosThHadJet      = new TH1D("hCalcCosThJetHad", "cos#theta_{jet-h}", nCosBins, xCosStart, xCosStop);
+  TH2D* hCalcZThHadJet        = new TH2D("hCalcZThHadJet", "(z,#theta) sampled (jet-hadron)", nZBins, xZStart, xZStop, nAngBins, xAngStart, xAngStop);
+  TH1D* hCalcJHBCrossMagB     = new TH1D("hCalcJHBCrossMagB", "|#bf{v}_{jet-beam}^{B}#times#bf{v}_{jet-had}|", nMagBins, xMagStart, xMagStop);
+  TH1D* hCalcJHBDotB          = new TH1D("hCalcJHBDotB", "#bf{v}_{jet-beam}^{B} #upoint#bf{v}_{jet-had}", nMagBins, xMagStart, xMagStop);
+  TH1D* hCalcJHBCrossMagY     = new TH1D("hCalcJHBCrossMagY", "|#bf{v}_{jet-beam}^{Y}#times#bf{v}_{jet-had}|", nMagBins, xMagStart, xMagStop);
+  TH1D* hCalcJHBDotY          = new TH1D("hCalcJHBDotY", "#bf{v}_{jet-beam}^{Y}#upoint#bf{v}_{jet-had}", nMagBins, xMagStart, xMagStop);
+  TH1D* hPhiSpinB             = new TH1D("hPhiSpinB", "#phi_{spin}^{B}", nAngBins, xAngStart, xAngStop);
+  TH1D* hPhiSpinY             = new TH1D("hPhiSpinY", "#phi_{spin}^{Y}", nAngBins, xAngStart, xAngStop);
+  TH1D* hPhiHadB              = new TH1D("hPhiHadB", "#phi_{h}^{B}", nAngBins, xAngStart, xAngStop);
+  TH1D* hPhiHadY              = new TH1D("hPhiHadY", "#phi_{h}^{Y}", nAngBins, xAngStart, xAngStop);
+  TH1D* hPhiHad2B             = new TH1D("hPhiHad2B", "2#phi_{h}^{B}", nAngBins, xAngStart, xAngStop);
+  TH1D* hPhiHad2Y             = new TH1D("hPhiHad2Y", "2#phi_{h}^{Y}", nAngBins, xAngStart, xAngStop);
+  TH1D* hPhiCollB             = new TH1D("hPhiCollB", "#phi_{collins}^{B}", nAngBins, xAngStart, xAngStop);
+  TH1D* hPhiCollY             = new TH1D("hPhiCollY", "#phi_{collins}^{Y}", nAngBins, xAngStart, xAngStop);
+  TH1D* hPhiBoerB             = new TH1D("hPhiBoerB", "#phi_{boer}^{B}", nAngBins, xAngStart, xAngStop);
+  TH1D* hPhiBoerY             = new TH1D("hPhiBoerY", "#phi_{boer}^{Y}", nAngBins, xAngStart, xAngStop);
+  TH1D* hAltPhiSpinB          = new TH1D("hAltPhiSpinB", "#phi_{spin}^{B}", nAngBins, xAngStart, xAngStop);
+  TH1D* hAltPhiSpinY          = new TH1D("hAltPhiSpinY", "#phi_{spin}^{Y}", nAngBins, xAngStart, xAngStop);
+  TH1D* hAltPhiHadB           = new TH1D("hAltPhiHadB", "#phi_{h}^{B}", nAngBins, xAngStart, xAngStop);
+  TH1D* hAltPhiHadY           = new TH1D("hAltPhiHadY", "#phi_{h}^{Y}", nAngBins, xAngStart, xAngStop);
+  TH1D* hAltPhiHad2B          = new TH1D("hAltPhiHad2B", "2#phi_{h}^{B}", nAngBins, xAngStart, xAngStop);
+  TH1D* hAltPhiHad2Y          = new TH1D("hAltPhiHad2Y", "2#phi_{h}^{Y}", nAngBins, xAngStart, xAngStop);
+  TH1D* hAltPhiCollB          = new TH1D("hAltPhiCollB", "#phi_{collins}^{B}", nAngBins, xAngStart, xAngStop);
+  TH1D* hAltPhiCollY          = new TH1D("hAltPhiCollY", "#phi_{collins}^{Y}", nAngBins, xAngStart, xAngStop);
+  TH1D* hAltPhiBoerB          = new TH1D("hAltPhiBoerB", "#phi_{boer}^{B}", nAngBins, xAngStart, xAngStop);
+  TH1D* hAltPhiBoerY          = new TH1D("hAltPhiBoerY", "#phi_{boer}^{Y}", nAngBins, xAngStart, xAngStop);
+  TH1D* hCheckPhiHadVsAltB    = new TH1D("hCheckPhiHadVsAltB", "|#phi_{h}^{B}-#acute{#phi}_{h}^{B}|", nAngBins, xAngStart, xAngStop);
+  TH1D* hCheckPhiHadVsAltY    = new TH1D("hCheckPhiHadVsAltY", "|#phi_{h}^{Y}-#acute{#phi}_{h}^{Y}|", nAngBins, xAngStart, xAngStop);
+  TH2D* hCheckPhiHadVsDotB    = new TH2D("hCheckPhiHadVsDotB", ";#bf{v}_{jet-beam}^{B}#upoint#bf{v}_{jet-hadron};#phi_{had}^{B}", nMagBins, xMagStart, xMagStop, nAngBins, xAngStart, xAngStop);
+  TH2D* hCheckPhiHadVsDotY    = new TH2D("hCheckPhiHadVsDotY", ";#bf{v}_{jet-beam}^{Y}#upoint#bf{v}_{jet-hadron};#phi_{had}^{Y}", nMagBins, xMagStart, xMagStop, nAngBins, xAngStart, xAngStop);
+  TH2D* hCheckAltPhiHadVsDotB = new TH2D("hCheckAltPhiHadVsDotB", ";#bf{v}_{jet-beam}^{B}#upoint#bf{v}_{jet-hadron};#phi_{had}^{B}", nMagBins, xMagStart, xMagStop, nAngBins, xAngStart, xAngStop);
+  TH2D* hCheckAltPhiHadVsDotY = new TH2D("hCheckAltPhiHadVsDotY", ";#bf{v}_{jet-beam}^{Y}#upoint#bf{v}_{jet-hadron};#phi_{had}^{Y}", nMagBins, xMagStart, xMagStop, nAngBins, xAngStart, xAngStop);
   std::cout << "    Created histograms.\n"
             << "    MC loop: running " << nIter << " iterations:"
             << std::endl;
@@ -220,12 +239,17 @@ void AngleCalculationTest(
     // collins & boer-mulders angle calculations --------------------------
 
 
-    // (1) get vectors normal to the jet-beam plane,
-    //     fill intermediate histograms
+    // (0) get vectors normal to the spin-beam & jet-beam plane
+    std::pair<TVector3, TVector3> normSpinBeam3 = std::make_pair(
+      ( vecBeamB3.Cross(unitSpinB3) ).Unit(),
+      ( vecBeamY3.Cross(unitSpinY3) ).Unit()
+    );
     std::pair<TVector3, TVector3> normJetBeam3 = std::make_pair(
       ( vecBeamB3.Cross(unitJet3) ).Unit(),
       ( vecBeamY3.Cross(unitJet3) ).Unit()
     );
+
+    // fill intermediate histograms
     hCalcPhiJetBeamB   -> Fill( normJetBeam3.first.Phi() );
     hCalcThetaJetBeamB -> Fill( normJetBeam3.first.Theta() );
     hCalcCosThJetBeamB -> Fill( cos(normJetBeam3.first.Theta()) );
@@ -235,12 +259,30 @@ void AngleCalculationTest(
     hCalcCosThJetBeamY -> Fill( cos(normJetBeam3.second.Theta()) );
     hCalcZThJetBeamY   -> Fill( normJetBeam3.second.Z(), normJetBeam3.second.Theta() );
 
+    // ------------------------------------------------------------------------
+
+    // (1) cross spin into jet-beam plane
+    std::pair<TVector3, TVector3> crossJetBeamSpin3 = std::make_pair(
+      normJetBeam3.first.Cross( normSpinBeam3.first ),
+      normJetBeam3.second.Cross( normSpinBeam3.second )
+    );
+
+    // check dot product of spin into jet-beam
+    const double spinJetBeamDotB = normJetBeam3.first.Dot( unitSpinB3 );
+    const double spinJetBeamDotY = normJetBeam3.second.Dot( unitSpinY3 );
+
     // (2) get phiSpin: angles between the jet-beam plane and spin
-    //   - n.b. for spin pattern >= 4, the yellow spin is randomized
-    //   - angle between jet plane and spin 
-    //   - note that we get the full [0,2pi) range for these angles
-    double phiSpinBlue = TMath::PiOver2() - atan2( normJetBeam3.first.Cross(unitSpinB3).Mag(), normJetBeam3.first.Dot(unitSpinB3) );
-    double phiSpinYell = TMath::PiOver2() - atan2( normJetBeam3.second.Cross(unitSpinY3).Mag(), normJetBeam3.second.Dot(unitSpinY3) );
+    double phiSpinBlue = atan2( crossJetBeamSpin3.first.Mag(), normJetBeam3.first.Dot(normSpinBeam3.first) );
+    double phiSpinYell = atan2( crossJetBeamSpin3.second.Mag(), normJetBeam3.second.Dot(normSpinBeam3.second) );
+
+    // if using the dot product, take the outer angle if the
+    // spin-jet-beam dot product is negative
+    if (doDot) {
+      if (spinJetBeamDotB < 0.0) phiSpinBlue = TMath::TwoPi() - phiSpinBlue;
+      if (spinJetBeamDotY < 0.0) phiSpinYell = TMath::TwoPi() - phiSpinYell;
+    }
+
+    // if doing wrapping, constrain to range [0, 2pi)
     if (doWrap) {
       if (phiSpinBlue < 0)               phiSpinBlue += TMath::TwoPi();
       if (phiSpinBlue >= TMath::TwoPi()) phiSpinBlue -= TMath::TwoPi();
@@ -252,19 +294,46 @@ void AngleCalculationTest(
     hPhiSpinB -> Fill(phiSpinBlue);
     hPhiSpinY -> Fill(phiSpinYell);
 
+    // ------------------------------------------------------------------------
+
     // (3) get vector normal to hadron average-jet plane,
-    //     fill intermediate histograms
     TVector3 normHadJet3 = ( unitJet3.Cross(unitHad3) ).Unit();
+
+    // fill intermediate histograms
     hCalcPhiHadJet   -> Fill( normHadJet3.Phi() );
     hCalcThetaHadJet -> Fill( normHadJet3.Theta() );
     hCalcCosThHadJet -> Fill( cos(normHadJet3.Theta()) );
     hCalcZThHadJet   -> Fill( normHadJet3.Z(), normHadJet3.Theta() );
 
-    // (4) get phiHadron: angle between the jet-beam plane and the
-    //   - angle between jet-hadron plane
-    //   - constrain to range [0,2pi)
-    double phiHadBlue = atan2( normJetBeam3.first.Cross(normHadJet3).Mag(), normJetBeam3.first.Dot(normHadJet3) );
-    double phiHadYell = atan2( normJetBeam3.second.Cross(normHadJet3).Mag(), normJetBeam3.second.Dot(normHadJet3) );
+    // (4) cross jet-hadron normal into jet-beam normal
+    std::pair<TVector3, TVector3> crossJetBeamHadron3 = std::make_pair(
+      normJetBeam3.first.Cross(normHadJet3),
+      normJetBeam3.second.Cross(normHadJet3)
+    );
+
+    // check dot product of hadron into jet-beam
+    const double hadJetBeamDotB = normJetBeam3.first.Dot( unitHad3 );
+    const double hadJetBeamDotY = normJetBeam3.second.Dot( unitHad3 );
+
+    // fill intermediate histograms
+    hCalcJHBCrossMagB -> Fill( crossJetBeamHadron3.first.Mag() ); 
+    hCalcJHBDotB      -> Fill( normJetBeam3.first.Dot(normHadJet3) );
+    hCalcJHBCrossMagY -> Fill( crossJetBeamHadron3.second.Mag() );
+    hCalcJHBDotY      -> Fill( normJetBeam3.second.Dot(normHadJet3) );
+
+    // (5) get phiHadron: angle between the jet-beam plane and
+    //     jet-hadron plane
+    double phiHadBlue = atan2( crossJetBeamHadron3.first.Mag(), normJetBeam3.first.Dot(normHadJet3) );
+    double phiHadYell = atan2( crossJetBeamHadron3.second.Mag(), normJetBeam3.second.Dot(normHadJet3) );
+
+    // if using the dot product, take the outer angle if the dot
+    // product is negative
+    if (doDot) {
+      if (hadJetBeamDotB < 0.0) phiHadBlue = TMath::TwoPi() - phiHadBlue;
+      if (hadJetBeamDotY < 0.0) phiHadYell = TMath::TwoPi() - phiHadYell;
+    }
+
+    // if doing wrapping, constrain to range [0,2pi)
     if (doWrap) {
       if (phiHadBlue < 0)               phiHadBlue += TMath::TwoPi();
       if (phiHadBlue >= TMath::TwoPi()) phiHadBlue -= TMath::TwoPi();
@@ -273,10 +342,12 @@ void AngleCalculationTest(
     }
 
     // fill histograms
-    hPhiHadB -> Fill(phiHadBlue);
-    hPhiHadY -> Fill(phiHadYell);
+    hPhiHadB           -> Fill(phiHadBlue);
+    hPhiHadY           -> Fill(phiHadYell);
+    hCheckPhiHadVsDotB -> Fill(hadJetBeamDotB, phiHadBlue);
+    hCheckPhiHadVsDotY -> Fill(hadJetBeamDotY, phiHadYell);
 
-    // (5) double phiHadron for boer-mulders,
+    // (6) double phiHadron for boer-mulders,
     //   - constrain to [0, 2pi)
     double phiHadBlue2 = 2.0 * phiHadBlue;
     double phiHadYell2 = 2.0 * phiHadYell;
@@ -291,7 +362,9 @@ void AngleCalculationTest(
     hPhiHad2B -> Fill(phiHadBlue2);
     hPhiHad2Y -> Fill(phiHadYell2);
 
-    // (6) now calculate phiColl: phiSpin - phiHadron,
+    // ------------------------------------------------------------------------
+
+    // (7) now calculate phiColl: phiSpin - phiHadron,
     //   - constrain to [0, 2pi) OR [0, pi)
     double phiCollBlue = phiSpinBlue - phiHadBlue;
     double phiCollYell = phiSpinYell - phiHadYell;
@@ -313,7 +386,7 @@ void AngleCalculationTest(
     hPhiCollB -> Fill(phiCollBlue);
     hPhiCollY -> Fill(phiCollYell);
 
-    // (7) now calculate phiBoer: phiSpin - (2 * phiHadron),
+    // (8) now calculate phiBoer: phiSpin - (2 * phiHadron),
     //   - constrain phiBoerBlue to [0, 2pi)
     double phiBoerBlue = phiSpinBlue - phiHadBlue2;
     double phiBoerYell = phiSpinYell - phiHadYell2;
@@ -330,12 +403,20 @@ void AngleCalculationTest(
 
     // alternate calc: what if we used acos to get the angles? ----------------
 
-    // (2) starting at get phiSpin: angles between the jet-beam plane and spin
-    //   - n.b. for spin pattern >= 4, the yellow spin is randomized
-    //   - angle between jet plane and spin
-    //   - note that we get the full [0,2pi) range for these angles
-    double phiSpinBlueAlt = TMath::PiOver2() - acos( normJetBeam3.first.Dot(unitSpinB3) / (normJetBeam3.first.Mag() * unitSpinB3.Mag()) );
-    double phiSpinYellAlt = TMath::PiOver2() - acos( normJetBeam3.second.Dot(unitSpinY3) / (normJetBeam3.second.Mag() * unitSpinY3.Mag()) );
+    // (2) starting at get phiSpin: angles between the jet-beam plane and
+    //     spin-beam plane
+    //   - constrain to [0,2pi)
+    double phiSpinBlueAlt = acos( normJetBeam3.first.Dot(normSpinBeam3.first) / (normJetBeam3.first.Mag() * normSpinBeam3.first.Mag()) );
+    double phiSpinYellAlt = acos( normJetBeam3.second.Dot(normSpinBeam3.second) / (normJetBeam3.second.Mag() * normSpinBeam3.second.Mag()) );
+
+    // if using the dot product, take the outer angle if the
+    // spin-jet-beam dot product is negative
+    if (doDot) {
+      if (spinJetBeamDotB < 0.0) phiSpinBlueAlt = TMath::TwoPi() - phiSpinBlueAlt;
+      if (spinJetBeamDotY < 0.0) phiSpinYellAlt = TMath::TwoPi() - phiSpinYellAlt;
+    }
+
+    // if doing wrapping, constrain to range [0, 2pi)
     if (doWrap) {
       if (phiSpinBlueAlt < 0)               phiSpinBlueAlt += TMath::TwoPi();
       if (phiSpinBlueAlt >= TMath::TwoPi()) phiSpinBlueAlt -= TMath::TwoPi();
@@ -347,12 +428,29 @@ void AngleCalculationTest(
     hAltPhiSpinB -> Fill(phiSpinBlueAlt);
     hAltPhiSpinY -> Fill(phiSpinYellAlt);
 
-    // (4) now jump to phiHadron: angle between the jet-beam plane and the
+    // ------------------------------------------------------------------------
+
+    // (4) get dot products and magnitudes
+    double jhAltMag   = normHadJet3.Mag();
+    double jbAltMagB  = normJetBeam3.first.Mag();
+    double jbAltMagY  = normJetBeam3.second.Mag();
+    double jhbAltDotB = normJetBeam3.first.Dot(normHadJet3);
+    double jhbAltDotY = normJetBeam3.second.Dot(normHadJet3);
+
+
+    // (5) now jump to phiHadron: angle between the jet-beam plane and the
     //     jet-hadron plane
-    //   - angle between jet-hadron plane
-    //   - constrain to range [0,2pi)
     double phiHadBlueAlt = acos( normJetBeam3.first.Dot(normHadJet3) / (normJetBeam3.first.Mag() * normHadJet3.Mag()) );
-    double phiHadYellAlt = acos( normJetBeam3.second.Dot(normHadJet3) /  (normJetBeam3.second.Mag() * normHadJet3.Mag()) );
+    double phiHadYellAlt = acos( normJetBeam3.second.Dot(normHadJet3) / (normJetBeam3.second.Mag() * normHadJet3.Mag()) );
+
+    // if using the dot product, take the outer angle if the dot
+    // product is negative
+    if (doDot) {
+      if (hadJetBeamDotB < 0) phiHadBlueAlt = TMath::TwoPi() - phiHadBlueAlt;
+      if (hadJetBeamDotY < 0) phiHadYellAlt = TMath::TwoPi() - phiHadYellAlt;
+    }
+
+    // if doing wrapping, constrain to range [0,2pi)
     if (doWrap) {
       if (phiHadBlueAlt < 0)               phiHadBlueAlt += TMath::TwoPi();
       if (phiHadBlueAlt >= TMath::TwoPi()) phiHadBlueAlt -= TMath::TwoPi();
@@ -360,11 +458,24 @@ void AngleCalculationTest(
       if (phiHadYellAlt >= TMath::TwoPi()) phiHadYellAlt -= TMath::TwoPi();
     }
 
-    // fill histograms
-    hAltPhiHadB -> Fill(phiHadBlueAlt);
-    hAltPhiHadY -> Fill(phiHadYellAlt);
+    // cross-check: take difference between normal and alternate
+    // phi hadron calculations
+    double diffPhiHadBlue = abs(phiHadBlue - phiHadBlueAlt);
+    double diffPhiHadYell = abs(phiHadYell - phiHadYellAlt);
+    if (diffPhiHadBlue < std::numeric_limits<float>::epsilon()) diffPhiHadBlue = 0.0;
+    if (diffPhiHadYell < std::numeric_limits<float>::epsilon()) diffPhiHadYell = 0.0;
 
-    // (5) double phiHadron for boer-mulders,
+    // fill intermediate histograms
+    hCheckPhiHadVsAltB -> Fill(diffPhiHadBlue); 
+    hCheckPhiHadVsAltY -> Fill(diffPhiHadYell);
+
+    // fill histograms
+    hAltPhiHadB           -> Fill(phiHadBlueAlt);
+    hAltPhiHadY           -> Fill(phiHadYellAlt);
+    hCheckAltPhiHadVsDotB -> Fill(hadJetBeamDotB, phiHadBlueAlt);
+    hCheckAltPhiHadVsDotY -> Fill(hadJetBeamDotY, phiHadYellAlt);
+
+    // (6) double phiHadron for boer-mulders,
     //   - constrain to [0, 2pi)
     double phiHadBlueAlt2 = 2.0 * phiHadBlueAlt;
     double phiHadYellAlt2 = 2.0 * phiHadYellAlt;
@@ -379,7 +490,9 @@ void AngleCalculationTest(
     hAltPhiHad2B -> Fill(phiHadBlueAlt2);
     hAltPhiHad2Y -> Fill(phiHadYellAlt2);
 
-    // (6) now calculate phiColl: phiSpin - phiHadron,
+    // ------------------------------------------------------------------------
+
+    // (7) now calculate phiColl: phiSpin - phiHadron,
     //   - constrain to [0, 2pi) OR [0, pi)
     double phiCollBlueAlt = phiSpinBlueAlt - phiHadBlueAlt;
     double phiCollYellAlt = phiSpinYellAlt - phiHadYellAlt;
@@ -420,8 +533,8 @@ void AngleCalculationTest(
   std::cout << "    MC loop finished!" << std::endl;
 
   // normalize histograms
-  //   - n.b. (x,y) and (z,theta) hists
-  //     NOT normalized
+  //   - n.b. (x,y), (z,theta), and magnitude
+  //     hists NOT normalized
   hInputPhiSpinB     -> Scale(1. / (double) nIter);
   hInputPhiSpinY     -> Scale(1. / (double) nIter);
   hInputPhiJet       -> Scale(1. / (double) nIter);
@@ -462,10 +575,10 @@ void AngleCalculationTest(
   std::cout << "    Normalized histograms." << std::endl;
 
   // create frame histograms
-  TH1D* hPhiFrame    = hInputPhiSpinB -> Clone();
-  TH1D* hAltPhiFrame = hInputPhiSpinB -> Clone();
-  TH1D* hThetaFrame  = hInputThetaJet -> Clone();
-  TH1D* hCosThFrame  = hInputCosThJet -> Clone();
+  TH1D* hPhiFrame    = (TH1D*) hInputPhiSpinB -> Clone();
+  TH1D* hAltPhiFrame = (TH1D*) hInputPhiSpinB -> Clone();
+  TH1D* hThetaFrame  = (TH1D*) hInputThetaJet -> Clone();
+  TH1D* hCosThFrame  = (TH1D*) hInputCosThJet -> Clone();
   hPhiFrame    -> Reset("ICES");
   hPhiFrame    -> SetName("hPhiFrame");
   hPhiFrame    -> SetTitle(";#phi [rad]");
@@ -1058,53 +1171,63 @@ void AngleCalculationTest(
   std::cout << "    Created phi everything plots." << std::endl;
 
   // save histograms
-  fOutput            -> cd();
-  hInputPhiSpinB     -> Write();
-  hInputPhiSpinY     -> Write();
-  hInputXYSpinB      -> Write();
-  hInputXYSpinY      -> Write();
-  hInputPhiJet       -> Write();
-  hInputThetaJet     -> Write();
-  hInputCosThJet     -> Write();
-  hInputZThJet       -> Write();
-  hInputXYJet        -> Write();
-  hInputPhiHad       -> Write();
-  hInputThetaHad     -> Write();
-  hInputCosThHad     -> Write();
-  hInputXYHad        -> Write();
-  hInputZThHad       -> Write();
-  hCalcPhiJetBeamB   -> Write();
-  hCalcThetaJetBeamB -> Write();
-  hCalcCosThJetBeamB -> Write();
-  hCalcZThJetBeamB   -> Write();
-  hCalcPhiJetBeamY   -> Write();
-  hCalcThetaJetBeamY -> Write();
-  hCalcCosThJetBeamY -> Write();
-  hCalcZThJetBeamY   -> Write();
-  hCalcPhiHadJet     -> Write();
-  hCalcThetaHadJet   -> Write();
-  hCalcCosThHadJet   -> Write();
-  hCalcZThHadJet     -> Write();
-  hPhiSpinB          -> Write();
-  hPhiSpinY          -> Write();
-  hPhiHadB           -> Write();
-  hPhiHadY           -> Write();
-  hPhiHad2B          -> Write();
-  hPhiHad2Y          -> Write();
-  hPhiCollB          -> Write();
-  hPhiCollY          -> Write();
-  hPhiBoerB          -> Write();
-  hPhiBoerY          -> Write();
-  hAltPhiSpinB       -> Write();
-  hAltPhiSpinY       -> Write();
-  hAltPhiHadB        -> Write();
-  hAltPhiHadY        -> Write();
-  hAltPhiHad2B       -> Write();
-  hAltPhiHad2Y       -> Write();
-  hAltPhiCollB       -> Write();
-  hAltPhiCollY       -> Write();
-  hAltPhiBoerB       -> Write();
-  hAltPhiBoerY       -> Write();
+  fOutput               -> cd();
+  hInputPhiSpinB        -> Write();
+  hInputPhiSpinY        -> Write();
+  hInputXYSpinB         -> Write();
+  hInputXYSpinY         -> Write();
+  hInputPhiJet          -> Write();
+  hInputThetaJet        -> Write();
+  hInputCosThJet        -> Write();
+  hInputZThJet          -> Write();
+  hInputXYJet           -> Write();
+  hInputPhiHad          -> Write();
+  hInputThetaHad        -> Write();
+  hInputCosThHad        -> Write();
+  hInputXYHad           -> Write();
+  hInputZThHad          -> Write();
+  hCalcPhiJetBeamB      -> Write();
+  hCalcThetaJetBeamB    -> Write();
+  hCalcCosThJetBeamB    -> Write();
+  hCalcZThJetBeamB      -> Write();
+  hCalcPhiJetBeamY      -> Write();
+  hCalcThetaJetBeamY    -> Write();
+  hCalcCosThJetBeamY    -> Write();
+  hCalcZThJetBeamY      -> Write();
+  hCalcPhiHadJet        -> Write();
+  hCalcThetaHadJet      -> Write();
+  hCalcCosThHadJet      -> Write();
+  hCalcZThHadJet        -> Write();
+  hCalcJHBCrossMagB     -> Write(); 
+  hCalcJHBDotB          -> Write();
+  hCalcJHBCrossMagY     -> Write();
+  hCalcJHBDotY          -> Write();
+  hPhiSpinB             -> Write();
+  hPhiSpinY             -> Write();
+  hPhiHadB              -> Write();
+  hPhiHadY              -> Write();
+  hPhiHad2B             -> Write();
+  hPhiHad2Y             -> Write();
+  hPhiCollB             -> Write();
+  hPhiCollY             -> Write();
+  hPhiBoerB             -> Write();
+  hPhiBoerY             -> Write();
+  hAltPhiSpinB          -> Write();
+  hAltPhiSpinY          -> Write();
+  hAltPhiHadB           -> Write();
+  hAltPhiHadY           -> Write();
+  hAltPhiHad2B          -> Write();
+  hAltPhiHad2Y          -> Write();
+  hAltPhiCollB          -> Write();
+  hAltPhiCollY          -> Write();
+  hAltPhiBoerB          -> Write();
+  hAltPhiBoerY          -> Write();
+  hCheckPhiHadVsAltB    -> Write(); 
+  hCheckPhiHadVsAltY    -> Write();
+  hCheckPhiHadVsDotB    -> Write();
+  hCheckPhiHadVsDotY    -> Write();
+  hCheckAltPhiHadVsDotB -> Write();
+  hCheckAltPhiHadVsDotY -> Write();
   std::cout << "    Saved histograms." << std::endl;
 
   // close output file
