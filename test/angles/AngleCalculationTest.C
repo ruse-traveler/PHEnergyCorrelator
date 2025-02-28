@@ -45,10 +45,10 @@
  *  beam and jet-hadron normals
  */
 void AngleCalculationTest(
-  const std::string oFile = "angleCalcTest.nIter10K_withDotCheck_noWrap.d27m2y2025.root",
+  const std::string oFile = "angleCalcTest.nIter10K_copyingMinimalCalc_doWrap.d28m2y2025.root",
   const std::size_t nIter = 10000,
-  const std::size_t wrapMode = 1,
-  const bool doWrap = false,
+  const std::size_t wrapMode = 2,
+  const bool doWrap = true,
   const bool doDot = true,
   const bool doBatch = true
 ) {
@@ -119,9 +119,9 @@ void AngleCalculationTest(
   TH1D* hCalcCosThHadJet      = new TH1D("hCalcCosThJetHad", "cos#theta_{jet-h}", nCosBins, xCosStart, xCosStop);
   TH2D* hCalcZThHadJet        = new TH2D("hCalcZThHadJet", "(z,#theta) sampled (jet-hadron)", nZBins, xZStart, xZStop, nAngBins, xAngStart, xAngStop);
   TH1D* hCalcJHBCrossMagB     = new TH1D("hCalcJHBCrossMagB", "|#bf{v}_{jet-beam}^{B}#times#bf{v}_{jet-had}|", nMagBins, xMagStart, xMagStop);
-  TH1D* hCalcJHBDotMagB       = new TH1D("hCalcJHBDotMagB", "#bf{v}_{jet-beam}^{B} #upoint#bf{v}_{jet-had}", nMagBins, xMagStart, xMagStop);
+  TH1D* hCalcJHBDotB          = new TH1D("hCalcJHBDotB", "#bf{v}_{jet-beam}^{B} #upoint#bf{v}_{jet-had}", nMagBins, xMagStart, xMagStop);
   TH1D* hCalcJHBCrossMagY     = new TH1D("hCalcJHBCrossMagY", "|#bf{v}_{jet-beam}^{Y}#times#bf{v}_{jet-had}|", nMagBins, xMagStart, xMagStop);
-  TH1D* hCalcJHBDotMagY       = new TH1D("hCalcJHBDotMagY", "#bf{v}_{jet-beam}^{Y}#upoint#bf{v}_{jet-had}", nMagBins, xMagStart, xMagStop);
+  TH1D* hCalcJHBDotY          = new TH1D("hCalcJHBDotY", "#bf{v}_{jet-beam}^{Y}#upoint#bf{v}_{jet-had}", nMagBins, xMagStart, xMagStop);
   TH1D* hPhiSpinB             = new TH1D("hPhiSpinB", "#phi_{spin}^{B}", nAngBins, xAngStart, xAngStop);
   TH1D* hPhiSpinY             = new TH1D("hPhiSpinY", "#phi_{spin}^{Y}", nAngBins, xAngStart, xAngStop);
   TH1D* hPhiHadB              = new TH1D("hPhiHadB", "#phi_{h}^{B}", nAngBins, xAngStart, xAngStop);
@@ -239,12 +239,17 @@ void AngleCalculationTest(
     // collins & boer-mulders angle calculations --------------------------
 
 
-    // (1) get vectors normal to the jet-beam plane,
-    //     fill intermediate histograms
+    // (0) get vectors normal to the spin-beam & jet-beam plane
+    std::pair<TVector3, TVector3> normSpinBeam3 = std::make_pair(
+      ( vecBeamB3.Cross(unitSpinB3) ).Unit(),
+      ( vecBeamY3.Cross(unitSpinY3) ).Unit()
+    );
     std::pair<TVector3, TVector3> normJetBeam3 = std::make_pair(
       ( vecBeamB3.Cross(unitJet3) ).Unit(),
       ( vecBeamY3.Cross(unitJet3) ).Unit()
     );
+
+    // fill intermediate histograms
     hCalcPhiJetBeamB   -> Fill( normJetBeam3.first.Phi() );
     hCalcThetaJetBeamB -> Fill( normJetBeam3.first.Theta() );
     hCalcCosThJetBeamB -> Fill( cos(normJetBeam3.first.Theta()) );
@@ -254,12 +259,30 @@ void AngleCalculationTest(
     hCalcCosThJetBeamY -> Fill( cos(normJetBeam3.second.Theta()) );
     hCalcZThJetBeamY   -> Fill( normJetBeam3.second.Z(), normJetBeam3.second.Theta() );
 
+    // ------------------------------------------------------------------------
+
+    // (1) cross spin into jet-beam plane
+    std::pair<TVector3, TVector3> crossJetBeamSpin3 = std::make_pair(
+      normJetBeam3.first.Cross( normSpinBeam3.first ),
+      normJetBeam3.second.Cross( normSpinBeam3.second )
+    );
+
+    // check dot product of spin into jet-beam
+    const double spinJetBeamDotB = normJetBeam3.first.Dot( unitSpinB3 );
+    const double spinJetBeamDotY = normJetBeam3.second.Dot( unitSpinY3 );
+
     // (2) get phiSpin: angles between the jet-beam plane and spin
-    //   - n.b. for spin pattern >= 4, the yellow spin is randomized
-    //   - angle between jet plane and spin 
-    //   - note that we get the full [0,2pi) range for these angles
-    double phiSpinBlue = TMath::PiOver2() - atan2( normJetBeam3.first.Cross(unitSpinB3).Mag(), normJetBeam3.first.Dot(unitSpinB3) );
-    double phiSpinYell = TMath::PiOver2() - atan2( normJetBeam3.second.Cross(unitSpinY3).Mag(), normJetBeam3.second.Dot(unitSpinY3) );
+    double phiSpinBlue = atan2( crossJetBeamSpin3.first.Mag(), normJetBeam3.first.Dot(normSpinBeam3.first) );
+    double phiSpinYell = atan2( crossJetBeamSpin3.second.Mag(), normJetBeam3.second.Dot(normSpinBeam3.second) );
+
+    // if using the dot product, take the outer angle if the
+    // spin-jet-beam dot product is negative
+    if (doDot) {
+      if (spinJetBeamDotB < 0.0) phiSpinBlue = TMath::TwoPi() - phiSpinBlue;
+      if (spinJetBeamDotY < 0.0) phiSpinYell = TMath::TwoPi() - phiSpinYell;
+    }
+
+    // if doing wrapping, constrain to range [0, 2pi)
     if (doWrap) {
       if (phiSpinBlue < 0)               phiSpinBlue += TMath::TwoPi();
       if (phiSpinBlue >= TMath::TwoPi()) phiSpinBlue -= TMath::TwoPi();
@@ -271,14 +294,16 @@ void AngleCalculationTest(
     hPhiSpinB -> Fill(phiSpinBlue);
     hPhiSpinY -> Fill(phiSpinYell);
 
+    // ------------------------------------------------------------------------
+
     // (3) get vector normal to hadron average-jet plane,
-    //     fill intermediate histograms
     TVector3 normHadJet3 = ( unitJet3.Cross(unitHad3) ).Unit();
+
+    // fill intermediate histograms
     hCalcPhiHadJet   -> Fill( normHadJet3.Phi() );
     hCalcThetaHadJet -> Fill( normHadJet3.Theta() );
     hCalcCosThHadJet -> Fill( cos(normHadJet3.Theta()) );
     hCalcZThHadJet   -> Fill( normHadJet3.Z(), normHadJet3.Theta() );
-
 
     // (4) cross jet-hadron normal into jet-beam normal
     std::pair<TVector3, TVector3> crossJetBeamHadron3 = std::make_pair(
@@ -286,28 +311,26 @@ void AngleCalculationTest(
       normJetBeam3.second.Cross(normHadJet3)
     );
 
-    // then get dot products and cross magnitudes
-    double jhbCrossB = crossJetBeamHadron3.first.Mag();
-    double jhbDotB   = normJetBeam3.first.Dot(normHadJet3);
-    double jhbCrossY = crossJetBeamHadron3.second.Mag();
-    double jhbDotY   = normJetBeam3.second.Dot(normHadJet3);
+    // check dot product of hadron into jet-beam
+    const double hadJetBeamDotB = normJetBeam3.first.Dot( unitHad3 );
+    const double hadJetBeamDotY = normJetBeam3.second.Dot( unitHad3 );
 
     // fill intermediate histograms
-    hCalcJHBCrossMagB -> Fill(jhbCrossB); 
-    hCalcJHBDotMagB   -> Fill(jhbDotB);
-    hCalcJHBCrossMagY -> Fill(jhbCrossY);
-    hCalcJHBDotMagY   -> Fill(jhbDotY);
+    hCalcJHBCrossMagB -> Fill( crossJetBeamHadron3.first.Mag() ); 
+    hCalcJHBDotB      -> Fill( normJetBeam3.first.Dot(normHadJet3) );
+    hCalcJHBCrossMagY -> Fill( crossJetBeamHadron3.second.Mag() );
+    hCalcJHBDotY      -> Fill( normJetBeam3.second.Dot(normHadJet3) );
 
-    // (5) get phiHadron: angle between the jet-beam plane and the
-    //   - angle between jet-hadron plane
-    double phiHadBlue = atan2( jhbCrossB, jhbDotB );
-    double phiHadYell = atan2( jhbCrossY, jhbDotY );
+    // (5) get phiHadron: angle between the jet-beam plane and
+    //     jet-hadron plane
+    double phiHadBlue = atan2( crossJetBeamHadron3.first.Mag(), normJetBeam3.first.Dot(normHadJet3) );
+    double phiHadYell = atan2( crossJetBeamHadron3.second.Mag(), normJetBeam3.second.Dot(normHadJet3) );
 
     // if using the dot product, take the outer angle if the dot
     // product is negative
     if (doDot) {
-      if (jhbDotB < 0.0) phiHadBlue = TMath::TwoPi() - phiHadBlue;
-      if (jhbDotY < 0.0) phiHadYell = TMath::TwoPi() - phiHadYell;
+      if (hadJetBeamDotB < 0.0) phiHadBlue = TMath::TwoPi() - phiHadBlue;
+      if (hadJetBeamDotY < 0.0) phiHadYell = TMath::TwoPi() - phiHadYell;
     }
 
     // if doing wrapping, constrain to range [0,2pi)
@@ -321,8 +344,8 @@ void AngleCalculationTest(
     // fill histograms
     hPhiHadB           -> Fill(phiHadBlue);
     hPhiHadY           -> Fill(phiHadYell);
-    hCheckPhiHadVsDotB -> Fill(jhbDotB, phiHadBlue);
-    hCheckPhiHadVsDotY -> Fill(jhbDotY, phiHadYell);
+    hCheckPhiHadVsDotB -> Fill(hadJetBeamDotB, phiHadBlue);
+    hCheckPhiHadVsDotY -> Fill(hadJetBeamDotY, phiHadYell);
 
     // (6) double phiHadron for boer-mulders,
     //   - constrain to [0, 2pi)
@@ -338,6 +361,8 @@ void AngleCalculationTest(
     // fill histograms
     hPhiHad2B -> Fill(phiHadBlue2);
     hPhiHad2Y -> Fill(phiHadYell2);
+
+    // ------------------------------------------------------------------------
 
     // (7) now calculate phiColl: phiSpin - phiHadron,
     //   - constrain to [0, 2pi) OR [0, pi)
@@ -378,12 +403,20 @@ void AngleCalculationTest(
 
     // alternate calc: what if we used acos to get the angles? ----------------
 
-    // (2) starting at get phiSpin: angles between the jet-beam plane and spin
-    //   - n.b. for spin pattern >= 4, the yellow spin is randomized
-    //   - angle between jet plane and spin
+    // (2) starting at get phiSpin: angles between the jet-beam plane and
+    //     spin-beam plane
     //   - constrain to [0,2pi)
-    double phiSpinBlueAlt = TMath::PiOver2() - acos( normJetBeam3.first.Dot(unitSpinB3) / (normJetBeam3.first.Mag() * unitSpinB3.Mag()) );
-    double phiSpinYellAlt = TMath::PiOver2() - acos( normJetBeam3.second.Dot(unitSpinY3) / (normJetBeam3.second.Mag() * unitSpinY3.Mag()) );
+    double phiSpinBlueAlt = acos( normJetBeam3.first.Dot(normSpinBeam3.first) / (normJetBeam3.first.Mag() * normSpinBeam3.first.Mag()) );
+    double phiSpinYellAlt = acos( normJetBeam3.second.Dot(normSpinBeam3.second) / (normJetBeam3.second.Mag() * normSpinBeam3.second.Mag()) );
+
+    // if using the dot product, take the outer angle if the
+    // spin-jet-beam dot product is negative
+    if (doDot) {
+      if (spinJetBeamDotB < 0.0) phiSpinBlueAlt = TMath::TwoPi() - phiSpinBlueAlt;
+      if (spinJetBeamDotY < 0.0) phiSpinYellAlt = TMath::TwoPi() - phiSpinYellAlt;
+    }
+
+    // if doing wrapping, constrain to range [0, 2pi)
     if (doWrap) {
       if (phiSpinBlueAlt < 0)               phiSpinBlueAlt += TMath::TwoPi();
       if (phiSpinBlueAlt >= TMath::TwoPi()) phiSpinBlueAlt -= TMath::TwoPi();
@@ -395,6 +428,8 @@ void AngleCalculationTest(
     hAltPhiSpinB -> Fill(phiSpinBlueAlt);
     hAltPhiSpinY -> Fill(phiSpinYellAlt);
 
+    // ------------------------------------------------------------------------
+
     // (4) get dot products and magnitudes
     double jhAltMag   = normHadJet3.Mag();
     double jbAltMagB  = normJetBeam3.first.Mag();
@@ -405,15 +440,22 @@ void AngleCalculationTest(
 
     // (5) now jump to phiHadron: angle between the jet-beam plane and the
     //     jet-hadron plane
-    //   - angle between jet-hadron plane
-    double phiHadBlueAlt = acos( jhbAltDotB / (jbAltMagB * jhAltMag) );
-    double phiHadYellAlt = acos( jhbAltDotY / (jbAltMagY * jhAltMag) );
+    double phiHadBlueAlt = acos( normJetBeam3.first.Dot(normHadJet3) / (normJetBeam3.first.Mag() * normHadJet3.Mag()) );
+    double phiHadYellAlt = acos( normJetBeam3.second.Dot(normHadJet3) / (normJetBeam3.second.Mag() * normHadJet3.Mag()) );
 
     // if using the dot product, take the outer angle if the dot
     // product is negative
     if (doDot) {
-      if (jhbAltDotB < 0) phiHadBlueAlt = TMath::TwoPi() - phiHadBlueAlt;
-      if (jhbAltDotY < 0) phiHadYellAlt = TMath::TwoPi() - phiHadYellAlt;
+      if (hadJetBeamDotB < 0) phiHadBlueAlt = TMath::TwoPi() - phiHadBlueAlt;
+      if (hadJetBeamDotY < 0) phiHadYellAlt = TMath::TwoPi() - phiHadYellAlt;
+    }
+
+    // if doing wrapping, constrain to range [0,2pi)
+    if (doWrap) {
+      if (phiHadBlueAlt < 0)               phiHadBlueAlt += TMath::TwoPi();
+      if (phiHadBlueAlt >= TMath::TwoPi()) phiHadBlueAlt -= TMath::TwoPi();
+      if (phiHadYellAlt < 0)               phiHadYellAlt += TMath::TwoPi();
+      if (phiHadYellAlt >= TMath::TwoPi()) phiHadYellAlt -= TMath::TwoPi();
     }
 
     // cross-check: take difference between normal and alternate
@@ -427,19 +469,11 @@ void AngleCalculationTest(
     hCheckPhiHadVsAltB -> Fill(diffPhiHadBlue); 
     hCheckPhiHadVsAltY -> Fill(diffPhiHadYell);
 
-    // if doing wrapping, constrain to range [0,2pi)
-    if (doWrap) {
-      if (phiHadBlueAlt < 0)               phiHadBlueAlt += TMath::TwoPi();
-      if (phiHadBlueAlt >= TMath::TwoPi()) phiHadBlueAlt -= TMath::TwoPi();
-      if (phiHadYellAlt < 0)               phiHadYellAlt += TMath::TwoPi();
-      if (phiHadYellAlt >= TMath::TwoPi()) phiHadYellAlt -= TMath::TwoPi();
-    }
-
     // fill histograms
     hAltPhiHadB           -> Fill(phiHadBlueAlt);
     hAltPhiHadY           -> Fill(phiHadYellAlt);
-    hCheckAltPhiHadVsDotB -> Fill(jhbAltDotB, phiHadBlueAlt);
-    hCheckAltPhiHadVsDotY -> Fill(jhbAltDotY, phiHadYellAlt);
+    hCheckAltPhiHadVsDotB -> Fill(hadJetBeamDotB, phiHadBlueAlt);
+    hCheckAltPhiHadVsDotY -> Fill(hadJetBeamDotY, phiHadYellAlt);
 
     // (6) double phiHadron for boer-mulders,
     //   - constrain to [0, 2pi)
@@ -455,6 +489,8 @@ void AngleCalculationTest(
     // fill histograms
     hAltPhiHad2B -> Fill(phiHadBlueAlt2);
     hAltPhiHad2Y -> Fill(phiHadYellAlt2);
+
+    // ------------------------------------------------------------------------
 
     // (7) now calculate phiColl: phiSpin - phiHadron,
     //   - constrain to [0, 2pi) OR [0, pi)
@@ -1163,9 +1199,9 @@ void AngleCalculationTest(
   hCalcCosThHadJet      -> Write();
   hCalcZThHadJet        -> Write();
   hCalcJHBCrossMagB     -> Write(); 
-  hCalcJHBDotMagB       -> Write();
+  hCalcJHBDotB          -> Write();
   hCalcJHBCrossMagY     -> Write();
-  hCalcJHBDotMagY       -> Write();
+  hCalcJHBDotY          -> Write();
   hPhiSpinB             -> Write();
   hPhiSpinY             -> Write();
   hPhiHadB              -> Write();
