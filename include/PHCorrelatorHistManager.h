@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <cassert>
 #include <map>
+#include <stdint.h>
 #include <string>
 #include <vector>
 // root libraries
@@ -40,9 +41,9 @@ namespace PHEnergyCorrelator {
   // -------------------------------------------------------------------------
   //! Iterators for iterating over histogram maps
   // -------------------------------------------------------------------------
-  typedef std::map<std::string, TH1D*>::iterator it_th1;
-  typedef std::map<std::string, TH2D*>::iterator it_th2;
-  typedef std::map<std::string, TH3D*>::iterator it_th3;
+  typedef std::map<std::uint32_t, TH1D*>::iterator it_th1;
+  typedef std::map<std::uint32_t, TH2D*>::iterator it_th2;
+  typedef std::map<std::uint32_t, TH3D*>::iterator it_th3;
 
 
 
@@ -96,9 +97,9 @@ namespace PHEnergyCorrelator {
       std::vector<std::string> m_index_tags;
 
       // data members (histograms)
-      std::map<std::string, TH1D*> m_hist_1d;
-      std::map<std::string, TH2D*> m_hist_2d;
-      std::map<std::string, TH3D*> m_hist_3d;
+      std::map<std::uint32_t, TH1D*> m_hist_1d;
+      std::map<std::uint32_t, TH2D*> m_hist_2d;
+      std::map<std::uint32_t, TH3D*> m_hist_3d;
 
       // data members (bins)
       Bins m_bins;
@@ -226,6 +227,40 @@ namespace PHEnergyCorrelator {
       }  // end 'MakeHistName(std::string&, std::string&)'
 
       // ----------------------------------------------------------------------
+      //! Jenkins' one-at-a-time hash for strings
+      // ----------------------------------------------------------------------
+      /*! From this stack overflow post:
+       *    - https://stackoverflow.com/questions/114085/fast-string-hashing-algorithm-with-low-collision-rates-with-32-bit-integer
+       *  For the Jenkins hashes, see here:
+       *    - https://en.wikipedia.org/wiki/Jenkins_hash_function
+       *    - https://www.burtleburtle.net/bob/hash/doobs.html
+       */
+      std::uint32_t HashString(const char* string) const {
+
+        std::uint32_t hash = 0;
+        for (; *string; ++string) {
+          hash += *string;
+          hash += (hash << 10);
+          hash ^= (hash >> 6);
+        }
+        hash += (hash << 3);
+        hash ^= (hash >> 11);
+        hash += (hash << 15);
+        return hash;
+
+      }  // end 'HashString(char*)'
+
+      // ----------------------------------------------------------------------
+      //! Make a histogram name and hash it
+      // ----------------------------------------------------------------------
+      std::uint32_t MakeHashedName(const std::string& base, const std::string& tag) const {
+
+        const std::string name = MakeHistName(base, tag);
+        return HashString( name.data() );
+
+      }
+
+      // ----------------------------------------------------------------------
       //! Make histograms out of a list of definitions
       // ----------------------------------------------------------------------
       void MakeHistograms(const std::vector<Histogram>& defs, const int dim) {
@@ -241,16 +276,16 @@ namespace PHEnergyCorrelator {
             // create histogram, set errors
             switch (dim) {
               case 1:
-                m_hist_1d[hist.GetName()] = hist.MakeTH1();
-                m_hist_1d[hist.GetName()] -> Sumw2();
+                m_hist_1d[ HashString(hist.GetName().data()) ] = hist.MakeTH1();
+                m_hist_1d[ HashString(hist.GetName().data()) ] -> Sumw2();
                 break;
               case 2:
-                m_hist_2d[hist.GetName()] = hist.MakeTH2();
-                m_hist_2d[hist.GetName()] -> Sumw2();
+                m_hist_2d[ HashString(hist.GetName().data()) ] = hist.MakeTH2();
+                m_hist_2d[ HashString(hist.GetName().data()) ] -> Sumw2();
                 break;
               case 3:
-                m_hist_3d[hist.GetName()] = hist.MakeTH3();
-                m_hist_3d[hist.GetName()] -> Sumw2();
+                m_hist_3d[ HashString(hist.GetName().data()) ] = hist.MakeTH3();
+                m_hist_3d[ HashString(hist.GetName().data()) ] -> Sumw2();
                 break;
               default:
                 assert((dim >= 1) && (dim <= 3));
@@ -386,7 +421,7 @@ namespace PHEnergyCorrelator {
         for (std::size_t index = 0; index < m_index_tags.size(); ++index) {
           for (std::size_t iset = 0; iset < to_set.size(); ++iset) {
             Histogram::SetHist1DErrToVar(
-              m_hist_1d.at( MakeHistName(to_set[iset], m_index_tags[index]) )
+              m_hist_1d.at( MakeHashedName(to_set[iset], m_index_tags[index]) )
             );
           }
         }
@@ -500,23 +535,23 @@ namespace PHEnergyCorrelator {
         const std::string tag = MakeIndexTag(index);
 
         // fill 1d histograms
-        m_hist_1d[ MakeHistName("EECStat", tag) ] -> Fill(content.rl, content.weight);
-        m_hist_1d[ MakeHistName("CollinsBlueStat", tag) ] -> Fill(content.phiCollB);
-        m_hist_1d[ MakeHistName("CollinsYellStat", tag) ] -> Fill(content.phiCollY);
-        m_hist_1d[ MakeHistName("BoerMuldersBlueStat", tag) ] -> Fill(content.phiBoerB);
-        m_hist_1d[ MakeHistName("BoerMuldersYellStat", tag) ] -> Fill(content.phiBoerY);
+        m_hist_1d[ MakeHashedName("EECStat", tag) ] -> Fill(content.rl, content.weight);
+        m_hist_1d[ MakeHashedName("CollinsBlueStat", tag) ] -> Fill(content.phiCollB);
+        m_hist_1d[ MakeHashedName("CollinsYellStat", tag) ] -> Fill(content.phiCollY);
+        m_hist_1d[ MakeHashedName("BoerMuldersBlueStat", tag) ] -> Fill(content.phiBoerB);
+        m_hist_1d[ MakeHashedName("BoerMuldersYellStat", tag) ] -> Fill(content.phiBoerY);
 
         // fill 2d histograms
-        m_hist_2d[ MakeHistName("CollinsBlueVsRStat", tag) ] -> Fill(
+        m_hist_2d[ MakeHashedName("CollinsBlueVsRStat", tag) ] -> Fill(
           content.rl, content.phiCollB, content.weight
         );
-        m_hist_2d[ MakeHistName("CollinsYellVsRStat", tag) ] -> Fill(
+        m_hist_2d[ MakeHashedName("CollinsYellVsRStat", tag) ] -> Fill(
           content.rl, content.phiCollY, content.weight
         );
-        m_hist_2d[ MakeHistName("BoerMuldersBlueVsRStat", tag) ] -> Fill(
+        m_hist_2d[ MakeHashedName("BoerMuldersBlueVsRStat", tag) ] -> Fill(
           content.rl, content.phiBoerB, content.weight
         );
-        m_hist_2d[ MakeHistName("BoerMuldersYellVsRStat", tag) ] -> Fill(
+        m_hist_2d[ MakeHashedName("BoerMuldersYellVsRStat", tag) ] -> Fill(
           content.rl, content.phiBoerY, content.weight
         );
         return;
@@ -559,12 +594,13 @@ namespace PHEnergyCorrelator {
       TH1D* GetHist1D(const std::string& tag) {
 
         // throw error if binning doesn't exist
-        if (m_hist_1d.count(tag) == 0) {
-          assert(m_hist_1d.count(tag) >= 1);
+        const std::uint32_t key = HashString(tag.data());
+        if (m_hist_1d.count(key) == 0) {
+          assert(m_hist_1d.count(key) >= 1);
         }
 
         // otherwise return hist
-        return m_hist_1d[tag];
+        return m_hist_1d[key];
 
       }  // end 'GetHist1D(std::string&)'
 
@@ -574,12 +610,13 @@ namespace PHEnergyCorrelator {
       TH2D* GetHist2D(const std::string& tag) {
 
         // throw error if binning doesn't exist
-        if (m_hist_2d.count(tag) == 0) {
-          assert(m_hist_2d.count(tag) >= 1);
+        const std::uint32_t key = HashString(tag.data());
+        if (m_hist_2d.count(key) == 0) {
+          assert(m_hist_2d.count(key) >= 1);
         }
 
         // otherwise return hist
-        return m_hist_2d[tag];
+        return m_hist_2d[key];
 
       }  // end 'GetHist2D(std::string&)'
 
@@ -589,12 +626,13 @@ namespace PHEnergyCorrelator {
       TH3D* GetHist3D(const std::string& tag) {
 
         // throw error if binning doesn't exist
-        if (m_hist_3d.count(tag) == 0) {
-          assert(m_hist_3d.count(tag) >= 1);
+        const std::uint32_t key = HashString(tag.data());
+        if (m_hist_3d.count(key) == 0) {
+          assert(m_hist_3d.count(key) >= 1);
         }
 
         // otherwise return hist
-        return m_hist_3d[tag];
+        return m_hist_3d[key];
 
       }  // end 'GetHist3D(std::string&)'
 
