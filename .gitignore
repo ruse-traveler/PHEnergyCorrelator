@@ -14,3 +14,4 @@ output/
 !test/root-build
 !test/wipe-build
 !test/angles/
+!test/performance/
