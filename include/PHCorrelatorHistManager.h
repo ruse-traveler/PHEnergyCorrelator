@@ -504,27 +504,27 @@ namespace PHEnergyCorrelator {
         const std::string tag = MakeIndexTag(index);
 
         // fill 1d histograms
-        m_hist_1d.at( MakeHistName("EECStat", tag) ) -> Fill(content.rl, content.weight);
-        m_hist_1d.at( MakeHistName("EECWidth", tag) ) -> Fill(content.rl, content.weight);
-        m_hist_1d.at( MakeHistName("SpinBlue", tag) ) -> Fill(content.spinB);
-        m_hist_1d.at( MakeHistName("SpinYellow", tag) ) -> Fill(content.spinY);
-        m_hist_1d.at( MakeHistName("SpinPattern", tag) ) -> Fill(content.pattern);
-        m_hist_1d.at( MakeHistName("CollinsBlueStat", tag) ) -> Fill(content.phiCollB);
-        m_hist_1d.at( MakeHistName("CollinsYellStat", tag) ) -> Fill(content.phiCollY);
-        m_hist_1d.at( MakeHistName("BoerMuldersBlueStat", tag) ) -> Fill(content.phiBoerB);
-        m_hist_1d.at( MakeHistName("BoerMuldersYellStat", tag) ) -> Fill(content.phiBoerY);
+        m_hist_1d[ MakeHistName("EECStat", tag) ] -> Fill(content.rl, content.weight);
+        m_hist_1d[ MakeHistName("EECWidth", tag) ] -> Fill(content.rl, content.weight);
+        m_hist_1d[ MakeHistName("SpinBlue", tag) ] -> Fill(content.spinB);
+        m_hist_1d[ MakeHistName("SpinYellow", tag) ] -> Fill(content.spinY);
+        m_hist_1d[ MakeHistName("SpinPattern", tag) ] -> Fill(content.pattern);
+        m_hist_1d[ MakeHistName("CollinsBlueStat", tag) ] -> Fill(content.phiCollB);
+        m_hist_1d[ MakeHistName("CollinsYellStat", tag) ] -> Fill(content.phiCollY);
+        m_hist_1d[ MakeHistName("BoerMuldersBlueStat", tag) ] -> Fill(content.phiBoerB);
+        m_hist_1d[ MakeHistName("BoerMuldersYellStat", tag) ] -> Fill(content.phiBoerY);
 
         // fill 2d histograms
-        m_hist_2d.at( MakeHistName("CollinsBlueVsRStat", tag) ) -> Fill(
+        m_hist_2d[ MakeHistName("CollinsBlueVsRStat", tag) ] -> Fill(
           content.rl, content.phiCollB, content.weight
         );
-        m_hist_2d.at( MakeHistName("CollinsYellVsRStat", tag) ) -> Fill(
+        m_hist_2d[ MakeHistName("CollinsYellVsRStat", tag) ] -> Fill(
           content.rl, content.phiCollY, content.weight
         );
-        m_hist_2d.at( MakeHistName("BoerMuldersBlueVsRStat", tag) ) -> Fill(
+        m_hist_2d[ MakeHistName("BoerMuldersBlueVsRStat", tag) ] -> Fill(
           content.rl, content.phiBoerB, content.weight
         );
-        m_hist_2d.at( MakeHistName("BoerMuldersYellVsRStat", tag) ) -> Fill(
+        m_hist_2d[ MakeHistName("BoerMuldersYellVsRStat", tag) ] -> Fill(
           content.rl, content.phiBoerY, content.weight
         );
         return;
