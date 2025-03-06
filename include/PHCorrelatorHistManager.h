@@ -30,6 +30,9 @@
 #include "PHCorrelatorConstants.h"
 #include "PHCorrelatorHistogram.h"
 
+//! Turns on/off width calculation.
+#define DO_WIDTH_CALC 0
+
 
 
 namespace PHEnergyCorrelator {
@@ -314,18 +317,6 @@ namespace PHEnergyCorrelator {
           Histogram("EECStat", "", "R_{L}", m_bins.Get("side"))
         );
         def_1d.push_back(
-          Histogram("EECWidth", "", "R_{L}", m_bins.Get("side"))
-        );
-        def_1d.push_back(
-          Histogram("SpinBlue", "", "y_{B}^{spin}", m_bins.Get("spin"))
-        );
-        def_1d.push_back(
-          Histogram("SpinYellow", "", "y_{Y}^{spin}", m_bins.Get("spin"))
-        );
-        def_1d.push_back(
-          Histogram("SpinPattern", "", "pattern", m_bins.Get("pattern"))
-        );
-        def_1d.push_back(
           Histogram("CollinsBlueStat", "", collB_title, m_bins.Get("angle"))
         );
         def_1d.push_back(
@@ -379,14 +370,18 @@ namespace PHEnergyCorrelator {
 
       }  // end 'GenerateEECHists()'
 
+#if DO_WIDTH_CALC
       // ----------------------------------------------------------------------
       //! Set variances of relevant 2-point histograms
       // ----------------------------------------------------------------------
+      /*! N.B. this function is currently unused. If/when we decide to include
+       *  histograms with widths reported rather than statisical errors, this
+       *  will come into play.
+       */
       void SetEECVariances() {
 
         // names of EEC hists to set variances of
         std::vector<std::string> to_set;
-        to_set.push_back( "EECWidth" );
 
         for (std::size_t index = 0; index < m_index_tags.size(); ++index) {
           for (std::size_t iset = 0; iset < to_set.size(); ++iset) {
@@ -398,6 +393,7 @@ namespace PHEnergyCorrelator {
         return;
 
       }  // end 'SetEECVariances()'
+#endif
 
     public:
 
@@ -505,10 +501,6 @@ namespace PHEnergyCorrelator {
 
         // fill 1d histograms
         m_hist_1d[ MakeHistName("EECStat", tag) ] -> Fill(content.rl, content.weight);
-        m_hist_1d[ MakeHistName("EECWidth", tag) ] -> Fill(content.rl, content.weight);
-        m_hist_1d[ MakeHistName("SpinBlue", tag) ] -> Fill(content.spinB);
-        m_hist_1d[ MakeHistName("SpinYellow", tag) ] -> Fill(content.spinY);
-        m_hist_1d[ MakeHistName("SpinPattern", tag) ] -> Fill(content.pattern);
         m_hist_1d[ MakeHistName("CollinsBlueStat", tag) ] -> Fill(content.phiCollB);
         m_hist_1d[ MakeHistName("CollinsYellStat", tag) ] -> Fill(content.phiCollY);
         m_hist_1d[ MakeHistName("BoerMuldersBlueStat", tag) ] -> Fill(content.phiBoerB);
@@ -536,9 +528,10 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       void SaveHists(TFile* file) {
 
+#if DO_WIDTH_CALC
         // set variances on relevant histograms
-        //   - TODO add others when ready
         if (m_do_eec_hist) SetEECVariances();
+#endif
 
         // throw error if cd failed
         const bool good_cd = file -> cd();
