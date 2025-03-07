@@ -33,17 +33,16 @@
 
 //! Turns on/off width calculation.
 #define DO_WIDTH_CALC 0
-
-
+ 
 
 namespace PHEnergyCorrelator {
 
   // -------------------------------------------------------------------------
   //! Iterators for iterating over histogram maps
   // -------------------------------------------------------------------------
-  typedef std::map<std::uint32_t, TH1D*>::iterator it_th1;
-  typedef std::map<std::uint32_t, TH2D*>::iterator it_th2;
-  typedef std::map<std::uint32_t, TH3D*>::iterator it_th3;
+  typedef std::map<unsigned int, TH1D*>::iterator it_th1;
+  typedef std::map<unsigned int, TH2D*>::iterator it_th2;
+  typedef std::map<unsigned int, TH3D*>::iterator it_th3;
 
 
 
@@ -97,9 +96,9 @@ namespace PHEnergyCorrelator {
       std::vector<std::string> m_index_tags;
 
       // data members (histograms)
-      std::map<std::uint32_t, TH1D*> m_hist_1d;
-      std::map<std::uint32_t, TH2D*> m_hist_2d;
-      std::map<std::uint32_t, TH3D*> m_hist_3d;
+      std::map<unsigned int, TH1D*> m_hist_1d;
+      std::map<unsigned int, TH2D*> m_hist_2d;
+      std::map<unsigned int, TH3D*> m_hist_3d;
 
       // data members (bins)
       Bins m_bins;
@@ -235,9 +234,9 @@ namespace PHEnergyCorrelator {
        *    - https://en.wikipedia.org/wiki/Jenkins_hash_function
        *    - https://www.burtleburtle.net/bob/hash/doobs.html
        */
-      std::uint32_t HashString(const char* string) const {
+      unsigned int HashString(const char* string) const {
 
-        std::uint32_t hash = 0;
+        unsigned int hash = 0;
         for (; *string; ++string) {
           hash += *string;
           hash += (hash << 10);
@@ -253,7 +252,7 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       //! Make a histogram name and hash it
       // ----------------------------------------------------------------------
-      std::uint32_t MakeHashedName(const std::string& base, const std::string& tag) const {
+      unsigned int MakeHashedName(const std::string& base, const std::string& tag) const {
 
         const std::string name = MakeHistName(base, tag);
         return HashString( name.data() );
@@ -594,7 +593,7 @@ namespace PHEnergyCorrelator {
       TH1D* GetHist1D(const std::string& tag) {
 
         // throw error if binning doesn't exist
-        const std::uint32_t key = HashString(tag.data());
+        const unsigned int key = HashString(tag.data());
         if (m_hist_1d.count(key) == 0) {
           assert(m_hist_1d.count(key) >= 1);
         }
@@ -610,7 +609,7 @@ namespace PHEnergyCorrelator {
       TH2D* GetHist2D(const std::string& tag) {
 
         // throw error if binning doesn't exist
-        const std::uint32_t key = HashString(tag.data());
+        const unsigned int key = HashString(tag.data());
         if (m_hist_2d.count(key) == 0) {
           assert(m_hist_2d.count(key) >= 1);
         }
@@ -626,7 +625,7 @@ namespace PHEnergyCorrelator {
       TH3D* GetHist3D(const std::string& tag) {
 
         // throw error if binning doesn't exist
-        const std::uint32_t key = HashString(tag.data());
+        const unsigned int key = HashString(tag.data());
         if (m_hist_3d.count(key) == 0) {
           assert(m_hist_3d.count(key) >= 1);
         }
