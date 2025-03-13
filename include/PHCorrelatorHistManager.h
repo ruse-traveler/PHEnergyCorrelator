@@ -276,15 +276,12 @@ namespace PHEnergyCorrelator {
             switch (dim) {
               case 1:
                 m_hist_1d[ HashString(hist.GetName().data()) ] = hist.MakeTH1();
-                m_hist_1d[ HashString(hist.GetName().data()) ] -> Sumw2();
                 break;
               case 2:
                 m_hist_2d[ HashString(hist.GetName().data()) ] = hist.MakeTH2();
-                m_hist_2d[ HashString(hist.GetName().data()) ] -> Sumw2();
                 break;
               case 3:
                 m_hist_3d[ HashString(hist.GetName().data()) ] = hist.MakeTH3();
-                m_hist_3d[ HashString(hist.GetName().data()) ] -> Sumw2();
                 break;
               default:
                 assert((dim >= 1) && (dim <= 3));
@@ -301,13 +298,17 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       void GenerateIndexTags() {
 
+        // set n bins for pt & charge
+        //   - n.b. once more, these will have 1 additional "bin",
+        //     for integration
+        const std::size_t nbins_pt_use = m_nbins_pt + 1;
+        const std::size_t nbins_ch_use = m_nbins_ch + 1;
+
         // build list of indices
-        //   - n.b. the pt and charge bins will have 1 additional "bin",
-        //     corresponding to integrating over pt or charge
         std::vector<Type::HistIndex> indices;
-        for (std::size_t ipt = 0; ipt < m_nbins_pt + 1; ++ipt) {
+        for (std::size_t ipt = 0; ipt < nbins_pt_use; ++ipt) {
           for (std::size_t icf = 0; icf < m_nbins_cf; ++icf) {
-            for (std::size_t ich = 0; ich < m_nbins_ch + 1; ++ich) {
+            for (std::size_t ich = 0; ich < nbins_ch_use; ++ich) {
               for (std::size_t isp = 0; isp < m_nbins_sp; ++isp) {
                 indices.push_back( Type::HistIndex(ipt, icf, ich, isp) );
               }
@@ -509,14 +510,21 @@ namespace PHEnergyCorrelator {
       void GenerateHists() {
 
         // 1st make sure there'll be at least 1 index
-        m_nbins_pt = m_do_pt_bins ? m_nbins_pt : (std::size_t) 1;
+        //   - n.b. as always, not that pt and chrg will add one
+        //     "bin" for integration
+        m_nbins_pt = m_do_pt_bins ? m_nbins_pt : (std::size_t) 0;
         m_nbins_cf = m_do_cf_bins ? m_nbins_cf : (std::size_t) 1;
-        m_nbins_ch = m_do_ch_bins ? m_nbins_ch : (std::size_t) 1;
+        m_nbins_ch = m_do_ch_bins ? m_nbins_ch : (std::size_t) 0;
         m_nbins_sp = m_do_sp_bins ? m_nbins_sp : (std::size_t) 1;
 
         // then create tags for each bin and histogrma prefixes
         GenerateIndexTags();
         GenerateHistPrefix();
+
+        // turn on errors ahead of hist generation
+        TH1::SetDefaultSumw2(true);
+        TH2::SetDefaultSumw2(true);
+        TH3::SetDefaultSumw2(true);
 
         // finally generate appropriate histograms
         //   - TODO add others when ready
@@ -656,9 +664,9 @@ namespace PHEnergyCorrelator {
         m_do_cf_bins  = false;
         m_do_ch_bins  = false;
         m_do_sp_bins  = false;
-        m_nbins_pt    = 1;
+        m_nbins_pt    = 0;  // n.b. there will always be 1 additional integrated "bin"
         m_nbins_cf    = 1;
-        m_nbins_ch    = 1;
+        m_nbins_ch    = 0;  // n.b. there will always be 1 additional integrated "bin"
         m_nbins_sp    = 9;
         m_hist_tag    = "";
         m_hist_pref   = "";
@@ -682,9 +690,9 @@ namespace PHEnergyCorrelator {
         m_do_cf_bins  = false;
         m_do_ch_bins  = false;
         m_do_sp_bins  = false;
-        m_nbins_pt    = 1;
+        m_nbins_pt    = 0;  // n.b. there will always be 1 additional integrated "bin"
         m_nbins_cf    = 1;
-        m_nbins_ch    = 1;
+        m_nbins_ch    = 0;  // n.b. there will always be 1 additional integrated "bin"
         m_nbins_sp    = 9;
         m_hist_tag    = "";
         m_hist_pref   = "";

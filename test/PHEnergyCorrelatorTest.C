@@ -226,9 +226,35 @@ void PHEnergyCorrelatorTest() {
   std::cout << "      --- [PASS] ran third calculation" << std::endl;
 
   // --------------------------------------------------------------------------
+  // Test turning off CF and charge binning
+  // --------------------------------------------------------------------------
+  std::cout << "    Case [5]: test no CF/charge binning" << std::endl;
+
+  // instantiate calculator
+  PHEC::Calculator calc_d(PHEC::Type::Pt);
+  calc_d.SetPtJetBins(ptjetbins);
+  calc_d.SetHistTag("FourthCalculation");
+  calc_d.Init(true);
+
+  // run calculations
+  for (std::size_t ijet = 0; ijet < jets.size(); ++ijet) {
+    for (std::size_t icst_a = 0; icst_a < csts[ijet].size(); ++icst_a) {
+      for (std::size_t icst_b = 0; icst_b < csts[ijet].size(); ++icst_b) {
+
+        // do calculation
+        calc_d.CalcEEC(
+          jets[ijet],
+          std::make_pair(csts[ijet][icst_a], csts[ijet][icst_b])
+        );
+      }
+    }
+  }
+  std::cout << "      --- [PASS] ran fourth calculation" << std::endl;
+
+  // --------------------------------------------------------------------------
   // Save histograms
   // --------------------------------------------------------------------------
-  std::cout << "    Case [5]: test saving histograms" << std::endl;
+  std::cout << "    Case [6]: test saving histograms" << std::endl;
 
   // create output file
   TFile* output = new TFile("test.root", "recreate");
@@ -237,6 +263,7 @@ void PHEnergyCorrelatorTest() {
   calc_a.End(output);
   calc_b.End(output);
   calc_c.End(output);
+  calc_d.End(output);
   std::cout << "      --- [PASS] histograms saved" << std::endl;
 
   // --------------------------------------------------------------------------
