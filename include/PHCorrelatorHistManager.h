@@ -299,7 +299,7 @@ namespace PHEnergyCorrelator {
       void GenerateIndexTags() {
 
         // set n bins for pt & charge
-        //   - n.b. once more, the these will have 1 additional "bin",
+        //   - n.b. once more, these will have 1 additional "bin",
         //     for integration
         const std::size_t nbins_pt_use = m_nbins_pt + 1;
         const std::size_t nbins_ch_use = m_nbins_ch + 1;
