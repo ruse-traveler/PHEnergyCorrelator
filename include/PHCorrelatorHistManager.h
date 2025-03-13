@@ -276,15 +276,12 @@ namespace PHEnergyCorrelator {
             switch (dim) {
               case 1:
                 m_hist_1d[ HashString(hist.GetName().data()) ] = hist.MakeTH1();
-                m_hist_1d[ HashString(hist.GetName().data()) ] -> Sumw2();
                 break;
               case 2:
                 m_hist_2d[ HashString(hist.GetName().data()) ] = hist.MakeTH2();
-                m_hist_2d[ HashString(hist.GetName().data()) ] -> Sumw2();
                 break;
               case 3:
                 m_hist_3d[ HashString(hist.GetName().data()) ] = hist.MakeTH3();
-                m_hist_3d[ HashString(hist.GetName().data()) ] -> Sumw2();
                 break;
               default:
                 assert((dim >= 1) && (dim <= 3));
@@ -517,6 +514,11 @@ namespace PHEnergyCorrelator {
         // then create tags for each bin and histogrma prefixes
         GenerateIndexTags();
         GenerateHistPrefix();
+
+        // turn on errors ahead of hist generation
+        TH1::SetDefaultSumw2(true);
+        TH2::SetDefaultSumw2(true);
+        TH3::SetDefaultSumw2(true);
 
         // finally generate appropriate histograms
         //   - TODO add others when ready
