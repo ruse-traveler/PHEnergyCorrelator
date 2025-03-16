@@ -2247,7 +2247,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 
                     for (
                       std::size_t iTruthCstB = 0;
-                      iTruthCstB < tr_cs_z->at(max_truth_idx).size();
+                      iTruthCstB <= iTruthCstA;
                       ++iTruthCstB
                     ) {
 
@@ -2313,7 +2313,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 
                     for (
                       std::size_t iRecoCstB = 0;
-                      iRecoCstB < re_cs_z->at(indexMax).size();
+                      iRecoCstB <= iRecoCstA;
                       ++iRecoCstB
                     ) {
 
