@@ -137,7 +137,7 @@ void CorrelatorSpeedTest(
 
       // now run calculation
       for (std::size_t iCstA = 0; iCstA < nCst; ++iCstA) {
-        for (std::size_t iCstB = 0; iCstB < nCst; ++iCstB) {
+        for (std::size_t iCstB = 0; iCstB <= iCstA; ++iCstB) {
           calc.CalcEEC(
             jet,
             std::make_pair(csts[iCstA], csts[iCstB])
