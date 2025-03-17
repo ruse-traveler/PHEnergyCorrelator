@@ -269,7 +269,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 
 // define flags to turn on/off certain binnings
 #define doJetCFBins 0
-#define doJetChargeBins 1
+#define doJetChargeBins 0
 
   // pt jet bins
   std::vector< std::pair<float, float> > ptJetBins;
