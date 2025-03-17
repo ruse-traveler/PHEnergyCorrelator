@@ -1138,7 +1138,7 @@ void jetAna(int RUNNUM = 12, int isHI = 0, float R = 0.3, float centLow = 0.0, f
 
                 for (
                   std::size_t iCstB = 0;
-                  iCstB < re_cs_z->at(indexMax).size();
+                  iCstB <= iCstA;
                   ++iCstB
                 ) {
 
