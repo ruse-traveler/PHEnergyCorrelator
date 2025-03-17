@@ -809,7 +809,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 
 // define flags to turn on/off certain binnings
 #define doJetCFBins 0
-#define doJetChargeBins 1
+#define doJetChargeBins 0
 
   // pt jet bins
   std::vector< std::pair<float, float> > ptJetBins;
@@ -1859,7 +1859,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 	// Simulated random values:
 	int r_spinPat = 0; 
 	if((runno==13)||((runno==15)&&(embed==0))) r_spinPat = myRand->Integer(4); // pp 0-3, long or transverse
-	if(((runno==15)&&(embed==1)))r_spinPat = myRand->Integer(2) + 5; // pAu 4-5
+	if(((runno==15)&&(embed==1)))r_spinPat = myRand->Integer(2) + 4; // pAu 4-5
 
 	// must use value from file to get trig eff. correct
 	int even_odd =  ip12_clock_cross%2; 
@@ -2510,6 +2510,8 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 
   //add same and opp spin histos
 
+  /*
+
   hTrueSamePat->Add(hTrueSpinPat[0]);
   hTrueSamePat->Add(hTrueSpinPat[3]);
   hTrueOppPat->Add(hTrueSpinPat[1]);
@@ -2612,6 +2614,8 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   hFFdROppPat_even->Add(hFFdRSpinPat[0][2]);
   hFFdROppPat_odd->Add(hFFdRSpinPat[1][1]);
   hFFdROppPat_odd->Add(hFFdRSpinPat[1][2]);
+  
+  */
 
   // --------------------------------------------------------------------------
   // EEC calculations
