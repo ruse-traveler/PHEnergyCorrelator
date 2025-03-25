@@ -83,7 +83,7 @@ namespace PHEnergyCorrelator {
     //! Default value for double arguments
     // ------------------------------------------------------------------------
     inline double DoubleDefault() {
-      const int def = std::numeric_limits<double>::max();
+      const double def = std::numeric_limits<double>::max();
       return def;
     }
 

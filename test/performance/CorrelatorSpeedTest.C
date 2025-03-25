@@ -20,7 +20,7 @@
 #include <TRandom3.h>
 #include <TStopwatch.h>
 // analysis header
-#include "../include/PHEnergyCorrelator.h"
+#include "../../include/PHEnergyCorrelator.h"
 
 
 
