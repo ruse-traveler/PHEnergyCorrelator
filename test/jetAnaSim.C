@@ -1230,113 +1230,23 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 
   TH1F *hReco = new TH1F("hReco", "Highest pT Reco Jets", NPTBINS, PTBINS);
   hReco->Sumw2();
- 
-  TH1F *hRecoQuarkJets = new TH1F("hRecoQuarkJets", "Highest pT Reco Jets", NPTBINS, PTBINS);
-  hRecoQuarkJets->Sumw2();
-  TH1F *hRecoGluonJets = new TH1F("hRecoGluonJets", "Highest pT Reco Jets", NPTBINS, PTBINS);
-  hRecoGluonJets->Sumw2();
-  
+   
   TH1F *hReco_ERTfired = new TH1F("hReco_ERTfired", "Highest pT Reco Jets", NPTBINS, PTBINS);
   hReco_ERTfired->Sumw2();
-  TH1F *hReco_ERTfiredZg0 = new TH1F("hReco_ERTfiredZg0", "Highest pT Reco Jets (no Zg)", NPTBINS, PTBINS);
-  hReco_ERTfiredZg0->Sumw2();
-  TH1F *hReco_ERTfiredZg1 = new TH1F("hReco_ERTfiredZg1", "Highest pT Reco Jets (valid Zg)", NPTBINS, PTBINS);
-  hReco_ERTfiredZg1->Sumw2();
-  TH1F *hRecoQuarkJets_ERTfired = new TH1F("hRecoQuarkJets_ERTfired", "Highest pT Reco Jets", NPTBINS, PTBINS);
-  hRecoQuarkJets_ERTfired->Sumw2();
-  TH1F *hRecoGluonJets_ERTfired = new TH1F("hRecoGluonJets_ERTfired", "Highest pT Reco Jets", NPTBINS, PTBINS);
-  hRecoGluonJets_ERTfired->Sumw2();
 
   TH2D *hRecoJetCharge_ERTfired = new TH2D("hRecoJetCharge_ERTfired", "Jet Charge vs. Reco Pt", NPTBINS, PTBINS, NJCBINS, JCBINS );
   hRecoJetCharge_ERTfired->Sumw2();
-  TH2D *hRecoJetChargeGluonJets_ERTfired = new TH2D("hRecoJetChargeGluonJets_ERTfired", "Jet Charge vs. Reco Pt", NPTBINS, PTBINS, NJCBINS, JCBINS );
-  hRecoJetChargeGluonJets_ERTfired->Sumw2();
-  TH2D *hRecoJetChargeQuarkJets_ERTfired = new TH2D("hRecoJetChargeQuarkJets_ERTfired", "Jet Charge vs. Reco Pt", NPTBINS, PTBINS, NJCBINS, JCBINS );
-  hRecoJetChargeQuarkJets_ERTfired->Sumw2();
-
-  TH1F *hRecoSamePat = new TH1F("hRecoSamePat_ERTfired", "Same spin: ++/--", NPTBINS, PTBINS);
-  hRecoSamePat->Sumw2();
-  TH1F *hRecoOppPat = new TH1F("hRecoOppPat_ERTfired", "Opp spin: +-/-+", NPTBINS, PTBINS);
-  hRecoOppPat->Sumw2();
-
-  TH1F *hRecoSamePatP = new TH1F("hRecoSamePat_ERTfiredP", "Same spin: ++/--", NPTBINS, PTBINS);
-  hRecoSamePatP->Sumw2();
-  TH1F *hRecoOppPatP = new TH1F("hRecoOppPat_ERTfiredP", "Opp spin: +-/-+", NPTBINS, PTBINS);
-  hRecoOppPatP->Sumw2(); 
-
-  TH1F *hRecoSamePatP2 = new TH1F("hRecoSamePat_ERTfiredP2", "Same spin: ++/--", NPTBINS, PTBINS);
-  hRecoSamePatP2->Sumw2();
-  TH1F *hRecoOppPatP2 = new TH1F("hRecoOppPat_ERTfiredP2", "Opp spin: +-/-+", NPTBINS, PTBINS);
-  hRecoOppPatP2->Sumw2();
-
-  TH1F *hRecoSamePat_even = new TH1F("hRecoSamePat_even_ERTfired", "Same spin: ++/--, even crossing", NPTBINS, PTBINS);
-  hRecoSamePat_even->Sumw2();
-  TH1F *hRecoSamePat_odd = new TH1F("hRecoSamePat_odd_ERTfired", "Same spin: ++/--, odd crossing", NPTBINS, PTBINS);
-  hRecoSamePat_odd->Sumw2();
-  TH1F *hRecoOppPat_even = new TH1F("hRecoOppPat_even_ERTfired", "Opp spin: +-/-+, even crossing", NPTBINS, PTBINS);
-  hRecoOppPat_even->Sumw2();
-  TH1F *hRecoOppPat_odd = new TH1F("hRecoOppPat_odd_ERTfired", "Opp spin: +-/-+, odd crossing", NPTBINS, PTBINS);
-  hRecoOppPat_odd->Sumw2();
-
-  TH1F *hRecoSamePatP_even = new TH1F("hRecoSamePat_even_ERTfiredP", "Same spin: ++/--, even crossing", NPTBINS, PTBINS);
-  hRecoSamePatP_even->Sumw2();
-  TH1F *hRecoSamePatP_odd = new TH1F("hRecoSamePat_odd_ERTfiredP", "Same spin: ++/--, odd crossing", NPTBINS, PTBINS);
-  hRecoSamePatP_odd->Sumw2();
-  TH1F *hRecoOppPatP_even = new TH1F("hRecoOppPat_even_ERTfiredP", "Opp spin: +-/-+, even crossing", NPTBINS, PTBINS);
-  hRecoOppPatP_even->Sumw2();
-  TH1F *hRecoOppPatP_odd = new TH1F("hRecoOppPat_odd_ERTfiredP", "Opp spin: +-/-+, odd crossing", NPTBINS, PTBINS);
-  hRecoOppPatP_odd->Sumw2();
-
-  TH1F *hRecoSamePatP2_even = new TH1F("hRecoSamePat_even_ERTfiredP2", "Same spin: ++/--, even crossing", NPTBINS, PTBINS);
-  hRecoSamePatP2_even->Sumw2();
-  TH1F *hRecoSamePatP2_odd = new TH1F("hRecoSamePat_odd_ERTfiredP2", "Same spin: ++/--, odd crossing", NPTBINS, PTBINS);
-  hRecoSamePatP2_odd->Sumw2();
-  TH1F *hRecoOppPatP2_even = new TH1F("hRecoOppPat_even_ERTfiredP2", "Opp spin: +-/-+, even crossing", NPTBINS, PTBINS);
-  hRecoOppPatP2_even->Sumw2();
-  TH1F *hRecoOppPatP2_odd = new TH1F("hRecoOppPat_odd_ERTfiredP2", "Opp spin: +-/-+, odd crossing", NPTBINS, PTBINS);
-  hRecoOppPatP2_odd->Sumw2();
-
-  TH1F *hRecoSpinPat[2][7];
-  for(unsigned int j = 0; j < 2; j++){
-    for(unsigned int i = 0; i < 7; i++){
-      hRecoSpinPat[j][i] = new TH1F(Form("hRecoSpinPat_%i_%i", j, i), Form("Reco Jets, spinPat: %i %i", j, i), NPTBINS, PTBINS);
-      hRecoSpinPat[j][i]->Sumw2();
-    }
-  }
 
   TH1F *hTrue_Jets = new TH1F("hTrue_Jets", "Truth Jets", NPTBINS, PTBINS);
   hTrue_Jets->Sumw2();
-  TH1F *hTrue_JetsZg0 = new TH1F("hTrue_JetsZg0", "Truth Jets (no zg)", NPTBINS, PTBINS);
-  hTrue_JetsZg0->Sumw2();
-  TH1F *hTrue_JetsZg1 = new TH1F("hTrue_JetsZg1", "Truth Jets (valid zg)", NPTBINS, PTBINS);
-  hTrue_JetsZg1->Sumw2();
 
   TH1F *hTrue_ERTfired = new TH1F("hTrue_ERTfired", "Truth Jets", NPTBINS, PTBINS);
   hTrue_ERTfired->Sumw2();
-  TH1F *hTrue_ERTfiredZg0 = new TH1F("hTrue_ERTfiredZg0", "Truth Jets (no zg)", NPTBINS, PTBINS);
-  hTrue_ERTfiredZg0->Sumw2();
-  TH1F *hTrue_ERTfiredZg1 = new TH1F("hTrue_ERTfiredZg1", "Truth Jets (valid zg)", NPTBINS, PTBINS);
-  hTrue_ERTfiredZg1->Sumw2();
 
   TH1F *hTrueSamePat = new TH1F("hTrueSamePat", "Same spin: ++/--", NPTBINS, PTBINS);
   hTrueSamePat->Sumw2();
   TH1F *hTrueOppPat = new TH1F("hTrueOppPat", "Opp spin: +-/-+", NPTBINS, PTBINS);
   hTrueOppPat->Sumw2();
-
-  TH1F *hTrueSpinPat[7];
-  for(unsigned int i = 0; i < 7; i++){
-    hTrueSpinPat[i] = new TH1F(Form("hTrueSpinPat_%i", i), Form("True Jets, spinPat: %i", i), NPTBINS, PTBINS);
-    hTrueSpinPat[i]->Sumw2();
-  }
-
-  TH2D *hTrueJetChargeGluonJets = new TH2D("hTrueJetChargeGluonJets", "Jet Charge vs. True Pt", NPTBINS, PTBINS, NJCBINS, JCBINS );
-  hTrueJetChargeGluonJets->Sumw2();
-
-  TH2D *hTrueJetChargeUpQuarkJets = new TH2D("hTrueJetChargeUpQuarkJets", "Jet Charge vs. True Pt", NPTBINS, PTBINS, NJCBINS, JCBINS );
-  hTrueJetChargeUpQuarkJets->Sumw2();
-
-  TH2D *hTrueJetChargeDownQuarkJets = new TH2D("hTrueJetChargeDownQuarkJets", "Jet Charge vs. True Pt", NPTBINS, PTBINS, NJCBINS, JCBINS );
-  hTrueJetChargeDownQuarkJets->Sumw2();
 
   TH1F *hReco_bin[sNPTBINS];
   TH1F *hReco_bin_ERTfired[sNPTBINS];
@@ -1364,23 +1274,6 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   TH2D *hOangNoUETrig = new TH2D("hOangNoUETrig", "oang vs. reco p_{T} (no UE)", NPTBINS, PTBINS, NOANGBINS, OANGBINS);
   hOangNoUETrig->Sumw2(); 
 
-  TH2D *hZgSpinPat[2][7];
-  for(unsigned int j = 0; j < 2; j++){
-    for(unsigned int i = 0; i < 7; i++){
-      hZgSpinPat[j][i] = new TH2D(Form("hZgSpinPat_%i_%i", j, i), Form("hZgSpinPat_%i_%i", j, i), NPTBINS, PTBINS, NZGBINS, ZGBINS);
-      hZgSpinPat[j][i]->Sumw2(); 
-    }
-  }
-
-  TH2D *hZgSamePat_even = new TH2D("hZgSamePat_even", "Same spin: ++/--, even crossing", NPTBINS, PTBINS, NZGBINS, ZGBINS);
-  hZgSamePat_even->Sumw2();   
-  TH2D *hZgOppPat_even = new TH2D("hZgOppPat_even", "Opposite spin: +-/-+, even crossing", NPTBINS, PTBINS, NZGBINS, ZGBINS);
-  hZgOppPat_even->Sumw2();   
-  TH2D *hZgSamePat_odd = new TH2D("hZgSamePat_odd", "Same spin: ++/--, odd crossing", NPTBINS, PTBINS, NZGBINS, ZGBINS);
-  hZgSamePat_odd->Sumw2();   
-  TH2D *hZgOppPat_odd = new TH2D("hZgOppPat_odd", "Opposite spin: +-/-+, odd crossing", NPTBINS, PTBINS, NZGBINS, ZGBINS);
-  hZgOppPat_odd->Sumw2();   
-
   TH2D *hFFZ = new TH2D("hFFZ", "z vs. reco p_{T}", NPTBINS, PTBINS, NFFZBINS, FFZBINS);
   hFFZ->Sumw2(); 
 
@@ -1388,23 +1281,6 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   hFFZNoUE->Sumw2(); 
   TH2D *hFFZNoUETrig = new TH2D("hFFZNoUETrig", "z vs. reco p_{T} (no UE)", NPTBINS, PTBINS, NFFZBINS, FFZBINS);
   hFFZNoUETrig->Sumw2(); 
-
-  TH2D *hFFZSpinPat[2][7];
-  for(unsigned int j = 0; j < 2; j++){
-    for(unsigned int i = 0; i < 7; i++){
-      hFFZSpinPat[j][i] = new TH2D(Form("hFFZSpinPat_%i_%i", j, i), Form("hFFZSpinPat_%i_%i", j, i), NPTBINS, PTBINS, NFFZBINS, FFZBINS);
-      hFFZSpinPat[j][i]->Sumw2(); 
-    }
-  }
-
-  TH2D *hFFZSamePat_even = new TH2D("hFFZSamePat_even", "Same spin: ++/--, even crossing", NPTBINS, PTBINS, NFFZBINS, FFZBINS);
-  hFFZSamePat_even->Sumw2();   
-  TH2D *hFFZOppPat_even = new TH2D("hFFZOppPat_even", "Opposite spin: +-/-+, even crossing", NPTBINS, PTBINS, NFFZBINS, FFZBINS);
-  hFFZOppPat_even->Sumw2();   
-  TH2D *hFFZSamePat_odd = new TH2D("hFFZSamePat_odd", "Same spin: ++/--, odd crossing", NPTBINS, PTBINS, NFFZBINS, FFZBINS);
-  hFFZSamePat_odd->Sumw2();   
-  TH2D *hFFZOppPat_odd = new TH2D("hFFZOppPat_odd", "Opposite spin: +-/-+, odd crossing", NPTBINS, PTBINS, NFFZBINS, FFZBINS);
-  hFFZOppPat_odd->Sumw2();   
 
   TH2D *hFFXI = new TH2D("hFFXI", "z vs. reco p_{T}", NPTBINS, PTBINS, NFFXIBINS, FFXIBINS);
   hFFXI->Sumw2(); 
@@ -1414,50 +1290,13 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   TH2D *hFFXINoUETrig = new TH2D("hFFXINoUETrig", "z vs. reco p_{T} (no UE)", NPTBINS, PTBINS, NFFXIBINS, FFXIBINS);
   hFFXINoUETrig->Sumw2(); 
 
-  TH2D *hFFXISpinPat[2][7];
-  for(unsigned int j = 0; j < 2; j++){
-    for(unsigned int i = 0; i < 7; i++){
-      hFFXISpinPat[j][i] = new TH2D(Form("hFFXISpinPat_%i_%i", j, i), Form("hFFXISpinPat_%i_%i", j, i), NPTBINS, PTBINS, NFFXIBINS, FFXIBINS);
-      hFFXISpinPat[j][i]->Sumw2(); 
-    }
-  }
-
-  TH2D *hFFXISamePat_even = new TH2D("hFFXISamePat_even", "Same spin: ++/--, even crossing", NPTBINS, PTBINS, NFFXIBINS, FFXIBINS);
-  hFFXISamePat_even->Sumw2();   
-  TH2D *hFFXIOppPat_even = new TH2D("hFFXIOppPat_even", "Opposite spin: +-/-+, even crossing", NPTBINS, PTBINS, NFFXIBINS, FFXIBINS);
-  hFFXIOppPat_even->Sumw2();   
-  TH2D *hFFXISamePat_odd = new TH2D("hFFXISamePat_odd", "Same spin: ++/--, odd crossing", NPTBINS, PTBINS, NFFXIBINS, FFXIBINS);
-  hFFXISamePat_odd->Sumw2();   
-  TH2D *hFFXIOppPat_odd = new TH2D("hFFXIOppPat_odd", "Opposite spin: +-/-+, odd crossing", NPTBINS, PTBINS, NFFXIBINS, FFXIBINS);
-  hFFXIOppPat_odd->Sumw2();   
-
-  //TH2D *hFFJT = new TH2D("hFFJT", "jT vs. reco p_{T}", NPTBINS, PTBINS, NFFJTBINS, FFJTBINS);
   TH2D *hFFJT = new TH2D("hFFJT", "jT/pT vs. reco p_{T}", NPTBINS, PTBINS, NFFJTBINS, FFJTBINS);
   hFFJT->Sumw2(); 
 
-  //TH2D *hFFJTNoUE = new TH2D("hFFJTNoUE", "jT vs. reco p_{T} (no UE)", NPTBINS, PTBINS, NFFJTBINS, FFJTBINS);
   TH2D *hFFJTNoUE = new TH2D("hFFJTNoUE", "jT/pT vs. reco p_{T} (no UE)", NPTBINS, PTBINS, NFFJTBINS, FFJTBINS);
   hFFJTNoUE->Sumw2(); 
-  //TH2D *hFFJTNoUETrig = new TH2D("hFFJTNoUETrig", "jT vs. reco p_{T} (no UE)", NPTBINS, PTBINS, NFFJTBINS, FFJTBINS);
   TH2D *hFFJTNoUETrig = new TH2D("hFFJTNoUETrig", "jT/pT vs. reco p_{T} (no UE)", NPTBINS, PTBINS, NFFJTBINS, FFJTBINS);
   hFFJTNoUETrig->Sumw2(); 
-
-  TH2D *hFFJTSpinPat[2][7];
-  for(unsigned int j = 0; j < 2; j++){
-    for(unsigned int i = 0; i < 7; i++){
-      hFFJTSpinPat[j][i] = new TH2D(Form("hFFJTSpinPat_%i_%i", j, i), Form("hFFJTSpinPat_%i_%i", j, i), NPTBINS, PTBINS, NFFJTBINS, FFJTBINS);
-      hFFJTSpinPat[j][i]->Sumw2(); 
-    }
-  }
-
-  TH2D *hFFJTSamePat_even = new TH2D("hFFJTSamePat_even", "Same spin: ++/--, even crossing", NPTBINS, PTBINS, NFFJTBINS, FFJTBINS);
-  hFFJTSamePat_even->Sumw2();   
-  TH2D *hFFJTOppPat_even = new TH2D("hFFJTOppPat_even", "Opposite spin: +-/-+, even crossing", NPTBINS, PTBINS, NFFJTBINS, FFJTBINS);
-  hFFJTOppPat_even->Sumw2();   
-  TH2D *hFFJTSamePat_odd = new TH2D("hFFJTSamePat_odd", "Same spin: ++/--, odd crossing", NPTBINS, PTBINS, NFFJTBINS, FFJTBINS);
-  hFFJTSamePat_odd->Sumw2();   
-  TH2D *hFFJTOppPat_odd = new TH2D("hFFJTOppPat_odd", "Opposite spin: +-/-+, odd crossing", NPTBINS, PTBINS, NFFJTBINS, FFJTBINS);
-  hFFJTOppPat_odd->Sumw2();   
 
   TH2D *hFFdR = new TH2D("hFFdR", "dR vs. reco p_{T}", NPTBINS, PTBINS, NFFDRBINS, FFDRBINS);
   hFFdR->Sumw2(); 
@@ -1465,84 +1304,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   TH2D *hFFdRNoUE = new TH2D("hFFdRNoUE", "dR vs. reco p_{T} (noUE)", NPTBINS, PTBINS, NFFDRBINS, FFDRBINS);
   hFFdRNoUE->Sumw2(); 
   TH2D *hFFdRNoUETrig = new TH2D("hFFdRNoUETrig", "dR vs. reco p_{T} (noUE)", NPTBINS, PTBINS, NFFDRBINS, FFDRBINS);
-  hFFdRNoUETrig->Sumw2(); 
-
-  TH2D *hFFdRSpinPat[2][7];
-  for(unsigned int j = 0; j < 2; j++){
-    for(unsigned int i = 0; i < 7; i++){
-      hFFdRSpinPat[j][i] = new TH2D(Form("hFFdRSpinPat_%i_%i", j, i), Form("hFFdRSpinPat_%i_%i", j, i), NPTBINS, PTBINS, NFFDRBINS, FFDRBINS);
-      hFFdRSpinPat[j][i]->Sumw2(); 
-    }
-  }
-
-  TH2D *hFFdRSamePat_even = new TH2D("hFFdRSamePat_even", "Same spin: ++/--, even crossing", NPTBINS, PTBINS, NFFDRBINS, FFDRBINS);
-  hFFdRSamePat_even->Sumw2();   
-  TH2D *hFFdROppPat_even = new TH2D("hFFdROppPat_even", "Opposite spin: +-/-+, even crossing", NPTBINS, PTBINS, NFFDRBINS, FFDRBINS);
-  hFFdROppPat_even->Sumw2();   
-  TH2D *hFFdRSamePat_odd = new TH2D("hFFdRSamePat_odd", "Same spin: ++/--, odd crossing", NPTBINS, PTBINS, NFFDRBINS, FFDRBINS);
-  hFFdRSamePat_odd->Sumw2();   
-  TH2D *hFFdROppPat_odd = new TH2D("hFFdROppPat_odd", "Opposite spin: +-/-+, odd crossing", NPTBINS, PTBINS, NFFDRBINS, FFDRBINS);
-  hFFdROppPat_odd->Sumw2();   
-
-  // Phi distribution w.r.t the jet axis as a function of jet pT, z
-  // Only valid for spin 
-
-  TH2D *hJetPhiBluePol[2][2];
-  TH2D *hJetPhiYellowPol[2][2];
-  TH2D *hJetPhiBluePolJCPos[2][2];
-  TH2D *hJetPhiYellowPolJCPos[2][2];
-  TH2D *hJetPhiBluePolJCNeg[2][2];
-  TH2D *hJetPhiYellowPolJCNeg[2][2];
-  for(unsigned int i = 0; i < 2; i++){
-    for(unsigned int j = 0; j < 2; j++){
-      hJetPhiBluePol[i][j] = new TH2D(Form("hJetPhiBluePol_%i_%i", i, j), Form("hFFPhiBluePol_%i_%i", i, j), NPTBINS, PTBINS, NFFPHIBINS, FFPHIBINS);
-      hJetPhiBluePol[i][j]->Sumw2(); 
-      hJetPhiYellowPol[i][j] = new TH2D(Form("hJetPhiYellowPol_%i_%i", i, j), Form("hFFPhiYellowPol_%i_%i", i, j), NPTBINS, PTBINS, NFFPHIBINS, FFPHIBINS);
-      hJetPhiYellowPol[i][j]->Sumw2(); 
-      hJetPhiBluePolJCPos[i][j] = new TH2D(Form("hJetPhiBluePolJCPos_%i_%i", i, j), Form("hFFPhiBluePolJCPos_%i_%i", i, j), NPTBINS, PTBINS, NFFPHIBINS, FFPHIBINS);
-      hJetPhiBluePolJCPos[i][j]->Sumw2(); 
-      hJetPhiYellowPolJCPos[i][j] = new TH2D(Form("hJetPhiYellowPolJCPos_%i_%i", i, j), Form("hFFPhiYellowPolJCPos_%i_%i", i, j), NPTBINS, PTBINS, NFFPHIBINS, FFPHIBINS);
-      hJetPhiYellowPolJCPos[i][j]->Sumw2(); 
-      hJetPhiBluePolJCNeg[i][j] = new TH2D(Form("hJetPhiBluePolJCNeg_%i_%i", i, j), Form("hFFPhiBluePolJCNeg_%i_%i", i, j), NPTBINS, PTBINS, NFFPHIBINS, FFPHIBINS);
-      hJetPhiBluePolJCNeg[i][j]->Sumw2(); 
-      hJetPhiYellowPolJCNeg[i][j] = new TH2D(Form("hJetPhiYellowPolJCNeg_%i_%i", i, j), Form("hFFPhiYellowPolJCNeg_%i_%i", i, j), NPTBINS, PTBINS, NFFPHIBINS, FFPHIBINS);
-      hJetPhiYellowPolJCNeg[i][j]->Sumw2(); 
-    }
-  }
-
-  TH3D *hFFPhiBluePolPos[2][2];
-  TH3D *hFFPhiYellowPolPos[2][2];
-  TH3D *hFFPhiBluePolNeg[2][2];
-  TH3D *hFFPhiYellowPolNeg[2][2];
-  for(unsigned int i = 0; i < 2; i++){
-    for(unsigned int j = 0; j < 2; j++){
-      hFFPhiBluePolPos[i][j] = new TH3D(Form("hFFPhiBluePolPos_%i_%i", i, j), Form("hFFPhiBluePolPos_%i_%i", i, j), NPTBINS, PTBINS, NFFZBINS, FFZBINS, NFFPHIBINS, FFPHIBINS);
-      hFFPhiBluePolPos[i][j]->Sumw2(); 
-      hFFPhiYellowPolPos[i][j] = new TH3D(Form("hFFPhiYellowPolPos_%i_%i", i, j), Form("hFFPhiYellowPolPos_%i_%i", i, j), NPTBINS, PTBINS, NFFZBINS, FFZBINS, NFFPHIBINS, FFPHIBINS);
-      hFFPhiYellowPolPos[i][j]->Sumw2(); 
-      hFFPhiBluePolNeg[i][j] = new TH3D(Form("hFFPhiBluePolNeg_%i_%i", i, j), Form("hFFPhiBluePolPosNeg_%i_%i", i, j), NPTBINS, PTBINS, NFFZBINS, FFZBINS, NFFPHIBINS, FFPHIBINS);
-      hFFPhiBluePolNeg[i][j]->Sumw2(); 
-      hFFPhiYellowPolNeg[i][j] = new TH3D(Form("hFFPhiYellowPolNeg_%i_%i", i, j), Form("hFFPhiYellowPolNeg_%i_%i", i, j), NPTBINS, PTBINS, NFFZBINS, FFZBINS, NFFPHIBINS, FFPHIBINS);
-      hFFPhiYellowPolNeg[i][j]->Sumw2(); 
-    }
-  }
-
-  TH3D *hFFTwoPhiBluePolPos[2][2];
-  TH3D *hFFTwoPhiYellowPolPos[2][2];
-  TH3D *hFFTwoPhiBluePolNeg[2][2];
-  TH3D *hFFTwoPhiYellowPolNeg[2][2];
-  for(unsigned int i = 0; i < 2; i++){
-    for(unsigned int j = 0; j < 2; j++){
-      hFFTwoPhiBluePolPos[i][j] = new TH3D(Form("hFFTwoPhiBluePolPos_%i_%i", i, j), Form("hFFTwoPhiBluePolPos_%i_%i", i, j), NPTBINS, PTBINS, NFFZBINS, FFZBINS, NFFPHIBINS, FFPHIBINS);
-      hFFTwoPhiBluePolPos[i][j]->Sumw2(); 
-      hFFTwoPhiYellowPolPos[i][j] = new TH3D(Form("hFFTwoPhiYellowPolPos_%i_%i", i, j), Form("hFFTwoPhiYellowPolPos_%i_%i", i, j), NPTBINS, PTBINS, NFFZBINS, FFZBINS, NFFPHIBINS, FFPHIBINS);
-      hFFTwoPhiYellowPolPos[i][j]->Sumw2(); 
-      hFFTwoPhiBluePolNeg[i][j] = new TH3D(Form("hFFTwoPhiBluePolNeg_%i_%i", i, j), Form("hFFTwoPhiBluePolPosNeg_%i_%i", i, j), NPTBINS, PTBINS, NFFZBINS, FFZBINS, NFFPHIBINS, FFPHIBINS);
-      hFFTwoPhiBluePolNeg[i][j]->Sumw2(); 
-      hFFTwoPhiYellowPolNeg[i][j] = new TH3D(Form("hFFTwoPhiYellowPolNeg_%i_%i", i, j), Form("hFFTwoPhiYellowPolNeg_%i_%i", i, j), NPTBINS, PTBINS, NFFZBINS, FFZBINS, NFFPHIBINS, FFPHIBINS);
-      hFFTwoPhiYellowPolNeg[i][j]->Sumw2(); 
-    }
-  }
+  hFFdRNoUETrig->Sumw2();   
 
   // jet yield in run number vs. IP12 crossing
 
@@ -1571,23 +1333,6 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   // Test histogram
 
   TH1D *hEmbed = new TH1D("hEmbed","",2,-0.5,1.5); 
-
-  // Event weights for A_LL
-
-  TH1D *hALLWeight = new TH1D("hALLWeight","",100,-2.0,2.0); 
-  TH1D *hALLWeightReco = new TH1D("hALLWeightReco","",100,-2.0,2.0); 
-  TH1D *hProcessID = new TH1D("hProcessID","",101,-0.5,100.5); 
-  TH1D *hProcessIDBiased = new TH1D("hProcessIDBiased","",101,-0.5,100.5); 
-  TH1D *hProcessIDLargeWeight = new TH1D("hProcessIDLargeWeight","",101,-0.5,100.5); 
-
-  TH1D *hProcessIDCkin[snCkinRuns]; 
-  TH1D *hProcessIDBiasedCkin[snCkinRuns]; 
-  TH1D *hProcessIDLargeWeightCkin[snCkinRuns]; 
-  for(unsigned int i=0; i<snCkinRuns; i++){
-    hProcessIDCkin[i] = new TH1D(Form("hProcessIDCkin%d",i),"",101,-0.5,100.5); 
-    hProcessIDBiasedCkin[i] = new TH1D(Form("hProcessIDBiasedCkin%i",i),"",101,-0.5,100.5); 
-    hProcessIDLargeWeightCkin[i] = new TH1D(Form("hProcessIDLargeWeightCkin%i",i),"",101,-0.5,100.5); 
-  }
 
   // Random number generator (for spin pattern)
   myRand = new TRandom3(); 
@@ -1775,7 +1520,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 	return; 
       }
 
-      cout << " Processing CKIN = " << ckins[index] << endl; 
+      cout << " Processing CKIN = " << ckins[index] << endl;
 
       LinkMatchedVars(tReco, tMatch, tTrue);
 
@@ -1787,9 +1532,9 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 
       for(unsigned long long iEnt = 0; iEnt < nEntries; iEnt++){
 
-	if(halfstats==1){
-	  // skip half the statistics
-	  if(myRand->Uniform(1.0)<0.5) continue; 
+	if( (halfstats==1) && (iEnt%2 == 0)){
+	  // skip half the statistics (even numbers)
+	  continue; 
 	}
 
 	tReco->GetEntry(iEnt);
@@ -1798,9 +1543,6 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 
 	hEmbed->Fill((double)embed); 
       
-	hProcessID->Fill(process_id); 
-	hProcessIDCkin[index]->Fill(process_id); 
-
 	// Set the event weight - 
 	// If NLO weighting is used then we need to decide how to 
 	// do that. We use the highest energy truth jet or Q^2
@@ -1864,61 +1606,9 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 	// must use value from file to get trig eff. correct
 	int even_odd =  ip12_clock_cross%2; 
 	if((even_odd<0)||(even_odd>1)) even_odd = myRand->Integer(2); 
-
-	// Calculate the A_LL weight
-
-	float aLL_weight = 1.0;
-	double ALLSim = 0.0; 
-	if(weightALL==1 && (evt_Qsqr>=0.8) && (evt_Qsqr<=1.0e6)){  // respect DSSV limits
-	  ALLSim = GetPolEventWeight(r_spinPat); 
-	  hALLWeight->Fill(ALLSim); 
-	  if(fabs(ALLSim)>1){
-	    hProcessIDLargeWeight->Fill(process_id);
-	    hProcessIDLargeWeightCkin[index]->Fill(process_id);
-	  }
-	  if((r_spinPat==1)||(r_spinPat==2)) aLL_weight = (1.0 - ALLSim);  // opp sign
-	  if((r_spinPat==0)||(r_spinPat==3)) aLL_weight = (1.0 + ALLSim);  // same sign
-	}
-  
+ 
 	hVertex->Fill(vertex,evWeight);
-      
         hTrue_Jets->Fill(t_pT[max_truth_idx],evWeight); 
-	if(t_zg[max_truth_idx]>0.0)
-	  hTrue_JetsZg1->Fill(t_pT[max_truth_idx],evWeight); 
-	else
-	  hTrue_JetsZg0->Fill(t_pT[max_truth_idx],evWeight); 
-
-	// Used to get true A_LL curve
-
-#define doTrue 1
-
-
-	if(doTrue){
-
-	  for(int i = 0; i < nTruthJets; i++){
-	    if(fabs(t_eta[i])<0.15) {
-	      hTrueSpinPat[r_spinPat]->Fill(t_pT[i],evWeight*aLL_weight);
-	    }
-	  }
-
-	}
-
-	// -- 
-
-	// Store the jet charge vs. true pT (sPHENIX study)
-
-	if(max_truth_idx>=0){
-	
-	  int tjetID = ConnectJetToParton(max_truth_idx); 
-
-	  if(((tjetID==21)||(tjetID==1)||(tjetID==2)) && (fabs(t_eta[max_truth_idx])<0.6)){
-	    double jC = JetChargeTrue(max_truth_idx); 
-	    if(tjetID==21) hTrueJetChargeGluonJets->Fill(t_pT[max_truth_idx],jC,csWeight); 
-	    if(tjetID==1)  hTrueJetChargeDownQuarkJets->Fill(t_pT[max_truth_idx],jC,csWeight); 
-	    if(tjetID==2)  hTrueJetChargeUpQuarkJets->Fill(t_pT[max_truth_idx],jC,csWeight); 
-	  }
-
-	}
 
 	// --
 
@@ -1956,9 +1646,6 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 	    continue; 
 	  }
 
-	  hProcessIDBiased->Fill(process_id); 
-	  hProcessIDBiasedCkin[index]->Fill(process_id); 
-
 	  float r_maxPt = -9999.0; 
 	  if(useML)
 	    r_maxPt = r_ml_pT[indexMax];
@@ -1970,19 +1657,7 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 	  int binReco = GetBin(r_maxPt, NPTBINS, PTBINS);
 	  if(binReco<0) continue; 
 
-	  // Connect this to a scattered parton
-
-	  int jetID = -9999; 
-	  for(int iJet = 0; iJet < nMatchedJets; iJet++){
-	    if(m_r_idx[iJet]!=indexMax) continue; 
-	    jetID = ConnectJetToParton(m_t_idx[iJet]); 
-	    break; 
-	  }
-
 	  hReco->Fill(r_maxPt,evWeight);
-	  if(abs(jetID)<=6)  hRecoQuarkJets->Fill(r_maxPt,evWeight);
-	  if(jetID==21) hRecoGluonJets->Fill(r_maxPt,evWeight);
-
 	  hCF->Fill(r_maxPt, r_cf[indexMax],evWeight); 
 	  hPhi->Fill(r_phi[indexMax],evWeight); 
 	  hNC->Fill(r_maxPt, r_nc[indexMax],evWeight); 
@@ -2027,27 +1702,19 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 	  if(trigFired){
 
 	    hReco_ERTfired->Fill(r_maxPt,evWeight);
-	    if(abs(jetID)<=6)  hRecoQuarkJets_ERTfired->Fill(r_maxPt,evWeight);
-	    if(abs(jetID)==21) hRecoGluonJets_ERTfired->Fill(r_maxPt,evWeight);
 
 	    double jetCharge = JetCharge(indexMax); 
 	    hRecoJetCharge_ERTfired->Fill(r_maxPt,jetCharge);
-	    if(abs(jetID)<=6) hRecoJetChargeQuarkJets_ERTfired->Fill(r_maxPt,jetCharge);
-	    if(abs(jetID)==21) hRecoJetChargeGluonJets_ERTfired->Fill(r_maxPt,jetCharge);
 
 	    hReco_bin_ERTfired[binReco]->Fill(r_maxPt,evWeight);
  	
 	    // get the index of the matched truth jet
 	  
+	    int matched_truth_idx = -1; 
 	    for(int ij2 = 0; ij2<nMatchedJets; ij2++){
 	      if(m_r_idx[ij2]==indexMax){
-
+		matched_truth_idx = m_t_idx[ij2];
 		hTrue_ERTfired->Fill(t_pT[m_t_idx[ij2]],evWeight); 
-		if(t_zg[m_t_idx[ij2]]>0.0)
-		  hTrue_ERTfiredZg1->Fill(t_pT[m_t_idx[ij2]],evWeight); 
-		else
-		  hTrue_ERTfiredZg0->Fill(t_pT[m_t_idx[ij2]],evWeight); 
-
 		break; 
 	      }
 	    }
@@ -2070,7 +1737,6 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 
 	      for(unsigned int i=0; i<re_cs_jT->at(indexMax).size(); i++){
 		if(re_cs_charge->at(indexMax).at(i)==0.0) continue;
-		//if(re_cs_UE->at(indexMax).at(i)==0) hFFJTNoUETrig->Fill(r_maxPt, re_cs_jT->at(indexMax).at(i),evWeight);
 		if(re_cs_UE->at(indexMax).at(i)==0) hFFJTNoUETrig->Fill(r_maxPt, re_cs_jT->at(indexMax).at(i)/r_maxPt,evWeight);
 	      }
 
@@ -2080,15 +1746,9 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 	      }
 	    }
 
-	    //JetYield->Fill(r_ip12_clock_cross, r_runNumber,evWeight); 
-	    //JetYieldNar->Fill(r_ip12_clock_cross, r_runNumber,evWeight);
 	    if(r_zg[indexMax]>=0.1 && r_zg[indexMax]<=0.5) {
 	      hZg->Fill(r_maxPt,r_zg[indexMax],evWeight); 
 	      hOang->Fill(r_maxPt,r_oang[indexMax],evWeight); 
-	      if(r_zg[indexMax]>=0.1 && r_zg[indexMax]<0.3 )
-		hReco_ERTfiredZg0->Fill(r_maxPt,evWeight);
-	      else
-		hReco_ERTfiredZg1->Fill(r_maxPt,evWeight);
 	    }
 
 	    for(unsigned int i=0; i<re_cs_z->at(indexMax).size(); i++){
@@ -2099,7 +1759,6 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 
 	    for(unsigned int i=0; i<re_cs_jT->at(indexMax).size(); i++){
 	      if(re_cs_charge->at(indexMax).at(i)==0.0) continue;
-	      //hFFJT->Fill(r_maxPt, re_cs_jT->at(indexMax).at(i),evWeight); 
 	      hFFJT->Fill(r_maxPt, re_cs_jT->at(indexMax).at(i)/r_maxPt,evWeight); 
 	    }
 
@@ -2108,178 +1767,9 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 	      hFFdR->Fill(r_maxPt, re_cs_dR->at(indexMax).at(i),evWeight); 
 	    }
 
-	    //spin pattern histos
-	    // 0 = even, 1 = odd
-
-	    hALLWeightReco->Fill(ALLSim); 
-
 	    if(r_spinPat < 6){
 
-	      hRecoSpinPat[even_odd][r_spinPat]->Fill(r_maxPt,evWeight*aLL_weight);
-
-	      if(r_zg[indexMax]>0.0) hZgSpinPat[even_odd][r_spinPat]->Fill(r_maxPt, r_zg[indexMax],evWeight); 
-
-	      for(unsigned int i=0; i<re_cs_z->at(indexMax).size(); i++){
-		if(re_cs_charge->at(indexMax).at(i)==0.0) continue; 
-		hFFZSpinPat[even_odd][r_spinPat]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i),evWeight); 
-		hFFXISpinPat[even_odd][r_spinPat]->Fill(r_maxPt, -log(re_cs_z->at(indexMax).at(i)),evWeight); 
-	      }
-
-	      for(unsigned int i=0; i<re_cs_jT->at(indexMax).size(); i++){
-		if(re_cs_charge->at(indexMax).at(i)==0.0) continue;  
-		//hFFJTSpinPat[even_odd][r_spinPat]->Fill(r_maxPt, re_cs_jT->at(indexMax).at(i),evWeight); 
-		hFFJTSpinPat[even_odd][r_spinPat]->Fill(r_maxPt, re_cs_jT->at(indexMax).at(i)/r_maxPt,evWeight); 
-	      }
-
-	      for(unsigned int i=0; i<re_cs_dR->at(indexMax).size(); i++){
-		if(re_cs_charge->at(indexMax).at(i)==0.0) continue;   
-		hFFdRSpinPat[even_odd][r_spinPat]->Fill(r_maxPt, re_cs_dR->at(indexMax).at(i),evWeight); 
-	      }
-
 	      if(((runno==12)||(runno==15))){
-
-		// Collins histograms
-		// define unit vectors for angles
-
-		TVector3 blue_beam(0.0,0.0,1.0); 
-		TVector3 yellow_beam(0.0,0.0,-1.0); 
-
-		TVector3 blue_spin(0.0,1.0,0.0);
-		if((r_spinPat==1)||(r_spinPat==3)) 
-		  blue_spin.SetY(-1.0); 
-		else if((r_spinPat==0)||(r_spinPat==2)) 
-		  blue_spin.SetY(1.0);
-		else if(r_spinPat==4)
-		  blue_spin.SetY(1.0);
-		else if(r_spinPat==5)
-		  blue_spin.SetY(-1.0);
-
-		TVector3 yellow_spin(0.0,0.0,0.0);
-		if((r_spinPat==0)||(r_spinPat==1)) 
-		  yellow_spin.SetY(1.0); 
-		else if((r_spinPat==2)||(r_spinPat==3)) 
-		  yellow_spin.SetY(-1.0); 
-
-		double theta = 2.0*atan(exp(-r_eta[indexMax]));
-		double pz = r_maxPt/tan(theta); 
-		double px = (pz/cos(theta))*cos(r_phi[indexMax]); 
-		double py = (pz/cos(theta))*sin(r_phi[indexMax]); 
-
-		TVector3 jet(px,py,pz); 
-		double jet_norm = jet.Mag(); 
-		jet.SetX(jet.X()/jet_norm); 
-		jet.SetY(jet.Y()/jet_norm); 
-		jet.SetZ(jet.Z()/jet_norm); 
-
-		// PhiSpin is the angle between the plane defined by the
-		// polarized beam and the jet
-
-		TVector3 jet_blue_beam_perp = (blue_beam.Cross(jet)).Unit();  
-		TVector3 jet_yellow_beam_perp = (yellow_beam.Cross(jet)).Unit();  
-	 
-		double bluePhiSpin = TMath::PiOver2() - acos(jet_blue_beam_perp.Dot(blue_spin));
-		double yellowPhiSpin = 0.0; 
-		if(r_spinPat<4) yellowPhiSpin = TMath::PiOver2() - acos(jet_yellow_beam_perp.Dot(yellow_spin)); 
-	  
-		if((r_spinPat==2)||(r_spinPat==3)||(r_spinPat==5)){
-		  hJetPhiBluePol[1][even_odd]->Fill(r_maxPt,  bluePhiSpin); // spin down 
-		  if(jetCharge>0.0)
-		    hJetPhiBluePolJCPos[1][even_odd]->Fill(r_maxPt,  bluePhiSpin); // spin down 
-		  else
-		    hJetPhiBluePolJCNeg[1][even_odd]->Fill(r_maxPt,  bluePhiSpin); // spin down 
-		}
-		else{
-		  hJetPhiBluePol[0][even_odd]->Fill(r_maxPt,  bluePhiSpin); // spin up 
-		  if(jetCharge>0.0)
-		    hJetPhiBluePolJCPos[0][even_odd]->Fill(r_maxPt,  bluePhiSpin); // spin up 
-		  else
-		    hJetPhiBluePolJCNeg[0][even_odd]->Fill(r_maxPt,  bluePhiSpin); // spin up 
-		}
-	
-		if((r_spinPat==1)||(r_spinPat==3)||(r_spinPat==4)){
-		  hJetPhiYellowPol[1][even_odd]->Fill(r_maxPt,  yellowPhiSpin); // spin down
-		  if(jetCharge>0.0)
-		    hJetPhiYellowPolJCPos[1][even_odd]->Fill(r_maxPt,  yellowPhiSpin); // spin down
-		  else
-		    hJetPhiYellowPolJCNeg[1][even_odd]->Fill(r_maxPt,  yellowPhiSpin); // spin down
-		}
-		else{
-		  hJetPhiYellowPol[0][even_odd]->Fill(r_maxPt,  yellowPhiSpin); // spin up 
-		  if(jetCharge>0.0)
-		    hJetPhiYellowPolJCPos[0][even_odd]->Fill(r_maxPt,  yellowPhiSpin); // spin up 
-		  else
-		    hJetPhiYellowPolJCNeg[0][even_odd]->Fill(r_maxPt,  yellowPhiSpin); // spin up 
-		}
-
-                // ----------------------------------------------------------------------
-                // EEC calculation over max pt truth jets
-                // ----------------------------------------------------------------------
-                /* N.B. cuts on jet pt and eta are baked into the requirement
-                 *   that max_truth_idx >= 0. A max truth jet has to satisfy
-                 *   these cuts.
-                 */
-                if (doTrue && doTrueEEC && (max_truth_idx>=0)) {
-
-                  // calculate truth jet charge
-                  const double jetChargeTrue = JetChargeTrue(max_truth_idx);
-
-                  // collect jet and spin information into a handy struct
-                  PHEC::Type::Jet jet_true(
-		    t_cf[max_truth_idx],
-                    t_pT[max_truth_idx],
-                    t_eta[max_truth_idx],
-                    t_phi[max_truth_idx],
-                    jetChargeTrue,
-                    r_spinPat
-                  );
-
-                  // loop through pairs of constituents
-                  for (
-                    std::size_t iTruthCstA = 0;
-                    iTruthCstA < tr_cs_z->at(max_truth_idx).size();
-                    ++iTruthCstA
-                  ) {
-
-		    // keep only charged cst.s
-		    if (doTrueEECChargedOnly && (tr_cs_charge->at(max_truth_idx).at(iTruthCstA) == 0.0)) {
-		      continue;
-		    }
-
-                    for (
-                      std::size_t iTruthCstB = 0;
-                      iTruthCstB <= iTruthCstA;
-                      ++iTruthCstB
-                    ) {
-
-		      // keep only charged cst.s
-		      if (doTrueEECChargedOnly && (tr_cs_charge->at(max_truth_idx).at(iTruthCstB) == 0.0)) {
-			continue;
-		      }
-
-                      // collect cst information into a handy struct
-                      PHEC::Type::Cst cstA_true(
-                        tr_cs_z->at(max_truth_idx).at(iTruthCstA),
-                        tr_cs_jT->at(max_truth_idx).at(iTruthCstA),
-                        tr_cs_eta->at(max_truth_idx).at(iTruthCstA),
-                        tr_cs_phi->at(max_truth_idx).at(iTruthCstA),
-                        tr_cs_charge->at(max_truth_idx).at(iTruthCstA)
-                      );
-                      PHEC::Type::Cst cstB_true(
-                        tr_cs_z->at(max_truth_idx).at(iTruthCstB),
-                        tr_cs_jT->at(max_truth_idx).at(iTruthCstB),
-                        tr_cs_eta->at(max_truth_idx).at(iTruthCstB),
-                        tr_cs_phi->at(max_truth_idx).at(iTruthCstB),
-                        tr_cs_charge->at(max_truth_idx).at(iTruthCstB)
-                      );
-
-                      // run 2-point calculation for pair
-                      trueEEC.CalcEEC( jet_true, std::make_pair(cstA_true, cstB_true), evWeight );
-
-                    }  // end 2nd cst loop
-                  }  // end 1st cst loop
-                }  // end max truth jet eec calculation
-
-                // ------------------------------------------------------------------
 
                 // ------------------------------------------------------------------
                 // EEC calculation over max pt reco jets
@@ -2347,123 +1837,77 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 
                 // ------------------------------------------------------------------
 
-		for(unsigned int i=0; i<re_cs_z->at(indexMax).size(); i++){
-		  if(re_cs_charge->at(indexMax).at(i)==0.0) continue;   
 
-		  // PhiHadron is the angle between the plane defined by the 
-		  // polarized beam and the jet (above) and the plane containing the 
-		  // jet and the hadron
+                // ----------------------------------------------------------------------
+                // EEC calculation over max pt truth jets
+                // ----------------------------------------------------------------------
+                /* N.B. cuts on jet pt and eta are baked into the requirement
+                 *   that matched_truth_idx >= 0. A max truth jet has to satisfy
+                 *   these cuts.
+                 */
+                if (doTrueEEC && (matched_truth_idx>=0)) {
 
-		  double ph = sqrt(pow(re_cs_z->at(indexMax).at(i)*r_maxPt,2) + 
-				   pow(re_cs_jT->at(indexMax).at(i),2) ); 
+                  // calculate truth jet charge
+                  const double jetChargeTrue = JetChargeTrue(matched_truth_idx);
 
-		  double htheta = 2.0*atan(exp(-re_cs_eta->at(indexMax).at(i)));
-		  double px = ph*sin(htheta)*cos(re_cs_phi->at(indexMax).at(i));
-		  double py = ph*sin(htheta)*sin(re_cs_phi->at(indexMax).at(i));
-		  double pz = ph*cos(htheta);
+                  // collect jet and spin information into a handy struct
+                  PHEC::Type::Jet jet_true(
+		    t_cf[matched_truth_idx],
+                    t_pT[matched_truth_idx],
+                    t_eta[matched_truth_idx],
+                    t_phi[matched_truth_idx],
+                    jetChargeTrue,
+                    r_spinPat
+                  );
 
-		  TVector3 hadron(px,py,pz);
-		  double hadron_norm = hadron.Mag(); 
-		  hadron.SetX(hadron.X()/hadron_norm); 
-		  hadron.SetY(hadron.Y()/hadron_norm); 
-		  hadron.SetZ(hadron.Z()/hadron_norm); 
+                  // loop through pairs of constituents
+                  for (
+                    std::size_t iTruthCstA = 0;
+                    iTruthCstA < tr_cs_z->at(matched_truth_idx).size();
+                    ++iTruthCstA
+                  ) {
 
-		  TVector3 hadron_jet_perp = (jet.Cross(hadron)).Unit(); 
-	    
-		  double bluePhiHadron = acos(jet_blue_beam_perp.Dot(hadron_jet_perp)); 
-		  double yellowPhiHadron = acos(jet_yellow_beam_perp.Dot(hadron_jet_perp)); 
-		  if(bluePhiHadron>TMath::PiOver2()) bluePhiHadron -= TMath::Pi(); 
-		  if(yellowPhiHadron>TMath::PiOver2()) yellowPhiHadron -= TMath::Pi(); 
-
-		  double blue_dPhiSpin = bluePhiSpin - bluePhiHadron; 
-		  if (blue_dPhiSpin > TMath::Pi())
-		    blue_dPhiSpin -= TMath::Pi(); 
-		  else if (blue_dPhiSpin < 0 )
-		    blue_dPhiSpin += TMath::Pi(); 
-
-		  double blue2PhiHadron = 2.0*bluePhiHadron; 
-		  if( (blue2PhiHadron>TMath::PiOver2()) && (blue2PhiHadron<=3.0*TMath::PiOver2()) ) 
-		    blue2PhiHadron -= TMath::Pi(); 
-		  else if( blue2PhiHadron>3.0*TMath::PiOver2() ) 
-		    blue2PhiHadron -= 2.0*TMath::Pi(); 
-		  else if( (blue2PhiHadron<-TMath::PiOver2()) && (blue2PhiHadron>=-3.0*TMath::PiOver2()) )
-		    blue2PhiHadron += TMath::Pi(); 
-		  else if( blue2PhiHadron<-3.0*TMath::PiOver2() ) 
-		    blue2PhiHadron += 2.0*TMath::Pi(); 
-
-		  double blue_d2PhiSpin = bluePhiSpin - blue2PhiHadron; 
-		  if (blue_d2PhiSpin > TMath::Pi())
-		    blue_d2PhiSpin -= TMath::Pi(); 
-		  else if (blue_d2PhiSpin < 0 )
-		    blue_d2PhiSpin += TMath::Pi(); 
-
-		  double yellow_dPhiSpin = yellowPhiSpin - yellowPhiHadron; 
-		  if (yellow_dPhiSpin > TMath::Pi())
-		    yellow_dPhiSpin -= TMath::Pi(); 
-		  else if (yellow_dPhiSpin < 0 )
-		    yellow_dPhiSpin += TMath::Pi(); 
-
-		  double yellow2PhiHadron = 2.0*yellowPhiHadron; 
-		  if( (yellow2PhiHadron>TMath::PiOver2()) && (yellow2PhiHadron<=3.0*TMath::PiOver2()) ) 
-		    yellow2PhiHadron -= TMath::Pi(); 
-		  else if( yellow2PhiHadron>3.0*TMath::PiOver2() ) 
-		    yellow2PhiHadron -= 2.0*TMath::Pi(); 
-		  else if( (yellow2PhiHadron<-TMath::PiOver2()) && (yellow2PhiHadron>=-3.0*TMath::PiOver2()) )
-		    yellow2PhiHadron += TMath::Pi(); 
-		  else if( yellow2PhiHadron<-3.0*TMath::PiOver2() ) 
-		    yellow2PhiHadron += 2.0*TMath::Pi(); 
-
-		  double yellow_d2PhiSpin = yellowPhiSpin - yellow2PhiHadron; 
-		  if (yellow_d2PhiSpin > TMath::Pi())
-		    yellow_d2PhiSpin -= TMath::Pi(); 
-		  else if (yellow_d2PhiSpin < 0 )
-		    yellow_d2PhiSpin += TMath::Pi(); 
-
-		  if(re_cs_charge->at(indexMax).at(i)>0.0){
-
-		    if((r_spinPat==1)||(r_spinPat==3)){
-		      hFFPhiBluePolPos[1][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), blue_dPhiSpin); // spin down
-		      hFFTwoPhiBluePolPos[1][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), blue_d2PhiSpin); // spin down
-		    }
-		    else if((r_spinPat==0)||(r_spinPat==2)){
-		      hFFPhiBluePolPos[0][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), blue_dPhiSpin); // spin up
-		      hFFTwoPhiBluePolPos[0][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), blue_d2PhiSpin); // spin up
-		    }
-		
-		    if((r_spinPat==2)||(r_spinPat==3)){
-		      hFFPhiYellowPolPos[1][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), yellow_dPhiSpin); // spin down 
-		      hFFTwoPhiYellowPolPos[1][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), yellow_d2PhiSpin); // spin down 
-		    }
-		    else if((r_spinPat==0)||(r_spinPat==1)){ 
-		      hFFPhiYellowPolPos[0][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), yellow_dPhiSpin); // spin up
-		      hFFTwoPhiYellowPolPos[0][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), yellow_d2PhiSpin); // spin up
-		    }
-	    
-		  }
-		  else if(re_cs_charge->at(indexMax).at(i)<0.0){
-
-		    if((r_spinPat==1)||(r_spinPat==3)){
-		      hFFPhiBluePolNeg[1][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), blue_dPhiSpin); // spin down
-		      hFFTwoPhiBluePolNeg[1][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), blue_d2PhiSpin); // spin down
-		    }
-		    else if((r_spinPat==0)||(r_spinPat==2)){
-		      hFFPhiBluePolNeg[0][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), blue_dPhiSpin); // spin up
-		      hFFTwoPhiBluePolNeg[0][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), blue_d2PhiSpin); // spin up
+		    // keep only charged cst.s
+		    if (doTrueEECChargedOnly && (tr_cs_charge->at(matched_truth_idx).at(iTruthCstA) == 0.0)) {
+		      continue;
 		    }
 
-		    if((r_spinPat==2)||(r_spinPat==3)){
-		      hFFPhiYellowPolNeg[1][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), yellow_dPhiSpin); // spin down
-		      hFFTwoPhiYellowPolNeg[1][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), yellow_d2PhiSpin); // spin down
-		    }
-		    else if((r_spinPat==0)||(r_spinPat==1)){
-		      hFFPhiYellowPolNeg[0][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), yellow_dPhiSpin); // spin up
-		      hFFTwoPhiYellowPolNeg[0][even_odd]->Fill(r_maxPt, re_cs_z->at(indexMax).at(i), yellow_d2PhiSpin); // spin up
-		    }
+                    for (
+                      std::size_t iTruthCstB = 0;
+                      iTruthCstB <= iTruthCstA;
+                      ++iTruthCstB
+                    ) {
 
-		  }
+		      // keep only charged cst.s
+		      if (doTrueEECChargedOnly && (tr_cs_charge->at(matched_truth_idx).at(iTruthCstB) == 0.0)) {
+			continue;
+		      }
 
-		}
-	    
+                      // collect cst information into a handy struct
+                      PHEC::Type::Cst cstA_true(
+                        tr_cs_z->at(matched_truth_idx).at(iTruthCstA),
+                        tr_cs_jT->at(matched_truth_idx).at(iTruthCstA),
+                        tr_cs_eta->at(matched_truth_idx).at(iTruthCstA),
+                        tr_cs_phi->at(matched_truth_idx).at(iTruthCstA),
+                        tr_cs_charge->at(matched_truth_idx).at(iTruthCstA)
+                      );
+                      PHEC::Type::Cst cstB_true(
+                        tr_cs_z->at(matched_truth_idx).at(iTruthCstB),
+                        tr_cs_jT->at(matched_truth_idx).at(iTruthCstB),
+                        tr_cs_eta->at(matched_truth_idx).at(iTruthCstB),
+                        tr_cs_phi->at(matched_truth_idx).at(iTruthCstB),
+                        tr_cs_charge->at(matched_truth_idx).at(iTruthCstB)
+                      );
+
+                      // run 2-point calculation for pair
+                      trueEEC.CalcEEC( jet_true, std::make_pair(cstA_true, cstB_true), evWeight );
+
+                    }  // end 2nd cst loop
+                  }  // end 1st cst loop
+                }  // end max truth jet eec calculation
+
+                // ------------------------------------------------------------------
+
 	      }
 
 	    }
@@ -2481,148 +1925,13 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
 
   }
   
-  // Check relative luminosity
-
-  cout << endl; 
-  cout << "Even Crossing Events = " << nEvenOdd[0] << endl; 
-  cout << "-->Spin Pattern 0 Events = " << nSpinPat[0][0] << endl; 
-  cout << "-->Spin Pattern 1 Events = " << nSpinPat[0][1] << endl; 
-  cout << "-->Spin Pattern 2 Events = " << nSpinPat[0][2] << endl; 
-  cout << "-->Spin Pattern 3 Events = " << nSpinPat[0][3] << endl; 
-  cout << "-->Spin Pattern 4 Events = " << nSpinPat[0][4] << endl; 
-  cout << "-->Spin Pattern 5 Events = " << nSpinPat[0][5] << endl << endl; 
-  cout << "Odd Crossing Events = " << nEvenOdd[1] << endl; 
-  cout << "-->Spin Pattern 0 Events = " << nSpinPat[1][0] << endl; 
-  cout << "-->Spin Pattern 1 Events = " << nSpinPat[1][1] << endl; 
-  cout << "-->Spin Pattern 2 Events = " << nSpinPat[1][2] << endl; 
-  cout << "-->Spin Pattern 3 Events = " << nSpinPat[1][3] << endl; 
-  cout << "-->Spin Pattern 4 Events = " << nSpinPat[1][4] << endl; 
-  cout << "-->Spin Pattern 5 Events = " << nSpinPat[1][5] << endl << endl; 
-
-  // Same/Opp
-  double R_even = (nSpinPat[0][0]+nSpinPat[0][3])/(nSpinPat[0][1]+nSpinPat[0][2]); 
-  double R_odd =  (nSpinPat[1][0]+nSpinPat[1][3])/(nSpinPat[1][1]+nSpinPat[1][2]); 
-  double R_comb = (nSpinPat[0][0]+nSpinPat[0][3]+nSpinPat[1][0]+nSpinPat[1][3])/(nSpinPat[0][1]+nSpinPat[0][2]+nSpinPat[1][1]+nSpinPat[1][2]); 
-
-  cout << "Relative Luminosity (Even) = " << R_even << endl;  
-  cout << "Relative Luminosity (Odd) = " << R_odd << endl << endl;  
-  cout << "Relative Luminosity (combined) = " << R_comb << endl << endl;  
-
-  //add same and opp spin histos
-
-  /*
-
-  hTrueSamePat->Add(hTrueSpinPat[0]);
-  hTrueSamePat->Add(hTrueSpinPat[3]);
-  hTrueOppPat->Add(hTrueSpinPat[1]);
-  hTrueOppPat->Add(hTrueSpinPat[2]);
-
-  hRecoSamePat_even->Add(hRecoSpinPat[0][0]);
-  hRecoSamePat_even->Add(hRecoSpinPat[0][3]);
-  hRecoSamePat_odd->Add(hRecoSpinPat[1][0]);
-  hRecoSamePat_odd->Add(hRecoSpinPat[1][3]);
-
-  hRecoSamePatP_even->Add(hRecoSpinPat[0][0]);
-  hRecoSamePatP_even->Add(hRecoSpinPat[0][3]);
-  hRecoSamePatP_odd->Add(hRecoSpinPat[1][0]);
-  hRecoSamePatP_odd->Add(hRecoSpinPat[1][3]);
-
-  hRecoSamePatP2_even->Add(hRecoSpinPat[0][0]);
-  hRecoSamePatP2_even->Add(hRecoSpinPat[0][3]);
-  hRecoSamePatP2_odd->Add(hRecoSpinPat[1][0]);
-  hRecoSamePatP2_odd->Add(hRecoSpinPat[1][3]);
-
-  hRecoSamePat->Add(hRecoSamePat_even);
-  hRecoSamePat->Add(hRecoSamePat_odd);
-
-  hRecoSamePatP->Add(hRecoSamePat_even);
-  hRecoSamePatP->Add(hRecoSamePat_odd);
-
-  hRecoSamePatP2->Add(hRecoSamePat_even);
-  hRecoSamePatP2->Add(hRecoSamePat_odd);
-
-  hRecoOppPat_even->Add(hRecoSpinPat[0][1]);
-  hRecoOppPat_even->Add(hRecoSpinPat[0][2]);
-  hRecoOppPat_odd->Add(hRecoSpinPat[1][1]);
-  hRecoOppPat_odd->Add(hRecoSpinPat[1][2]);
-
-  hRecoOppPatP_even->Add(hRecoSpinPat[0][1]);
-  hRecoOppPatP_even->Add(hRecoSpinPat[0][2]);
-  hRecoOppPatP_odd->Add(hRecoSpinPat[1][1]);
-  hRecoOppPatP_odd->Add(hRecoSpinPat[1][2]);
-
-  hRecoOppPatP2_even->Add(hRecoSpinPat[0][1]);
-  hRecoOppPatP2_even->Add(hRecoSpinPat[0][2]);
-  hRecoOppPatP2_odd->Add(hRecoSpinPat[1][1]);
-  hRecoOppPatP2_odd->Add(hRecoSpinPat[1][2]);
-
-  hRecoOppPat->Add(hRecoOppPat_even);
-  hRecoOppPat->Add(hRecoOppPat_odd);
-
-  hRecoOppPatP->Add(hRecoOppPat_even);
-  hRecoOppPatP->Add(hRecoOppPat_odd);
-
-  hRecoOppPatP2->Add(hRecoOppPat_even);
-  hRecoOppPatP2->Add(hRecoOppPat_odd);
-
-  hZgSamePat_even->Add(hZgSpinPat[0][0]);
-  hZgSamePat_even->Add(hZgSpinPat[0][3]);
-  hZgSamePat_odd->Add(hZgSpinPat[1][0]);
-  hZgSamePat_odd->Add(hZgSpinPat[1][3]);
-
-  hZgOppPat_even->Add(hZgSpinPat[0][1]);
-  hZgOppPat_even->Add(hZgSpinPat[0][2]);
-  hZgOppPat_odd->Add(hZgSpinPat[1][1]);
-  hZgOppPat_odd->Add(hZgSpinPat[1][2]);
-
-  hFFZSamePat_even->Add(hFFZSpinPat[0][0]);
-  hFFZSamePat_even->Add(hFFZSpinPat[0][3]);
-  hFFZSamePat_odd->Add(hFFZSpinPat[1][0]);
-  hFFZSamePat_odd->Add(hFFZSpinPat[1][3]);
-
-  hFFZOppPat_even->Add(hFFZSpinPat[0][1]);
-  hFFZOppPat_even->Add(hFFZSpinPat[0][2]);
-  hFFZOppPat_odd->Add(hFFZSpinPat[1][1]);
-  hFFZOppPat_odd->Add(hFFZSpinPat[1][2]);
-
-  hFFXISamePat_even->Add(hFFXISpinPat[0][0]);
-  hFFXISamePat_even->Add(hFFXISpinPat[0][3]);
-  hFFXISamePat_odd->Add(hFFXISpinPat[1][0]);
-  hFFXISamePat_odd->Add(hFFXISpinPat[1][3]);
-
-  hFFXIOppPat_even->Add(hFFXISpinPat[0][1]);
-  hFFXIOppPat_even->Add(hFFXISpinPat[0][2]);
-  hFFXIOppPat_odd->Add(hFFXISpinPat[1][1]);
-  hFFXIOppPat_odd->Add(hFFXISpinPat[1][2]);
-
-  hFFJTSamePat_even->Add(hFFJTSpinPat[0][0]);
-  hFFJTSamePat_even->Add(hFFJTSpinPat[0][3]);
-  hFFJTSamePat_odd->Add(hFFJTSpinPat[1][0]);
-  hFFJTSamePat_odd->Add(hFFJTSpinPat[1][3]);
-
-  hFFJTOppPat_even->Add(hFFJTSpinPat[0][1]);
-  hFFJTOppPat_even->Add(hFFJTSpinPat[0][2]);
-  hFFJTOppPat_odd->Add(hFFJTSpinPat[1][1]);
-  hFFJTOppPat_odd->Add(hFFJTSpinPat[1][2]);
-
-  hFFdRSamePat_even->Add(hFFdRSpinPat[0][0]);
-  hFFdRSamePat_even->Add(hFFdRSpinPat[0][3]);
-  hFFdRSamePat_odd->Add(hFFdRSpinPat[1][0]);
-  hFFdRSamePat_odd->Add(hFFdRSpinPat[1][3]);
-
-  hFFdROppPat_even->Add(hFFdRSpinPat[0][1]);
-  hFFdROppPat_even->Add(hFFdRSpinPat[0][2]);
-  hFFdROppPat_odd->Add(hFFdRSpinPat[1][1]);
-  hFFdROppPat_odd->Add(hFFdRSpinPat[1][2]);
-  
-  */
 
   // --------------------------------------------------------------------------
   // EEC calculations
   // --------------------------------------------------------------------------
 
-  if (doTrue && doTrueEEC) trueEEC.End( fOut );
-  if (doRecoEEC)           recoEEC.End( fOut );
+  if (doTrueEEC) trueEEC.End( fOut );
+  if (doRecoEEC) recoEEC.End( fOut );
 
   // --------------------------------------------------------------------------
 
@@ -2638,10 +1947,6 @@ void jetAnaSim(int runno=12, float R = 0.3, int embed = 0, float centLow = 0.0, 
   cout << "Total fully weighted events after vertex cut = " << fullyWeightedCutEvents << endl; 
   cout << "Effective integrated luminosity = " << fullyWeightedCutEvents/totalCs << " mb^-1" << endl; 
   cout << endl; 
-
-  if(R_out!=NULL) *R_out = R_comb; 
-  if(R_even_out!=NULL) *R_even_out = R_even; 
-  if(R_odd_out!=NULL) *R_odd_out = R_comb; 
 
   return;
 
