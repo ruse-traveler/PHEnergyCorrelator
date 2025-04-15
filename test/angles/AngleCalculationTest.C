@@ -47,9 +47,9 @@ namespace Accept {
   std::pair<float, float> PhiWest = std::make_pair(30.0, 120.0);
 
   // -------------------------------------------------------------------------
-  //! Helper method to check if (r, theta, phi) are in acceptance
+  //! Helper method to check if (theta, phi) are in acceptance
   // -------------------------------------------------------------------------
-  bool IsInAccept(const double r, const double theta, const double phi) {
+  bool IsIn(const double theta, const double phi) {
 
     // calculate eta and check acceptance
     const double eta     = -1.0 * std::log(std::tan(theta / 2.0));
@@ -71,7 +71,7 @@ namespace Accept {
     const bool isInAccept = (isInEta && (isInEastPhi || isInWestPhi));
     return isInAccept;
 
-  }  // end 'IsInAccept(double x 3)'
+  }  // end 'IsIn(double x 2)'
 
 }  // end Const namespace
 
@@ -95,7 +95,7 @@ void AngleCalculationTest(
   const std::size_t wrapMode = 2,
   const bool doWrap = true,
   const bool doDot = true,
-  const bool doAccept = true,
+  const bool doAccept = false,
   const bool doBatch = true
 ) {
 
@@ -238,33 +238,58 @@ void AngleCalculationTest(
     hInputXYSpinB  -> Fill( vecSpinB3.X(), vecSpinB3.Y() );
     hInputXYSpinY  -> Fill( vecSpinY3.X(), vecSpinY3.Y() );
 
-    // get random phi = (0, 2pi), cos-theta = (-1, 1), and u
-    // for jet/hadron
-    const double phiRandJet = rando -> Uniform(0.0, TMath::TwoPi());
-    const double phiRandHad = rando -> Uniform(0.0, TMath::TwoPi());
-    const double cosRandJet = rando -> Uniform(-1.0, 1.0);
-    const double cosRandHad = rando -> Uniform(-1.0, 1.0);
-    const double uRandJet   = rando -> Uniform(0.0, 1.0);
-    const double uRandHad   = rando -> Uniform(0.0, 1.0);
+    // get random u for jet/hadron vectors, translate to r
+    const double uRandJet = rando -> Uniform(0.0, 1.0);
+    const double uRandHad = rando -> Uniform(0.0, 1.0);
+    const double rRandJet = pow(uRandJet, 1.0/3.0);
+    const double rRandHad = pow(uRandHad, 1.0/3.0);
 
-    // translate cos-theta, u into theta, r
-    const double thetaRandJet = acos(cosRandJet);
-    const double thetaRandHad = acos(cosRandHad);
-    const double rRandJet     = pow(uRandJet, 1.0/3.0);
-    const double rRandHad     = pow(uRandHad, 1.0/3.0);
+    // get jet, hadron vectors and constrain to
+    // PHENIX acceptance if need be
+    bool   goodJetVals = false;
+    bool   goodHadVals = false;
+    double phiUseJet   = 0.0;
+    double phiUseHad   = 0.0;
+    double thetaUseJet = 0.0;
+    double thetaUseHad = 0.0;
+    do {
+
+      // get random phi = (0, 2pi), cos-theta = (-1, 1)
+      const double phiRandJet = rando -> Uniform(0.0, TMath::TwoPi());
+      const double phiRandHad = rando -> Uniform(0.0, TMath::TwoPi());
+      const double cosRandJet = rando -> Uniform(-1.0, 1.0);
+      const double cosRandHad = rando -> Uniform(-1.0, 1.0);
+
+      // translate cos-theta
+      const double thetaRandJet = acos(cosRandJet);
+      const double thetaRandHad = acos(cosRandHad);
+
+      // now check if in acceptance if needed
+      goodJetVals = doAccept ? Accept::IsIn(thetaRandJet, phiRandJet) : true;
+      goodHadVals = doAccept ? Accept::IsIn(thetaRandHad, phiRandHad) : true;
+
+      // and set use values if good
+      if (goodJetVals && goodHadVals) {
+        phiUseJet   = phiRandJet;
+        phiUseHad   = phiRandHad;
+        thetaUseJet = thetaRandJet;
+        thetaUseHad = thetaRandHad;
+      }
+
+    } while (!goodJetVals || !goodHadVals);
 
     // now translate into (x, y, z) values (assuming
     // r = 1.0)
-    const double xRandJet = rRandJet * sin(thetaRandJet) * cos(phiRandJet);
-    const double yRandJet = rRandJet * sin(thetaRandJet) * sin(phiRandJet);
-    const double zRandJet = rRandJet * cos(thetaRandJet);
-    const double xRandHad = rRandHad * sin(thetaRandHad) * cos(phiRandHad);
-    const double yRandHad = rRandHad * sin(thetaRandHad) * sin(phiRandHad);
-    const double zRandHad = rRandHad * cos(thetaRandHad);
+    const double xUseJet = rRandJet * sin(thetaUseJet) * cos(phiUseJet);
+    const double yUseJet = rRandJet * sin(thetaUseJet) * sin(phiUseJet);
+    const double zUseJet = rRandJet * cos(thetaUseJet);
+    const double xUseHad = rRandHad * sin(thetaUseHad) * cos(phiUseHad);
+    const double yUseHad = rRandHad * sin(thetaUseHad) * sin(phiUseHad);
+    const double zUseHad = rRandHad * cos(thetaUseHad);
 
     // get random jet/hadron directions, fill input histograms
-    TVector3 vecJet3(xRandJet, yRandJet, zRandJet);
-    TVector3 vecHad3(xRandHad, yRandHad, zRandHad);
+    TVector3 vecJet3(xUseJet, yUseJet, zUseJet);
+    TVector3 vecHad3(xUseHad, yUseHad, zUseHad);
     hInputPhiJet   -> Fill( vecJet3.Phi() );
     hInputThetaJet -> Fill( vecJet3.Theta() );
     hInputCosThJet -> Fill( cos(vecJet3.Theta()) );
@@ -283,7 +308,6 @@ void AngleCalculationTest(
     TVector3 unitHad3   = vecHad3.Unit();
 
     // collins & boer-mulders angle calculations --------------------------
-
 
     // (0) get vectors normal to the spin-beam & jet-beam plane
     std::pair<TVector3, TVector3> normSpinBeam3 = std::make_pair(
