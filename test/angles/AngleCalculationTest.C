@@ -32,6 +32,51 @@
 
 
 
+// ===========================================================================
+//! Namespace for acceptance-related constants
+// ===========================================================================
+namespace Accept {
+
+  ///! PHENX central arm eta-acceptacne
+  std::pair<float, float> Eta = std::make_pair(-0.35, 0.35);
+
+  ///! PHENIX central arm east phi-acceptance
+  std::pair<float, float> PhiEast = std::make_pair(30.0, 120.0);
+
+  ///! PHENIX central arm west phi-acceptance
+  std::pair<float, float> PhiWest = std::make_pair(30.0, 120.0);
+
+  // -------------------------------------------------------------------------
+  //! Helper method to check if (r, theta, phi) are in acceptance
+  // -------------------------------------------------------------------------
+  bool IsInAccept(const double r, const double theta, const double phi) {
+
+    // calculate eta and check acceptance
+    const double eta     = -1.0 * std::log(std::tan(theta / 2.0));
+    const bool   isInEta = ((eta > Eta.first) && (eta < Eta.second));
+
+    // wrap phi to be in (0, 2pi)
+    double phiUse = phi;
+    if (phi <= 0.0)           phiUse += TMath::TwoPi();
+    if (phi > TMath::TwoPi()) phiUse -= TMath::TwoPi();  
+
+    // check if phi is in east acceptance
+    const bool isInEastPhi = ((phiUse > PhiEast.first) && (phiUse < PhiEast.second));
+
+    // check if phi is in west acceptance
+    const double phiWest     = phiUse - TMath::Pi();
+    const double isInWestPhi = ((phiWest > PhiWest.first) && (phiWest < PhiWest.second));
+
+    // return if in eta + phi accept
+    const bool isInAccept = (isInEta && (isInEastPhi || isInWestPhi));
+    return isInAccept;
+
+  }  // end 'IsInAccept(double x 3)'
+
+}  // end Const namespace
+
+
+
 // ============================================================================
 //! Test macro for anglue calculations
 // ============================================================================
@@ -50,6 +95,7 @@ void AngleCalculationTest(
   const std::size_t wrapMode = 2,
   const bool doWrap = true,
   const bool doDot = true,
+  const bool doAccept = true,
   const bool doBatch = true
 ) {
 
