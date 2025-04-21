@@ -40,11 +40,11 @@ namespace Accept {
   ///! PHENX central arm eta-acceptacne
   std::pair<float, float> Eta = std::make_pair(-0.35, 0.35);
 
-  ///! PHENIX central arm east phi-acceptance
-  std::pair<float, float> PhiEast = std::make_pair(30.0, 120.0);
-
   ///! PHENIX central arm west phi-acceptance
   std::pair<float, float> PhiWest = std::make_pair(30.0, 120.0);
+
+  ///! PHENIX central arm east phi-acceptance
+  std::pair<float, float> PhiEast = std::make_pair(30.0, 120.0);
 
   // -------------------------------------------------------------------------
   //! Helper method to check if (theta, phi) are in acceptance
@@ -60,15 +60,15 @@ namespace Accept {
     if (phi <= 0.0)           phiUse += TMath::TwoPi();
     if (phi > TMath::TwoPi()) phiUse -= TMath::TwoPi();  
 
-    // check if phi is in east acceptance
-    const bool isInEastPhi = ((phiUse > PhiEast.first) && (phiUse < PhiEast.second));
-
     // check if phi is in west acceptance
-    const double phiWest     = phiUse - TMath::Pi();
-    const double isInWestPhi = ((phiWest > PhiWest.first) && (phiWest < PhiWest.second));
+    const bool isInWestPhi = ((phiUse > PhiWest.first) && (phiUse < PhiWest.second));
+
+    // check if phi is in east acceptance
+    const double phiEast     = phiUse - TMath::Pi();
+    const double isInEastPhi = ((phiEast > PhiEast.first) && (phiEast < PhiWest.second));
 
     // return if in eta + phi accept
-    const bool isInAccept = (isInEta && (isInEastPhi || isInWestPhi));
+    const bool isInAccept = (isInEta && (isInWestPhi || isInEastPhi));
     return isInAccept;
 
   }  // end 'IsIn(double x 2)'
