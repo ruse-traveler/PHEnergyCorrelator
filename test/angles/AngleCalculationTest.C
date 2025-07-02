@@ -38,13 +38,16 @@
 namespace Accept {
 
   ///! PHENX central arm eta-acceptacne
-  std::pair<float, float> Eta = std::make_pair(-0.35, 0.35);
+  float EtaMin() {return -0.35;}
+  float EtaMax() {return 0.35;}
 
   ///! PHENIX central arm west phi-acceptance
-  std::pair<float, float> PhiWest = std::make_pair(30.0, 120.0);
+  float PhiWestMin() {return (30.0 / 180.0) * TMath::Pi();}
+  float PhiWestMax() {return (120.0 / 180.0) * TMath::Pi();}
 
   ///! PHENIX central arm east phi-acceptance
-  std::pair<float, float> PhiEast = std::make_pair(30.0, 120.0);
+  float PhiEastMin() {return (30.0 / 180.0) * TMath::Pi();}
+  float PhiEastMax() {return (120.0 / 180.0) * TMath::Pi();}
 
   // -------------------------------------------------------------------------
   //! Helper method to check if (theta, phi) are in acceptance
@@ -53,7 +56,7 @@ namespace Accept {
 
     // calculate eta and check acceptance
     const double eta     = -1.0 * std::log(std::tan(theta / 2.0));
-    const bool   isInEta = ((eta > Eta.first) && (eta < Eta.second));
+    const bool   isInEta = ((eta > EtaMin()) && (eta < EtaMax()));
 
     // wrap phi to be in (0, 2pi)
     double phiUse = phi;
@@ -61,11 +64,11 @@ namespace Accept {
     if (phi > TMath::TwoPi()) phiUse -= TMath::TwoPi();  
 
     // check if phi is in west acceptance
-    const bool isInWestPhi = ((phiUse > PhiWest.first) && (phiUse < PhiWest.second));
+    const bool isInWestPhi = ((phiUse > PhiWestMin()) && (phiUse < PhiWestMax()));
 
     // check if phi is in east acceptance
     const double phiEast     = phiUse - TMath::Pi();
-    const double isInEastPhi = ((phiEast > PhiEast.first) && (phiEast < PhiWest.second));
+    const double isInEastPhi = ((phiEast > PhiEastMin()) && (phiEast < PhiEastMax()));
 
     // return if in eta + phi accept
     const bool isInAccept = (isInEta && (isInWestPhi || isInEastPhi));
@@ -90,12 +93,12 @@ namespace Accept {
  *  beam and jet-hadron normals
  */
 void AngleCalculationTest(
-  const std::string oFile = "angleCalcTest.nIter10K_copyingMinimalCalc_doWrap.d28m2y2025.root",
+  const std::string oFile = "angleCalcTest.nIter10K_doAccept.d1m7y2025.root",
   const std::size_t nIter = 10000,
   const std::size_t wrapMode = 2,
   const bool doWrap = true,
   const bool doDot = true,
-  const bool doAccept = false,
+  const bool doAccept = true,
   const bool doBatch = true
 ) {
 
