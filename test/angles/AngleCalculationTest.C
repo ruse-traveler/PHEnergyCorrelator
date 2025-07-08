@@ -93,12 +93,12 @@ namespace Accept {
  *  beam and jet-hadron normals
  */
 void AngleCalculationTest(
-  const std::string oFile = "angleCalcTest.nIter10K_doAccept.d1m7y2025.root",
+  const std::string oFile = "angleCalcTest.nIter10K_addDiFFAngles.d7m7y2025.root",
   const std::size_t nIter = 10000,
   const std::size_t wrapMode = 2,
-  const bool doWrap = true,
+  const bool doWrap = false,
   const bool doDot = true,
-  const bool doAccept = true,
+  const bool doAccept = false,
   const bool doBatch = true
 ) {
 
@@ -140,7 +140,7 @@ void AngleCalculationTest(
   TH1::SetDefaultSumw2(true);
   TH2::SetDefaultSumw2(true);
 
-  // initialize histograms
+  // initialize collins & BM histograms
   TH1D* hInputPhiSpinB        = new TH1D("hInputPhiSpinB", "#phi_{spin}^{B} input", nAngBins, xAngStart, xAngStop);
   TH1D* hInputPhiSpinY        = new TH1D("hInputPhiSpinY", "#phi_{spin}^{Y} input", nAngBins, xAngStart, xAngStop);
   TH2D* hInputXYSpinB         = new TH2D("hInputXYSpinB", "(x,y) sampled (spin B)", nXYBins, xXYStart, xXYStop, nXYBins, xXYStart, xXYStop);
@@ -197,6 +197,24 @@ void AngleCalculationTest(
   TH2D* hCheckPhiHadVsDotY    = new TH2D("hCheckPhiHadVsDotY", ";#bf{v}_{jet-beam}^{Y}#upoint#bf{v}_{jet-hadron};#phi_{had}^{Y}", nMagBins, xMagStart, xMagStop, nAngBins, xAngStart, xAngStop);
   TH2D* hCheckAltPhiHadVsDotB = new TH2D("hCheckAltPhiHadVsDotB", ";#bf{v}_{jet-beam}^{B}#upoint#bf{v}_{jet-hadron};#phi_{had}^{B}", nMagBins, xMagStart, xMagStop, nAngBins, xAngStart, xAngStop);
   TH2D* hCheckAltPhiHadVsDotY = new TH2D("hCheckAltPhiHadVsDotY", ";#bf{v}_{jet-beam}^{Y}#upoint#bf{v}_{jet-hadron};#phi_{had}^{Y}", nMagBins, xMagStart, xMagStop, nAngBins, xAngStart, xAngStop);
+
+  // initialize DiFF hists
+  TH1D* hInputPhiSec   = new TH1D("hInputPhiSec", "#phi_{sh} input", nAngBins, xAngStart, xAngStop);
+  TH1D* hInputThetaSec = new TH1D("hInputThetaSec", "#theta_{sh} input", nAngBins, xAngStart, xAngStop);
+  TH1D* hInputCosThSec = new TH1D("hInputCosThSec", "cos#theta_{sh} input", nCosBins, xCosStart, xCosStop);
+  TH2D* hInputXYSec    = new TH2D("hInputXYSec", "(x,y) sampled (2nd had)", nXYBins, xXYStart, xXYStop, nXYBins, xXYStart, xXYStop);
+  TH2D* hInputZThSec   = new TH2D("hInputZThSec", "(z,#theta) sampled (2nd had)", nZBins, xZStart, xZStop, nAngBins, xAngStart, xAngStop);
+  TH1D* hThSpinBeamB   = new TH1D("hThSpinBeamB", "#theta(spin, beam)_{B}", nAngBins, xAngStart, xAngStop);
+  TH1D* hThSpinPCB     = new TH1D("hThSpinPCB", "#theta(spin, PC)_{B}", nAngBins, xAngStart, xAngStop);
+  TH1D* hThSpinBeamY   = new TH1D("hThSpinBeamY", "#theta(spin, beam)_{Y}", nAngBins, xAngStart, xAngStop);
+  TH1D* hThSpinPCY     = new TH1D("hThSpinPCY", "#theta(spin, PC)_{Y}", nAngBins, xAngStart, xAngStop);
+  TH1D* hThPCRCY       = new TH1D("hThPCRCY", "#theta(PC, RC)_{Y}", nAngBins, xAngStart, xAngStop);
+  TH1D* hThBeamRCY     = new TH1D("hThBeamRCY", "#theta(beam, RC)_{Y}", nAngBins, xAngStart, xAngStop);
+  TH1D* hThetaSB       = new TH1D("hThetaSB", "#theta_{SB}", nAngBins, xAngStart, xAngStop);
+  TH1D* hThetaSY       = new TH1D("hThetaSY", "#theta_{SY}", nAngBins, xAngStart, xAngStop);
+  TH1D* hThetaRC       = new TH1D("hThetaRC", "#theta_{RC}", nAngBins, xAngStart, xAngStop);
+  TH1D* hThetaSBRC     = new TH1D("hThetaSBRC", "#theta_{SB} - #theta_{RC}", nAngBins, xAngStart, xAngStop);
+  TH1D* hThetaSYRC     = new TH1D("hThetaSYRC", "#theta_{SY} - #theta_{RC}", nAngBins, xAngStart, xAngStop);
   std::cout << "    Created histograms.\n"
             << "    MC loop: running " << nIter << " iterations:"
             << std::endl;
@@ -244,39 +262,50 @@ void AngleCalculationTest(
     // get random u for jet/hadron vectors, translate to r
     const double uRandJet = rando -> Uniform(0.0, 1.0);
     const double uRandHad = rando -> Uniform(0.0, 1.0);
+    const double uRandSec = rando -> Uniform(0.0, 1.0);
     const double rRandJet = pow(uRandJet, 1.0/3.0);
     const double rRandHad = pow(uRandHad, 1.0/3.0);
+    const double rRandSec = pow(uRandSec, 1.0/3.0);
 
     // get jet, hadron vectors and constrain to
     // PHENIX acceptance if need be
     bool   goodJetVals = false;
     bool   goodHadVals = false;
+    bool   goodSecVals = false;
     double phiUseJet   = 0.0;
     double phiUseHad   = 0.0;
+    double phiUseSec   = 0.0;
     double thetaUseJet = 0.0;
     double thetaUseHad = 0.0;
+    double thetaUseSec = 0.0;
     do {
 
       // get random phi = (0, 2pi), cos-theta = (-1, 1)
       const double phiRandJet = rando -> Uniform(0.0, TMath::TwoPi());
       const double phiRandHad = rando -> Uniform(0.0, TMath::TwoPi());
+      const double phiRandSec = rando -> Uniform(0.0, TMath::TwoPi());
       const double cosRandJet = rando -> Uniform(-1.0, 1.0);
       const double cosRandHad = rando -> Uniform(-1.0, 1.0);
+      const double cosRandSec = rando -> Uniform(-1.0, 1.0);
 
       // translate cos-theta
       const double thetaRandJet = acos(cosRandJet);
       const double thetaRandHad = acos(cosRandHad);
+      const double thetaRandSec = acos(cosRandSec);
 
       // now check if in acceptance if needed
       goodJetVals = doAccept ? Accept::IsIn(thetaRandJet, phiRandJet) : true;
       goodHadVals = doAccept ? Accept::IsIn(thetaRandHad, phiRandHad) : true;
+      goodSecVals = doAccept ? Accept::IsIn(thetaRandSec, phiRandSec) : true;
 
       // and set use values if good
-      if (goodJetVals && goodHadVals) {
+      if (goodJetVals && goodHadVals && goodSecVals) {
         phiUseJet   = phiRandJet;
         phiUseHad   = phiRandHad;
+        phiUseSec   = phiRandSec;
         thetaUseJet = thetaRandJet;
         thetaUseHad = thetaRandHad;
+        thetaUseSec = thetaRandSec;
       }
 
     } while (!goodJetVals || !goodHadVals);
@@ -289,10 +318,14 @@ void AngleCalculationTest(
     const double xUseHad = rRandHad * sin(thetaUseHad) * cos(phiUseHad);
     const double yUseHad = rRandHad * sin(thetaUseHad) * sin(phiUseHad);
     const double zUseHad = rRandHad * cos(thetaUseHad);
+    const double xUseSec = rRandSec * sin(thetaUseSec) * cos(phiUseSec);
+    const double yUseSec = rRandSec * sin(thetaUseSec) * sin(phiUseSec);
+    const double zUseSec = rRandSec * cos(thetaUseSec);
 
     // get random jet/hadron directions, fill input histograms
     TVector3 vecJet3(xUseJet, yUseJet, zUseJet);
     TVector3 vecHad3(xUseHad, yUseHad, zUseHad);
+    TVector3 vecSec3(xUseSec, yUseSec, zUseSec);
     hInputPhiJet   -> Fill( vecJet3.Phi() );
     hInputThetaJet -> Fill( vecJet3.Theta() );
     hInputCosThJet -> Fill( cos(vecJet3.Theta()) );
@@ -303,12 +336,18 @@ void AngleCalculationTest(
     hInputCosThHad -> Fill( cos(vecHad3.Theta()) );
     hInputXYHad    -> Fill( vecHad3.X(), vecHad3.Y() );
     hInputZThHad   -> Fill( vecHad3.Z(), vecHad3.Theta() );
+    hInputPhiSec   -> Fill( vecSec3.Phi() );
+    hInputThetaSec -> Fill( vecSec3.Theta() );
+    hInputCosThSec -> Fill( cos(vecSec3.Theta()) );
+    hInputXYSec    -> Fill( vecSec3.X(), vecSec3.Y() );
+    hInputZThSec   -> Fill( vecSec3.Z(), vecSec3.Theta() );
 
     // now normalize spin/jet/hadron vectors
     TVector3 unitSpinB3 = vecSpinB3.Unit();
     TVector3 unitSpinY3 = vecSpinY3.Unit();
     TVector3 unitJet3   = vecJet3.Unit();
     TVector3 unitHad3   = vecHad3.Unit();
+    TVector3 unitSec3   = vecSec3.Unit();
 
     // collins & boer-mulders angle calculations --------------------------
 
@@ -602,10 +641,178 @@ void AngleCalculationTest(
     hAltPhiBoerB -> Fill(phiBoerBlueAlt);
     hAltPhiBoerY -> Fill(phiBoerYellAlt);
 
+    // DiFF angle calculation -------------------------------------------------
+
+    // (0) calculate PC & RC vectors 
+    //     - note difference in notation
+    //       * PC --> vecHadPC3
+    //       * RC --> vecHadRC3
+    //       * PB --> vecBeamB3
+    //       * PA --> vecBeamY3
+    //       * SB --> vecSpinB3
+    //       * SA --> vecSpinY3
+    TVector3 vecHadPC3  = vecHad3 + vecSec3;
+    TVector3 vecHadRC3  = 0.5 * (vecHad3 - vecSec3);
+    TVector3 unitHadPC3 = vecHadPC3.Unit();
+
+    // get unit beam vectors (just to be safe)
+    TVector3 unitBeamB3 = vecBeamB3.Unit();
+    TVector3 unitBeamY3 = vecBeamY3.Unit();
+
+    // (1) calculate blue spin-beam & spin-PC angles
+    //     - cThetaSB --> thetaSpinBeamB
+    //     - sThetaSB --> thetaSpinPCB
+    double thetaSpinBeamB = (
+      unitBeamB3.Cross(vecHadPC3) * (
+        1.0 / (
+          unitBeamB3.Cross(vecHadPC3).Mag()
+        )
+      )
+    ).Dot(
+      unitBeamB3.Cross(vecSpinB3) * (
+        1.0 / (
+          unitBeamB3.Cross(vecSpinB3).Mag()
+        )
+      )
+    );
+    double thetaSpinPCB = (
+      vecHadPC3.Cross(vecSpinB3)
+    ).Dot(unitBeamB3) * (
+      1.0 / (
+        (unitBeamB3.Cross(vecHadPC3).Mag()) *
+        (unitBeamB3.Cross(vecSpinB3).Mag())
+      )
+    );
+
+    // and calculate yellow spin-beam & spin-PC angles
+    // - cThetaSA --> thetaSpinBeamY
+    // - sThetaSA --> thetaSpinPCY
+    double thetaSpinBeamY = (
+      unitBeamY3.Cross(vecHadPC3) * (
+        1.0 / (
+          unitBeamY3.Cross(vecHadPC3).Mag()
+        )
+      )
+    ).Dot(
+      unitBeamY3.Cross(vecSpinY3) * (
+        1.0 / (
+          unitBeamY3.Cross(vecSpinY3).Mag()
+        )
+      )
+    );
+    double thetaSpinPCY = (
+      vecHadPC3.Cross(vecSpinY3)
+    ).Dot(unitBeamY3) * (
+      1.0 / (
+        (unitBeamY3.Cross(vecHadPC3).Mag()) * 
+        (unitBeamY3.Cross(vecSpinY3).Mag())
+      )
+    );
+
+    // (2) calculate RC angles
+    //     - cThetaRC --> thetaPCRCY
+    //     - sThetaRC --> thetaBeamRCY
+    double thetaPCRCY = (
+      unitHadPC3.Cross(vecBeamY3) * (
+        1.0 / (
+          unitHadPC3.Cross(vecBeamY3).Mag()
+        )
+      )
+    ).Dot(
+      unitHadPC3.Cross(vecHadRC3) * (
+        1.0 / (
+          unitHadPC3.Cross(vecHadRC3).Mag()
+        )
+      )
+    );
+    double thetaBeamRCY = (
+      vecBeamY3.Cross(vecHadRC3)
+    ).Dot(unitHadPC3) * (
+      1.0 / (
+        (unitHadPC3.Cross(vecBeamY3).Mag()) *
+        (unitHadPC3.Cross(vecHadRC3).Mag())
+      )
+    );
+
+    // fill histograms
+    hThSpinBeamB -> Fill( thetaSpinBeamB );
+    hThSpinPCB   -> Fill( thetaSpinPCB );
+    hThSpinBeamY -> Fill( thetaSpinBeamY );
+    hThSpinPCY   -> Fill( thetaSpinPCY );
+    hThPCRCY     -> Fill( thetaPCRCY );
+    hThBeamRCY   -> Fill( thetaBeamRCY );
+
+    // ------------------------------------------------------------------------
+
+    // (3) make sure angles span full [-pi, pi]
+    //     - cThetaSB --> thetaSpinBeamB
+    //     - sThetaSB --> thetaSpinPCB
+    //     - cThetaSA --> thetaSpinBeamY
+    //     - sThetaSA --> thetaSpinPCY
+    //     - cThetaRC --> thetaPCRCY
+    //     - sThetaRC --> thetaBeamRCY
+    //     - ThetaSB  --> thetaSB
+    //     - ThetaSA  --> thetaSY
+    //     - ThetaRC  --> thetaRC
+    double thetaSB = (thetaSpinPCB > 0.0) ? acos(thetaSpinBeamB) : -acos(thetaSpinBeamB);
+    double thetaSY = (thetaSpinPCY > 0.0) ? acos(thetaSpinBeamY) : -acos(thetaSpinBeamY);
+    double thetaRC = (thetaBeamRCY > 0.0) ? acos(thetaPCRCY) : -cos(thetaPCRCY);
+
+    // (4) wrap angles
+    if (doWrap) {
+      if (wrapMode == 1) {
+        if (thetaSB < 0)            thetaSB += TMath::Pi();
+        if (thetaSB >= TMath::Pi()) thetaSB -= TMath::Pi();
+        if (thetaSY < 0)            thetaSY += TMath::Pi();
+        if (thetaSY >= TMath::Pi()) thetaSY -= TMath::Pi();
+        if (thetaRC < 0)            thetaRC += TMath::Pi();
+        if (thetaRC >= TMath::Pi()) thetaRC -= TMath::Pi();
+      } else {
+        if (thetaSB < 0)               thetaSB += TMath::TwoPi();
+        if (thetaSB >= TMath::TwoPi()) thetaSB -= TMath::TwoPi();
+        if (thetaSY < 0)               thetaSY += TMath::TwoPi();
+        if (thetaSY >= TMath::TwoPi()) thetaSY -= TMath::TwoPi();
+        if (thetaRC < 0)               thetaRC += TMath::TwoPi();
+        if (thetaRC >= TMath::TwoPi()) thetaRC -= TMath::TwoPi();
+      }
+    }
+
+    // fill histograms
+    hThetaSB -> Fill( thetaSB );
+    hThetaSY -> Fill( thetaSY );
+    hThetaRC -> Fill( thetaRC );
+
+    // ------------------------------------------------------------------------
+
+    // (5) take difference
+    double thetaSBRC = thetaSB - thetaRC;
+    double thetaSYRC = thetaSY - thetaRC;
+
+    // (6) and wrap differences
+    if (doWrap) {
+      if (wrapMode == 1) {
+        if (thetaSBRC < 0)            thetaSBRC += TMath::Pi();
+        if (thetaSBRC >= TMath::Pi()) thetaSBRC -= TMath::Pi();
+        if (thetaSYRC < 0)            thetaSBRC += TMath::Pi();
+        if (thetaSYRC >= TMath::Pi()) thetaSBRC -= TMath::Pi();
+      } else {
+        if (thetaSBRC < 0)               thetaSBRC += TMath::TwoPi();
+        if (thetaSBRC >= TMath::TwoPi()) thetaSBRC -= TMath::TwoPi();
+        if (thetaSYRC < 0)               thetaSBRC += TMath::TwoPi();
+        if (thetaSYRC >= TMath::TwoPi()) thetaSBRC -= TMath::TwoPi();
+      }
+    }
+
+    // fill histograms
+    hThetaSBRC -> Fill( thetaSBRC );
+    hThetaSYRC -> Fill( thetaSYRC );
+
   }  // end iter loop
   std::cout << "    MC loop finished!" << std::endl;
 
-  // normalize histograms
+  // --------------------------------------------------------------------------
+
+  // normalize collins & BM histograms
   //   - n.b. (x,y), (z,theta), and magnitude
   //     hists NOT normalized
   hInputPhiSpinB     -> Scale(1. / (double) nIter);
@@ -645,7 +852,25 @@ void AngleCalculationTest(
   hAltPhiCollY       -> Scale(1. / (double) nIter);
   hAltPhiBoerB       -> Scale(1. / (double) nIter);
   hAltPhiBoerY       -> Scale(1. / (double) nIter);
+
+  // normalize DiFF histograms
+  hInputPhiSec   -> Scale( 1. / (double) nIter);
+  hInputThetaSec -> Scale( 1. / (double) nIter);
+  hInputCosThSec -> Scale( 1. / (double) nIter);
+  hThSpinBeamB   -> Scale( 1. / (double) nIter);
+  hThSpinPCB     -> Scale( 1. / (double) nIter);
+  hThSpinBeamY   -> Scale( 1. / (double) nIter);
+  hThSpinPCY     -> Scale( 1. / (double) nIter);
+  hThPCRCY       -> Scale( 1. / (double) nIter);
+  hThBeamRCY     -> Scale( 1. / (double) nIter);
+  hThetaSB       -> Scale( 1. / (double) nIter);
+  hThetaSY       -> Scale( 1. / (double) nIter);
+  hThetaRC       -> Scale( 1. / (double) nIter);
+  hThetaSBRC     -> Scale( 1. / (double) nIter);
+  hThetaSYRC     -> Scale( 1. / (double) nIter);
   std::cout << "    Normalized histograms." << std::endl;
+
+  // --------------------------------------------------------------------------
 
   // create frame histograms
   TH1D* hPhiFrame    = (TH1D*) hInputPhiSpinB -> Clone();
@@ -696,7 +921,7 @@ void AngleCalculationTest(
     24
   };
 
-  // set styles
+  // set collins & BM styles
   hInputPhiSpinB     -> SetLineColor(col[0]);
   hInputPhiSpinB     -> SetMarkerColor(col[0]);
   hInputPhiSpinB     -> SetMarkerStyle(mar[0]);
@@ -808,7 +1033,53 @@ void AngleCalculationTest(
   hAltPhiBoerY       -> SetLineColor(col[9]);
   hAltPhiBoerY       -> SetMarkerColor(col[9]);
   hAltPhiBoerY       -> SetMarkerStyle(mar[9]);
+
+  // set DiFF styles
+  hInputPhiSec   -> SetLineColor(col[3]);
+  hInputPhiSec   -> SetMarkerColor(col[3]);
+  hInputPhiSec   -> SetMarkerStyle(mar[3]);
+  hInputThetaSec -> SetLineColor(col[3]);
+  hInputThetaSec -> SetMarkerColor(col[3]);
+  hInputThetaSec -> SetMarkerStyle(mar[3]);
+  hInputCosThSec -> SetLineColor(col[3]);
+  hInputCosThSec -> SetMarkerColor(col[3]);
+  hInputCosThSec -> SetMarkerStyle(mar[3]);
+  hThSpinBeamB   -> SetLineColor(col[0]);
+  hThSpinBeamB   -> SetMarkerColor(col[0]);
+  hThSpinBeamB   -> SetMarkerStyle(mar[0]);
+  hThSpinPCB     -> SetLineColor(col[1]);
+  hThSpinPCB     -> SetMarkerColor(col[1]);
+  hThSpinPCB     -> SetMarkerStyle(mar[1]);
+  hThSpinBeamY   -> SetLineColor(col[0]);
+  hThSpinBeamY   -> SetMarkerColor(col[0]);
+  hThSpinBeamY   -> SetMarkerStyle(mar[0]);
+  hThSpinPCY     -> SetLineColor(col[1]);
+  hThSpinPCY     -> SetMarkerColor(col[1]);
+  hThSpinPCY     -> SetMarkerStyle(mar[1]);
+  hThPCRCY       -> SetLineColor(col[2]);
+  hThPCRCY       -> SetMarkerColor(col[2]);
+  hThPCRCY       -> SetMarkerStyle(mar[2]);
+  hThBeamRCY     -> SetLineColor(col[3]);
+  hThBeamRCY     -> SetMarkerColor(col[3]);
+  hThBeamRCY     -> SetMarkerStyle(mar[3]);
+  hThetaSB       -> SetLineColor(col[4]);
+  hThetaSB       -> SetMarkerColor(col[4]);
+  hThetaSB       -> SetMarkerStyle(mar[4]);
+  hThetaSY       -> SetLineColor(col[5]);
+  hThetaSY       -> SetMarkerColor(col[5]);
+  hThetaSY       -> SetMarkerStyle(mar[5]);
+  hThetaRC       -> SetLineColor(col[6]);
+  hThetaRC       -> SetMarkerColor(col[6]);
+  hThetaRC       -> SetMarkerStyle(mar[6]);
+  hThetaSBRC     -> SetLineColor(col[7]);
+  hThetaSBRC     -> SetMarkerColor(col[7]);
+  hThetaSBRC     -> SetMarkerStyle(mar[7]);
+  hThetaSYRC     -> SetLineColor(col[8]);
+  hThetaSYRC     -> SetMarkerColor(col[8]);
+  hThetaSYRC     -> SetMarkerStyle(mar[8]);
   std::cout << "    Set styles." << std::endl;
+
+  // --------------------------------------------------------------------------
 
   // create phi input plots
   {
@@ -1243,7 +1514,191 @@ void AngleCalculationTest(
   }  // end everything plot making
   std::cout << "    Created phi everything plots." << std::endl;
 
-  // save histograms
+  // --------------------------------------------------------------------------
+
+  // create DiFF input plots
+  {
+
+    // create legend for blue DiFF phi input
+    TLegend* lDiffPhiInputB = new TLegend(0.1, 0.1, 0.3, 0.4, sHeader.Data());
+    lDiffPhiInputB -> SetFillColor(0);
+    lDiffPhiInputB -> SetLineColor(0);
+    lDiffPhiInputB -> SetTextFont(42);
+    lDiffPhiInputB -> SetTextAlign(12);
+    lDiffPhiInputB -> AddEntry(hInputPhiSpinB, hInputPhiSpinB -> GetTitle(), "P");
+    lDiffPhiInputB -> AddEntry(hInputPhiHad, hInputPhiHad -> GetTitle(), "P");
+    lDiffPhiInputB -> AddEntry(hInputPhiSec, hInputPhiSec-> GetTitle(), "P");
+
+    // create plot for blue DiFF phi input
+    TCanvas* cDiffPhiInputB = new TCanvas("cDiffPhiInputB", "", 750, 750);
+    cDiffPhiInputB -> SetGrid(0, 0);
+    cDiffPhiInputB -> cd();
+    hPhiFrame      -> Draw();
+    hInputPhiSpinB -> Draw("same");
+    hInputPhiHad   -> Draw("same");
+    hInputPhiSec   -> Draw("same");
+    lDiffPhiInputB -> Draw();
+    fOutput        -> cd();
+    cDiffPhiInputB -> Write();
+    cDiffPhiInputB -> Close();
+
+    // create legend for yellow DiFF phi input
+    TLegend* lDiffPhiInputY = new TLegend(0.1, 0.1, 0.3, 0.4, sHeader.Data());
+    lDiffPhiInputY -> SetFillColor(0);
+    lDiffPhiInputY -> SetLineColor(0);
+    lDiffPhiInputY -> SetTextFont(42);
+    lDiffPhiInputY -> SetTextAlign(12);
+    lDiffPhiInputY -> AddEntry(hInputPhiSpinY, hInputPhiSpinY -> GetTitle(), "P");
+    lDiffPhiInputY -> AddEntry(hInputPhiHad, hInputPhiHad -> GetTitle(), "P");
+    lDiffPhiInputY -> AddEntry(hInputPhiSec, hInputPhiSec-> GetTitle(), "P");
+
+    // create plot for yellow DiFF phi input
+    TCanvas* cDiffPhiInputY = new TCanvas("cDiffPhiInputY", "", 750, 750);
+    cDiffPhiInputY -> SetGrid(0, 0);
+    cDiffPhiInputY -> cd();
+    hPhiFrame      -> Draw();
+    hInputPhiSpinY -> Draw("same");
+    hInputPhiHad   -> Draw("same");
+    hInputPhiSec   -> Draw("same");
+    lDiffPhiInputY -> Draw();
+    fOutput        -> cd();
+    cDiffPhiInputY -> Write();
+    cDiffPhiInputY -> Close();
+
+  }  // end DiFF phi input plot making
+  std::cout << "    Created DiFF phi input plots." << std::endl;
+
+  // create (x,y) inuput plot
+  {
+
+    // create (x,y) plot
+    TCanvas* cDiffInputXY = new TCanvas("cDiffInputXY", "", 1250, 1250);
+    TPad*    pDiffSpinB   = new TPad("pDiffSpinB", "", 0.00, 0.50, 0.50, 1.00);
+    TPad*    pDiffSpinY   = new TPad("pDiffSpinY", "", 0.50, 0.50, 1.00, 1.00);
+    TPad*    pDiffHad     = new TPad("pDiffHad", "", 0.00, 0.00, 0.50, 0.50);
+    TPad*    pDiffSec     = new TPad("pDiffSec", "", 0.50, 0.00, 1.00, 0.50);
+    cDiffInputXY      -> SetGrid(0, 0);
+    pDiffSpinB        -> SetGrid(0, 0);
+    pDiffSpinY        -> SetGrid(0, 0);
+    pDiffHad          -> SetGrid(0, 0);
+    pDiffSec          -> SetGrid(0, 0);
+    cDiffInputXY      -> cd();
+    pDiffSpinB        -> Draw();
+    pDiffSpinY        -> Draw();
+    pDiffHad          -> Draw();
+    pDiffSec          -> Draw();
+    pDiffSpinB        -> cd();
+    hInputXYSpinB     -> Draw();
+    pDiffSpinY        -> cd();
+    hInputXYSpinY     -> Draw();
+    pDiffHad          -> cd();
+    hInputXYHad       -> Draw();
+    pDiffSec          -> cd();
+    hInputXYSec       -> Draw();
+    fOutput           -> cd();
+    cDiffInputXY      -> Write();
+    cDiffInputXY      -> Close();
+
+  }  // end making DiFF (x,y) input plots
+  std::cout << "    Created DiFF (x,y) input plot." << std::endl;
+
+  // create Diff input theta plots
+  {
+
+    TCanvas* cDiffThetaInput = new TCanvas("cDiffThetaInput", "", 750, 750);
+    TPad*    pDiffTheta      = new TPad("pDiffTheta", "", 0.00, 0.50, 0.50, 1.00);
+    TPad*    pDiffCosTh      = new TPad("pDiffCosTh", "", 0.50, 0.50, 1.00, 1.00);
+    TPad*    pDiffZTh        = new TPad("pDiffZTh",   "", 0.00, 0.00, 0.50, 0.50);
+    cDiffThetaInput -> SetGrid(0, 0);
+    pDiffTheta      -> SetGrid(0, 0);
+    pDiffCosTh      -> SetGrid(0, 0);
+    pDiffZTh        -> SetGrid(0, 0);
+    cDiffThetaInput -> cd();
+    pDiffTheta      -> Draw();
+    pDiffCosTh      -> Draw();
+    pDiffZTh        -> Draw();
+    pDiffTheta      -> cd();
+    hInputThetaSec  -> Draw();
+    pDiffCosTh      -> cd();
+    hInputCosThSec  -> Draw();
+    pDiffZTh        -> cd();
+    hInputZThSec    -> Draw();
+    fOutput         -> cd();
+    cDiffThetaInput -> Write();
+    cDiffThetaInput -> Close();
+
+  }  // end making DiFF input theta plots
+  std::cout << "    Create DiFF theta input plots." << std::endl;
+
+  // create DiFF calc plots
+  {
+
+    // create legend for blue DiFF calculation
+    TLegend* lDiffThetaCalcB = new TLegend(0.1, 0.1, 0.3, 0.4, sHeader.Data());
+    lDiffThetaCalcB -> SetFillColor(0);
+    lDiffThetaCalcB -> SetLineColor(0);
+    lDiffThetaCalcB -> SetTextFont(42);
+    lDiffThetaCalcB -> SetTextAlign(12);
+    lDiffThetaCalcB -> AddEntry(hThSpinBeamB, hThSpinBeamB -> GetTitle(), "p");
+    lDiffThetaCalcB -> AddEntry(hThSpinPCB, hThSpinPCB -> GetTitle(), "p");
+    lDiffThetaCalcB -> AddEntry(hThPCRCY, hThPCRCY -> GetTitle(), "p");
+    lDiffThetaCalcB -> AddEntry(hThBeamRCY, hThBeamRCY -> GetTitle(), "p");
+    lDiffThetaCalcB -> AddEntry(hThetaSB, hThetaSB -> GetTitle(), "p");
+    lDiffThetaCalcB -> AddEntry(hThetaRC, hThetaRC -> GetTitle(), "p");
+    lDiffThetaCalcB -> AddEntry(hThetaSBRC, hThetaSBRC -> GetTitle(), "p");
+
+    // create plot for blue DiFF calculation
+    TCanvas *cDiffThetaCalcB = new TCanvas("cDiffThetaCalcB", "", 750, 750);
+    cDiffThetaCalcB -> SetGrid(0, 0);
+    cDiffThetaCalcB -> cd();
+    hThetaFrame     -> Draw();
+    hThSpinBeamB    -> Draw("same");
+    hThSpinPCB      -> Draw("same");
+    hThPCRCY        -> Draw("same");
+    hThBeamRCY      -> Draw("same");
+    hThetaSB        -> Draw("same");
+    hThetaRC        -> Draw("same");
+    hThetaSBRC      -> Draw("same");
+    lDiffThetaCalcB -> Draw();
+    fOutput         -> cd();
+    cDiffThetaCalcB -> Write();
+    cDiffThetaCalcB -> Close();
+
+    // create legend for blue DiFF calculation
+    TLegend* lDiffThetaCalcY = new TLegend(0.1, 0.1, 0.3, 0.4, sHeader.Data());
+    lDiffThetaCalcY -> SetFillColor(0);
+    lDiffThetaCalcY -> SetLineColor(0);
+    lDiffThetaCalcY -> SetTextFont(42);
+    lDiffThetaCalcY -> SetTextAlign(12);
+    lDiffThetaCalcY -> AddEntry(hThSpinBeamY, hThSpinBeamY -> GetTitle(), "p");
+    lDiffThetaCalcY -> AddEntry(hThSpinPCY, hThSpinPCY -> GetTitle(), "p");
+    lDiffThetaCalcY -> AddEntry(hThPCRCY, hThPCRCY -> GetTitle(), "p");
+    lDiffThetaCalcY -> AddEntry(hThBeamRCY, hThBeamRCY -> GetTitle(), "p");
+    lDiffThetaCalcY -> AddEntry(hThetaSY, hThetaSY -> GetTitle(), "p");
+    lDiffThetaCalcB -> AddEntry(hThetaRC, hThetaRC -> GetTitle(), "p");
+    lDiffThetaCalcY -> AddEntry(hThetaSYRC, hThetaSYRC -> GetTitle(), "p");
+
+    // create plot for blue DiFF calculation
+    TCanvas *cDiffThetaCalcY = new TCanvas("cDiffThetaCalcY", "", 750, 750);
+    cDiffThetaCalcY -> SetGrid(0, 0);
+    cDiffThetaCalcY -> cd();
+    hThetaFrame     -> Draw();
+    hThSpinBeamY    -> Draw("same");
+    hThSpinPCY      -> Draw("same");
+    hThPCRCY        -> Draw("same");
+    hThBeamRCY      -> Draw("same");
+    hThetaSY        -> Draw("same");
+    hThetaRC        -> Draw("same");
+    hThetaSYRC      -> Draw("same");
+    lDiffThetaCalcY -> Draw();
+    fOutput         -> cd();
+    cDiffThetaCalcY -> Write();
+    cDiffThetaCalcY -> Close();
+
+  }  // end DiFF calc plot making
+  std::cout << "    Created DiFF calculation plots." << std::endl;
+
+  // save collins & BM histograms
   fOutput               -> cd();
   hInputPhiSpinB        -> Write();
   hInputPhiSpinY        -> Write();
@@ -1301,6 +1756,24 @@ void AngleCalculationTest(
   hCheckPhiHadVsDotY    -> Write();
   hCheckAltPhiHadVsDotB -> Write();
   hCheckAltPhiHadVsDotY -> Write();
+
+  // save DiFF histograms
+  hInputPhiSec   -> Write();
+  hInputThetaSec -> Write();
+  hInputCosThSec -> Write();
+  hInputXYSec    -> Write();
+  hInputZThSec   -> Write();
+  hThSpinBeamB   -> Write();
+  hThSpinPCB     -> Write();
+  hThSpinBeamY   -> Write();
+  hThSpinPCY     -> Write();
+  hThPCRCY       -> Write();
+  hThBeamRCY     -> Write();
+  hThetaSB       -> Write();
+  hThetaSY       -> Write();
+  hThetaRC       -> Write();
+  hThetaSBRC     -> Write();
+  hThetaSYRC     -> Write();
   std::cout << "    Saved histograms." << std::endl;
 
   // close output file
