@@ -429,12 +429,8 @@ namespace PHEnergyCorrelator {
 
         // (7) now calculate phiColl: phiSpin - phiHadron,
         //     - constrain to [0, 2pi)
-        double phiCollBlue = phiSpinBlue - phiHadBlue;
-        double phiCollYell = phiSpinYell - phiHadYell;
-	if (phiCollBlue < 0)               phiCollBlue += TMath::TwoPi();
-	if (phiCollBlue >= TMath::TwoPi()) phiCollBlue -= TMath::TwoPi();
-	if (phiCollYell < 0)               phiCollYell += TMath::TwoPi();
-	if (phiCollYell >= TMath::TwoPi()) phiCollYell -= TMath::TwoPi();
+        double phiCollBlue = m_angler.GetCollinsAngle(phiSpinBlue, phiHadBlue);
+        double phiCollYell = m_angler.GetCollinsAngle(phiSpinYell, phiHadYell);
 
         // (8) now calculate phiBoer: phiSpin - (2 * phiHadron),
         double phiBoerBlue = phiSpinBlue - phiHadBlue2;

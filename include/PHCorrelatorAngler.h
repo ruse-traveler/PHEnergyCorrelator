@@ -31,6 +31,8 @@ namespace PHEnergyCorrelator {
 
       bool   m_do_wrap;  /*!< turn angle wrapping on/off */
       double m_wrap;     /*!< value to wrap angles by */
+      double m_min;      /*!< min value to wrap to */
+      double m_max;      /*!< max value to wrap to */
 
     public:
 
@@ -39,12 +41,27 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       bool   GetDoWrap() const {return m_do_wrap;}
       double GetWrap()   const {return m_wrap;}
+      double GetMin()    const {return m_min;}
+      double GetMax()    const {return m_max;}
 
       // ----------------------------------------------------------------------
       //! Setter
       // ----------------------------------------------------------------------
       void SetDoWrap(const bool do_wrap) {m_do_wrap = do_wrap;}
       void SetWrap(const double wrap)    {m_wrap    = wrap;}
+      void SetMin(const double min)      {m_min     = min;}
+      void SetMax(const double max)      {m_max     = max;}
+
+      // ----------------------------------------------------------------------
+      //! Wrap an angle
+      // ----------------------------------------------------------------------
+      void Wrap(double& angle) const {
+
+        if (angle <  m_min) angle += m_wrap;
+        if (angle >= m_max) angle -= m_wrap;
+        return;
+
+      }  // end 'Wrap(double&)'
 
       // ----------------------------------------------------------------------
       //! Get angle between two planes
@@ -52,32 +69,32 @@ namespace PHEnergyCorrelator {
       /*! Calculate angle between two planes (e.g. jet-beam and spin-beam
        *  planes)
        *
-       *    \param unitPlaneA3 normalized normal vector for 1st plane
-       *    \param unitPlaneB3 normalized normal vector for 2nd plane
-       *    \param vecSensor3  unnormalized vector to determine sign of angle
+       *    \param unit_plane_a3 normalized normal vector for 1st plane
+       *    \param unit_plane_b3 normalized normal vector for 2nd plane
+       *    \param vec_sensor3  unnormalized vector to determine sign of angle
        */
       double GetTwoPlaneAngle(
-        const TVector3& unitPlaneA3,
-        const TVector3& unitPlaneB3,
-        const TVector3& vecSensor3
-      ) {
+        const TVector3& unit_plane_a3,
+        const TVector3& unit_plane_b3,
+        const TVector3& vec_sensor3
+      ) const {
 
         // get angle
         double phi = atan2(
-          unitPlaneA3.Cross(unitPlaneB3).Mag(),
-          unitPlaneA3.Dot(unitPlaneB3)
+          unit_plane_a3.Cross(unit_plane_b3).Mag(),
+          unit_plane_a3.Dot(unit_plane_b3)
         );
 
         // determine correct sign of angle and return
         //   - by definition, atan2 only returns values
         //     between [0, pi]
 	//   - we'll then define the zero of phi as plane A so
-	//     that if vecSensor3 is in the opposite hemisphere
+	//     that if vec_sensor3 is in the opposite hemisphere
 	//     of plane A's normal, we take the supplementary
 	//     angle
 	//   - that way the result will then be in [0, 2pi] rather
 	//     than [0, pi]
-        if (unitPlaneA3.Dot(vecSensor3) < 0.0) {
+        if (unit_plane_a3.Dot(vec_sensor3) < 0.0) {
           phi = TMath::TwoPi() - phi;
         }
         return phi;
@@ -85,12 +102,33 @@ namespace PHEnergyCorrelator {
       }  // end 'GetTwoPlaneAngle(TVector3& x 3)'
 
       // ----------------------------------------------------------------------
+      //! Get Collins angle
+      // ----------------------------------------------------------------------
+      /*! Calculates collins angle given a phi_spin and a phi_hadron.
+       *  Angle is wrapped accordingly based on m_do_wrap and m_wrap.
+       *
+       *    \params phi_spin angle between spin-beam plane and jet-beam plane
+       *    \params phi_had  angle between hadron-jet plane and jet-beam plane
+       */
+      double GetCollinsAngle(const double phi_spin, const double phi_had) const {
+
+        double coll = phi_spin - phi_had;
+        if (m_do_wrap) {
+          Wrap(coll);
+        }
+        return coll;
+
+      }  // end 'GetCollinsAngle(double, double)'
+
+      // ----------------------------------------------------------------------
       //! default ctor
       // ----------------------------------------------------------------------
       Angler()  {
 
         m_do_wrap = true;
-        m_wrap    = TMath::Pi();
+        m_wrap    = TMath::TwoPi();
+        m_min     = 0.0;
+        m_max     = TMath::TwoPi();
 
       }  // end default ctor
 
@@ -102,12 +140,19 @@ namespace PHEnergyCorrelator {
       // ----------------------------------------------------------------------
       //! ctor accepting arguments
       // ----------------------------------------------------------------------
-      Angler(const bool do_wrap, const double wrap = TMath::Pi()) {
+      Angler(
+        const bool do_wrap,
+        const double wrap = TMath::TwoPi(),
+        const double min = 0.0,
+        const double max = TMath::TwoPi()
+      ) {
 
         m_do_wrap = do_wrap;
         m_wrap    = wrap;
+        m_min     = min;
+        m_max     = max;
 
-      }  // end ctor(bool, double)
+      }  // end ctor(bool, double x 3)
 
   };  // end PHEnergyCorrelator::Angler
 
