@@ -24,6 +24,7 @@
 // analysis componenets
 #include "PHCorrelatorAnaTools.h"
 #include "PHCorrelatorAnaTypes.h"
+#include "PHCorrelatorAngler.h"
 #include "PHCorrelatorHistManager.h"
 
 
@@ -46,8 +47,9 @@ namespace PHEnergyCorrelator {
       std::vector< std::pair<float, float> > m_cfjet_bins;
       std::vector< std::pair<float, float> > m_chrg_bins;
 
-      // data member (hist manager)
+      // data members (phec components)
       HistManager m_manager;
+      Angler      m_angler;
 
       // ---------------------------------------------------------------------=
       //! Get weight of a constituent
@@ -404,14 +406,8 @@ namespace PHEnergyCorrelator {
           ( vecBeam3.second.Cross(vecSpin3.second) ).Unit()
         );
 
-        double phiSpinBlue = atan2( normJetBeam3.first.Cross(normJetSpin.first).Mag(), normJetBeam3.first.Dot(normJetSpin.first) );
-        double phiSpinYell = atan2( normJetBeam3.second.Cross(normJetSpin.second).Mag(), normJetBeam3.second.Dot(normJetSpin.second) );
-
-	// define the zero of phiSpin as the jet-beam plane and the sense of rotation 
-	// the result will be in [0,2pi]
-
-	if(normJetBeam3.first.Dot(vecSpin3.first)<0.0) phiSpinBlue = TMath::TwoPi() - phiSpinBlue; 
-	if(normJetBeam3.second.Dot(vecSpin3.second)<0.0) phiSpinYell = TMath::TwoPi() - phiSpinYell; 
+        double phiSpinBlue = m_angler.GetPhiSpin(normJetBeam3.first, normJetSpin.first, vecSpin3.first);
+        double phiSpinYell = m_angler.GetPhiSpin(normJetBeam3.second, normJetSpin.second, vecSpin3.second);
 
         // (3) get vector normal to hadron average-jet plane
         TVector3 normHadJet3 = ( unitJet4.Vect().Cross(unitAvgCst3) ).Unit();
@@ -421,7 +417,7 @@ namespace PHEnergyCorrelator {
         //   - constrain to range [0,2pi)
         double phiHadBlue = atan2( normJetBeam3.first.Cross(normHadJet3).Mag(), normJetBeam3.first.Dot(normHadJet3) );
         double phiHadYell = atan2( normJetBeam3.second.Cross(normHadJet3).Mag(), normJetBeam3.second.Dot(normHadJet3) );
-	
+
 	// define the zero of phiHad as the jet-beam plane and the sense of rotation
 	// the result will be in [0,2pi]
 
