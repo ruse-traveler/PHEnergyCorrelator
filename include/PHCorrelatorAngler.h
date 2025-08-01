@@ -121,6 +121,32 @@ namespace PHEnergyCorrelator {
       }  // end 'GetCollinsAngle(double, double)'
 
       // ----------------------------------------------------------------------
+      //! Get Boer-Mulders angle
+      // ----------------------------------------------------------------------
+      /*! Calculates boer-mulders angle given a phi_spin and a phi_hadron.
+       *  Angle is wrapped accordingly based on m_do_wrap and m_wrap.
+       *
+       *    \params phi_spin angle between spin-beam plane and jet-beam plane
+       *    \params phi_had  angle between hadron-jet plane and jet-beam plane
+       */
+      double GetBoerMuldersAngle(const double phi_spin, const double phi_had) const {
+
+        // double phi_hadron
+        double had2 = 2.0 * phi_had;
+        if (m_do_wrap) {
+          Wrap(had2);
+        }
+
+        // get bm angle
+        double boer = phi_spin - had2;
+        if (m_do_wrap) {
+          Wrap(boer);
+        }
+        return boer;
+
+      }  // end 'GetBoerMuldersAngle(double, double)'
+
+      // ----------------------------------------------------------------------
       //! default ctor
       // ----------------------------------------------------------------------
       Angler()  {

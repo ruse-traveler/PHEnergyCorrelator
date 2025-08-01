@@ -405,7 +405,7 @@ namespace PHEnergyCorrelator {
           ( vecBeam3.second.Cross(vecSpin3.second) ).Unit()
         );
 
-        // (2) get phiSpin: angles between jet-beam and spin-beam planes
+        // (3) get phiSpin: angles between jet-beam and spin-beam planes
 	//     - between [0, 2pi] by definition 
         double phiSpinBlue = m_angler.GetTwoPlaneAngle(normJetBeam3.first, normJetSpin.first, vecSpin3.first);
         double phiSpinYell = m_angler.GetTwoPlaneAngle(normJetBeam3.second, normJetSpin.second, vecSpin3.second);
@@ -418,31 +418,14 @@ namespace PHEnergyCorrelator {
         double phiHadBlue = m_angler.GetTwoPlaneAngle(normJetBeam3.first, normHadJet3, unitAvgCst3);
         double phiHadYell = m_angler.GetTwoPlaneAngle(normJetBeam3.second, normHadJet3, unitAvgCst3);
 
-        // (6) double phiHadron for boer-mulders,
-        //     - constrain to [0, 2pi)
-        double phiHadBlue2 = 2.0 * phiHadBlue;
-        double phiHadYell2 = 2.0 * phiHadYell;
-	if (phiHadBlue2 < 0)               phiHadBlue2 += TMath::TwoPi();
-	if (phiHadBlue2 >= TMath::TwoPi()) phiHadBlue2 -= TMath::TwoPi();
-        if (phiHadYell2 < 0)               phiHadYell2 += TMath::TwoPi();
-	if (phiHadYell2 >= TMath::TwoPi()) phiHadYell2 -= TMath::TwoPi();
-
-        // (7) now calculate phiColl: phiSpin - phiHadron,
+        // (6) now calculate phiColl: phiSpin - phiHadron,
         //     - constrain to [0, 2pi)
         double phiCollBlue = m_angler.GetCollinsAngle(phiSpinBlue, phiHadBlue);
         double phiCollYell = m_angler.GetCollinsAngle(phiSpinYell, phiHadYell);
 
-        // (8) now calculate phiBoer: phiSpin - (2 * phiHadron),
-        double phiBoerBlue = phiSpinBlue - phiHadBlue2;
-        double phiBoerYell = phiSpinYell - phiHadYell2;
-
-        // (9) constrain phiBoerBlue to [0, 2pi)
-	if (phiBoerBlue < 0)               phiBoerBlue += TMath::TwoPi();
-	if (phiBoerBlue >= TMath::TwoPi()) phiBoerBlue -= TMath::TwoPi();
-
-        // (10) constrain to phiBoerYell to [0, 2pi)
-	if (phiBoerYell < 0)               phiBoerYell += TMath::TwoPi();
-	if (phiBoerYell >= TMath::TwoPi()) phiBoerYell -= TMath::TwoPi();
+        // (7) now calculate phiBoer: phiSpin - (2 * phiHadron),
+        double phiBoerBlue = m_angler.GetBoerMuldersAngle(phiSpinBlue, phiHadBlue);
+        double phiBoerYell = m_angler.GetBoerMuldersAngle(phiSpinYell, phiHadYell);
  
         // calculate eec quantities -------------------------------------------
 
