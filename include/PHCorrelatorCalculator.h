@@ -385,8 +385,11 @@ namespace PHEnergyCorrelator {
         // collins & boer-mulders angle calculations --------------------------
 
         // (0) get beam and spin directions
-        //   first  = blue beam/spin
-        //   second = yellow beam/spin
+        //     - components:
+        //         first  = blue beam/spin
+        //         second = yellow beam/spin
+        //     - n.b. for spin pattern >= 4, the
+        //       yellow spin is randomized
         std::pair<TVector3, TVector3> vecBeam3 = Tools::GetBeams();
         std::pair<TVector3, TVector3> vecSpin3 = Tools::GetSpins( jet.pattern );
 
@@ -396,36 +399,27 @@ namespace PHEnergyCorrelator {
           ( vecBeam3.second.Cross(unitJet4.Vect()) ).Unit()
         );
 
-        // (2) get phiSpin: angles between the jet-beam plane and spin
-        //   - n.b. for spin pattern >= 4, the yellow spin is randomized
-	//   - angle between jet plane and spin 
-
-        // get vectors normal to the spin-beam plane
+        // (2) get vectors normal to the spin-beam plane
         std::pair<TVector3, TVector3> normJetSpin = std::make_pair(
           ( vecBeam3.first.Cross(vecSpin3.first) ).Unit(),
           ( vecBeam3.second.Cross(vecSpin3.second) ).Unit()
         );
 
-        double phiSpinBlue = m_angler.GetPhiSpin(normJetBeam3.first, normJetSpin.first, vecSpin3.first);
-        double phiSpinYell = m_angler.GetPhiSpin(normJetBeam3.second, normJetSpin.second, vecSpin3.second);
+        // (2) get phiSpin: angles between jet-beam and spin-beam planes
+	//     - between [0, 2pi] by definition 
+        double phiSpinBlue = m_angler.GetTwoPlaneAngle(normJetBeam3.first, normJetSpin.first, vecSpin3.first);
+        double phiSpinYell = m_angler.GetTwoPlaneAngle(normJetBeam3.second, normJetSpin.second, vecSpin3.second);
 
-        // (3) get vector normal to hadron average-jet plane
+        // (4) get vector normal to hadron average-jet plane
         TVector3 normHadJet3 = ( unitJet4.Vect().Cross(unitAvgCst3) ).Unit();
 
-        // (4) get phiHadron: angle between the jet-beam plane and the
-        //   - angle between jet-hadron plane
-        //   - constrain to range [0,2pi)
-        double phiHadBlue = atan2( normJetBeam3.first.Cross(normHadJet3).Mag(), normJetBeam3.first.Dot(normHadJet3) );
-        double phiHadYell = atan2( normJetBeam3.second.Cross(normHadJet3).Mag(), normJetBeam3.second.Dot(normHadJet3) );
+        // (5) get phiHadron: angle between jet-beam and hadron-jet planes
+        //     - between [0, 2pi] by definition
+        double phiHadBlue = m_angler.GetTwoPlaneAngle(normJetBeam3.first, normHadJet3, unitAvgCst3);
+        double phiHadYell = m_angler.GetTwoPlaneAngle(normJetBeam3.second, normHadJet3, unitAvgCst3);
 
-	// define the zero of phiHad as the jet-beam plane and the sense of rotation
-	// the result will be in [0,2pi]
-
-	if(normJetBeam3.first.Dot(unitAvgCst3)<0.0) phiHadBlue = TMath::TwoPi() - phiHadBlue; 
-	if(normJetBeam3.second.Dot(unitAvgCst3)<0.0) phiHadYell = TMath::TwoPi() - phiHadYell; 
-
-        // (5) double phiHadron for boer-mulders,
-        //   - constrain to [0, 2pi)
+        // (6) double phiHadron for boer-mulders,
+        //     - constrain to [0, 2pi)
         double phiHadBlue2 = 2.0 * phiHadBlue;
         double phiHadYell2 = 2.0 * phiHadYell;
 	if (phiHadBlue2 < 0)               phiHadBlue2 += TMath::TwoPi();
@@ -433,8 +427,8 @@ namespace PHEnergyCorrelator {
         if (phiHadYell2 < 0)               phiHadYell2 += TMath::TwoPi();
 	if (phiHadYell2 >= TMath::TwoPi()) phiHadYell2 -= TMath::TwoPi();
 
-        // (6) now calculate phiColl: phiSpin - phiHadron,
-        //   - constrain to [0, 2pi)
+        // (7) now calculate phiColl: phiSpin - phiHadron,
+        //     - constrain to [0, 2pi)
         double phiCollBlue = phiSpinBlue - phiHadBlue;
         double phiCollYell = phiSpinYell - phiHadYell;
 	if (phiCollBlue < 0)               phiCollBlue += TMath::TwoPi();
@@ -442,15 +436,15 @@ namespace PHEnergyCorrelator {
 	if (phiCollYell < 0)               phiCollYell += TMath::TwoPi();
 	if (phiCollYell >= TMath::TwoPi()) phiCollYell -= TMath::TwoPi();
 
-        // (7) now calculate phiBoer: phiSpin - (2 * phiHadron),
+        // (8) now calculate phiBoer: phiSpin - (2 * phiHadron),
         double phiBoerBlue = phiSpinBlue - phiHadBlue2;
         double phiBoerYell = phiSpinYell - phiHadYell2;
 
-        // (8) constrain phiBoerBlue to [0, 2pi)
+        // (9) constrain phiBoerBlue to [0, 2pi)
 	if (phiBoerBlue < 0)               phiBoerBlue += TMath::TwoPi();
 	if (phiBoerBlue >= TMath::TwoPi()) phiBoerBlue -= TMath::TwoPi();
 
-        // (9) constrain to phiBoerYell to [0, 2pi)
+        // (10) constrain to phiBoerYell to [0, 2pi)
 	if (phiBoerYell < 0)               phiBoerYell += TMath::TwoPi();
 	if (phiBoerYell >= TMath::TwoPi()) phiBoerYell -= TMath::TwoPi();
  

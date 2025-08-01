@@ -47,37 +47,42 @@ namespace PHEnergyCorrelator {
       void SetWrap(const double wrap)    {m_wrap    = wrap;}
 
       // ----------------------------------------------------------------------
-      //! Get angle between jet-beam and spin-beam planes
+      //! Get angle between two planes
       // ----------------------------------------------------------------------
-      /*! Calculate angle between jet-beam and the spin-beam planes.
+      /*! Calculate angle between two planes (e.g. jet-beam and spin-beam
+       *  planes)
        *
-       *    \param unitJetBeam3  normalized jet-beam plane normal vector
-       *    \param unitSpinBeam3 normalized spin-beam plane normal vector
-       *    \param vecSpin3      unnormalized spin vector
+       *    \param unitPlaneA3 normalized normal vector for 1st plane
+       *    \param unitPlaneB3 normalized normal vector for 2nd plane
+       *    \param vecSensor3  unnormalized vector to determine sign of angle
        */
-      double GetPhiSpin(
-        const TVector3& unitJetBeam3,
-        const TVector3& unitSpinBeam3,
-        const TVector3& vecSpin3
+      double GetTwoPlaneAngle(
+        const TVector3& unitPlaneA3,
+        const TVector3& unitPlaneB3,
+        const TVector3& vecSensor3
       ) {
 
         // get angle
-        double phiSpin = atan2(
-          unitJetBeam3.Cross(unitSpinBeam3).Mag(),
-          unitJetBeam3.Dot(unitSpinBeam3)
+        double phi = atan2(
+          unitPlaneA3.Cross(unitPlaneB3).Mag(),
+          unitPlaneA3.Dot(unitPlaneB3)
         );
 
         // determine correct sign of angle and return
-	//   - we'll define the zero of phiSpin as the jet-beam plane
-	//     and the sense of rotation
-	//   - the result will then be in [0, 2pi] rather than
-	//     [0, pi]
-	if (unitJetBeam3.Dot(vecSpin3) < 0.0) {
-          phiSpin = TMath::TwoPi() - phiSpin; 
+        //   - by definition, atan2 only returns values
+        //     between [0, pi]
+	//   - we'll then define the zero of phi as plane A so
+	//     that if vecSensor3 is in the opposite hemisphere
+	//     of plane A's normal, we take the supplementary
+	//     angle
+	//   - that way the result will then be in [0, 2pi] rather
+	//     than [0, pi]
+        if (unitPlaneA3.Dot(vecSensor3) < 0.0) {
+          phi = TMath::TwoPi() - phi;
         }
-        return phiSpin;
+        return phi;
 
-      }  // end 'GetPhiSpin(TVector3& x 3)'
+      }  // end 'GetTwoPlaneAngle(TVector3& x 3)'
 
       // ----------------------------------------------------------------------
       //! default ctor
