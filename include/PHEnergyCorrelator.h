@@ -14,6 +14,7 @@
 // analysis components
 #include "PHCorrelatorAnaTools.h"
 #include "PHCorrelatorAnaTypes.h"
+#include "PHCorrelatorAngler.h"
 #include "PHCorrelatorBinning.h"
 #include "PHCorrelatorBins.h"
 #include "PHCorrelatorCalculator.h"
