@@ -190,9 +190,9 @@ namespace PHEnergyCorrelator {
         // get thetas (thetaSB, thetaSA)
         //   - by definition, acos only returns values
         //     between [0, pi]
-	//   - so the sign of sintheta will determine if
-	//     angle is in [-pi, 0] or [0, pi]
-	double thetas = (sintheta > 0.0) ? acos(costheta) : -acos(costheta);
+        //   - so the sign of sintheta will determine if
+        //     angle is in [-pi, 0] or [0, pi]
+        double thetas = (sintheta > 0.0) ? acos(costheta) : -acos(costheta);
         if (m_do_wrap) {
           Wrap(thetas);
         }
