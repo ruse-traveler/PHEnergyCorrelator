@@ -341,10 +341,8 @@ namespace PHEnergyCorrelator {
       void GenerateEECHists() {
 
         // 1d spin axis titles
-        const std::string collB_title("#varphi_{B}^{collins}");
-        const std::string collY_title("#varphi_{Y}^{collins}");
-        const std::string boerB_title("#varphi_{B}^{boers-mulder}");
-        const std::string boerY_title("#varphi_{Y}^{boers-mulder}");
+        const std::string diffB_title("#theta_{s_{B}} - #theta_{R_{c}}");
+        const std::string diffY_title("#theta_{s_{Y}} - #theta_{R_{c}}");
 
         // 1d histogram definitions
         std::vector<Histogram> def_1d;
@@ -352,16 +350,10 @@ namespace PHEnergyCorrelator {
           Histogram("EECStat", "", "R_{L}", m_bins.Get("side"))
         );
         def_1d.push_back(
-          Histogram("CollinsBlueStat", "", collB_title, m_bins.Get("angle"))
+          Histogram("DiFFBlueSpinRC", "", diffB_title, m_bins.Get("angle"))
         );
         def_1d.push_back(
-          Histogram("CollinsYellStat", "", collY_title, m_bins.Get("angle"))
-        );
-        def_1d.push_back(
-          Histogram("BoerMuldersBlueStat", "", boerB_title, m_bins.Get("angle"))
-        );
-        def_1d.push_back(
-          Histogram("BoerMuldersYellStat", "", boerY_title, m_bins.Get("angle"))
+          Histogram("DiFFYellSpinRC", "", diffY_title, m_bins.Get("angle"))
         );
 
         // vectors of binnings for 2d histograms
@@ -370,32 +362,20 @@ namespace PHEnergyCorrelator {
         angleXside_bins.push_back(m_bins.Get("angle"));
 
         // vectors of axis titles for 2d histograms
-        std::vector<std::string> collXsideB_titles;
-        std::vector<std::string> collXsideY_titles;
-        std::vector<std::string> boerXsideB_titles;
-        std::vector<std::string> boerXsideY_titles;
-        collXsideB_titles.push_back("R_{L}");
-        collXsideB_titles.push_back(collB_title);
-        collXsideY_titles.push_back("R_{L}");
-        collXsideY_titles.push_back(collY_title);
-        boerXsideB_titles.push_back("R_{L}");
-        boerXsideB_titles.push_back(boerB_title);
-        boerXsideY_titles.push_back("R_{L}");
-        boerXsideY_titles.push_back(boerY_title);
+        std::vector<std::string> diffXsideB_titles;
+        std::vector<std::string> diffXsideY_titles;
+        diffXsideB_titles.push_back("R_{L}");
+        diffXsideB_titles.push_back(diffB_title);
+        diffXsideY_titles.push_back("R_{L}");
+        diffXsideY_titles.push_back(diffY_title);
 
         // 2D histogram definitions
         std::vector<Histogram> def_2d;
         def_2d.push_back(
-          Histogram("CollinsBlueVsRStat", "", collXsideB_titles, angleXside_bins)
+          Histogram("DiFFBlueSpinRCVsRStat", "", diffXsideB_titles, angleXside_bins)
         );
         def_2d.push_back(
-          Histogram("CollinsYellVsRStat", "", collXsideY_titles, angleXside_bins)
-        );
-        def_2d.push_back(
-          Histogram("BoerMuldersBlueVsRStat", "", boerXsideB_titles, angleXside_bins)
-        );
-        def_2d.push_back(
-          Histogram("BoerMuldersYellVsRStat", "", boerXsideY_titles, angleXside_bins)
+          Histogram("DiFFYellSpinRCVsRStat", "", diffXsideY_titles, angleXside_bins)
         );
 
         // create histograms
@@ -543,23 +523,15 @@ namespace PHEnergyCorrelator {
 
         // fill 1d histograms
         m_hist_1d[ MakeHashedName("EECStat", tag) ] -> Fill(content.rl, content.weight);
-        m_hist_1d[ MakeHashedName("CollinsBlueStat", tag) ] -> Fill(content.phiCollB);
-        m_hist_1d[ MakeHashedName("CollinsYellStat", tag) ] -> Fill(content.phiCollY);
-        m_hist_1d[ MakeHashedName("BoerMuldersBlueStat", tag) ] -> Fill(content.phiBoerB);
-        m_hist_1d[ MakeHashedName("BoerMuldersYellStat", tag) ] -> Fill(content.phiBoerY);
+        m_hist_1d[ MakeHashedName("DiFFBlueSpinRC", tag) ] -> Fill(content.thSpinRCB);
+        m_hist_1d[ MakeHashedName("DiFFYellSpinRC", tag) ] -> Fill(content.thSpinRCY);
 
         // fill 2d histograms
-        m_hist_2d[ MakeHashedName("CollinsBlueVsRStat", tag) ] -> Fill(
-          content.rl, content.phiCollB, content.weight
+        m_hist_2d[ MakeHashedName("DiFFBlueSpinRCVsRStat", tag) ] -> Fill(
+          content.rl, content.thSpinRCB, content.weight
         );
-        m_hist_2d[ MakeHashedName("CollinsYellVsRStat", tag) ] -> Fill(
-          content.rl, content.phiCollY, content.weight
-        );
-        m_hist_2d[ MakeHashedName("BoerMuldersBlueVsRStat", tag) ] -> Fill(
-          content.rl, content.phiBoerB, content.weight
-        );
-        m_hist_2d[ MakeHashedName("BoerMuldersYellVsRStat", tag) ] -> Fill(
-          content.rl, content.phiBoerY, content.weight
+        m_hist_2d[ MakeHashedName("DiFFYellSpinRCVsRStat", tag) ] -> Fill(
+          content.rl, content.thSpinRCY, content.weight
         );
         return;
 

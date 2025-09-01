@@ -370,19 +370,7 @@ namespace PHEnergyCorrelator {
           Tools::GetCstLorentz(csts.second, jet.pt, false)
         );
 
-        // get average of cst 3-vectors
-        TVector3 vecAvgCst3 = Tools::GetWeightedAvgVector(
-          vecCst4.first.Vect(),
-          vecCst4.second.Vect(),
-          false
-        );
-        TVector3 unitAvgCst3 = Tools::GetWeightedAvgVector(
-          vecCst4.first.Vect(),
-          vecCst4.second.Vect(),
-          true
-        );
-
-        // collins & boer-mulders angle calculations --------------------------
+        // DiFF angle calculations --------------------------------------------
 
         // (0) get beam and spin directions
         //     - components:
@@ -393,39 +381,44 @@ namespace PHEnergyCorrelator {
         std::pair<TVector3, TVector3> vecBeam3 = Tools::GetBeams();
         std::pair<TVector3, TVector3> vecSpin3 = Tools::GetSpins( jet.pattern );
 
-        // (1) get vectors normal to the jet-beam plane
-        std::pair<TVector3, TVector3> normJetBeam3 = std::make_pair(
-          ( vecBeam3.first.Cross(unitJet4.Vect()) ).Unit(),
-          ( vecBeam3.second.Cross(unitJet4.Vect()) ).Unit()
+        // normalize beam directions
+        std::pair<TVector3, TVector3> unitBeam3 = std::make_pair(
+          vecBeam3.first.Unit(),
+          vecBeam3.second.Unit()
         );
 
-        // (2) get vectors normal to the spin-beam plane
-        std::pair<TVector3, TVector3> normJetSpin = std::make_pair(
-          ( vecBeam3.first.Cross(vecSpin3.first) ).Unit(),
-          ( vecBeam3.second.Cross(vecSpin3.second) ).Unit()
+        // (1) define vectors for angle calculations
+        //   - PC = center-of-mass vector for pair of hadrons
+        //   - RC = momentum imbalance vector for pair of hadrons
+        TVector3 vecHadPC3  = vecCst4.first.Vect() + vecCst4.second.Vect();
+        TVector3 vecHadRC3  = 0.5 * (vecCst4.first.Vect() - vecCst4.second.Vect());
+
+        // normalize PC
+        TVector3 unitHadPC3 = vecHadPC3.Unit();
+
+        // (2) Get angles b/n spins and scattering plane
+        const double thSpinB = m_angler.GetDiFFSpinScatteringAngle(
+          unitBeam3.first,
+          vecSpin3.first,
+          vecHadPC3
+        );
+        const double thSpinY = m_angler.GetDiFFSpinScatteringAngle(
+          unitBeam3.second,
+          vecSpin3.second,
+          vecHadPC3
         );
 
-        // (3) get phiSpin: angles between jet-beam and spin-beam planes
-	//     - between [0, 2pi] by definition 
-        double phiSpinBlue = m_angler.GetTwoPlaneAngle(normJetBeam3.first, normJetSpin.first, vecSpin3.first);
-        double phiSpinYell = m_angler.GetTwoPlaneAngle(normJetBeam3.second, normJetSpin.second, vecSpin3.second);
+        // (4) get angle b/n RC and scattering plane
+        //   - n.b. only calcualted wrt yellow for symmetry
+        const double thHadRC = m_angler.GetDiFFImbalanceScatteringAngle(
+          vecBeam3.second,
+          vecHadRC3,
+          unitHadPC3
+        );
 
-        // (4) get vector normal to hadron average-jet plane
-        TVector3 normHadJet3 = ( unitJet4.Vect().Cross(unitAvgCst3) ).Unit();
-
-        // (5) get phiHadron: angle between jet-beam and hadron-jet planes
-        //     - between [0, 2pi] by definition
-        double phiHadBlue = m_angler.GetTwoPlaneAngle(normJetBeam3.first, normHadJet3, unitAvgCst3);
-        double phiHadYell = m_angler.GetTwoPlaneAngle(normJetBeam3.second, normHadJet3, unitAvgCst3);
-
-        // (6) now calculate phiColl: phiSpin - phiHadron,
-        //     - constrain to [0, 2pi)
-        double phiCollBlue = m_angler.GetCollinsAngle(phiSpinBlue, phiHadBlue);
-        double phiCollYell = m_angler.GetCollinsAngle(phiSpinYell, phiHadYell);
-
-        // (7) now calculate phiBoer: phiSpin - (2 * phiHadron),
-        double phiBoerBlue = m_angler.GetBoerMuldersAngle(phiSpinBlue, phiHadBlue);
-        double phiBoerYell = m_angler.GetBoerMuldersAngle(phiSpinYell, phiHadYell);
+        // (5) take difference between RC- and spin-scattering angles
+        const double thSpinRCB = thSpinB - thHadRC;
+        const double thSpinRCY = thSpinY - thHadRC;
  
         // calculate eec quantities -------------------------------------------
 
@@ -450,13 +443,11 @@ namespace PHEnergyCorrelator {
           // collect quantities to be histogrammed
           Type::HistContent content(weight, dist);
           if (m_manager.GetDoSpinBins()) {
-            content.phiCollB = phiCollBlue;
-            content.phiCollY = phiCollYell;
-            content.phiBoerB = phiBoerBlue;
-            content.phiBoerY = phiBoerYell;
-            content.spinB    = vecSpin3.first.Y();
-            content.spinY    = vecSpin3.second.Y();
-            content.pattern  = jet.pattern;
+            content.thSpinRCB = thSpinRCB;
+            content.thSpinRCY = thSpinRCY;
+            content.spinB     = vecSpin3.first.Y();
+            content.spinY     = vecSpin3.second.Y();
+            content.pattern   = jet.pattern;
           }
 
           // fill spin-integrated histograms
