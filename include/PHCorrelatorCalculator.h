@@ -417,9 +417,11 @@ namespace PHEnergyCorrelator {
         );
 
         // (5) take difference between RC- and spin-scattering angles
-        const double thSpinRCB = thSpinB - thHadRC;
-        const double thSpinRCY = thSpinY - thHadRC;
- 
+        double thSpinRCB = thSpinB - thHadRC;
+        double thSpinRCY = thSpinY - thHadRC;
+        m_angler.Wrap(thSpinRCB);
+        m_angler.Wrap(thSpinRCY);
+
         // calculate eec quantities -------------------------------------------
 
         // get EEC weights
