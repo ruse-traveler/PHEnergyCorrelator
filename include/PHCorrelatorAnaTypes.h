@@ -157,19 +157,21 @@ namespace PHEnergyCorrelator {
     struct HistContent {
 
       // data members
-      double weight;   //!< energy weight
-      double rl;       //!< longest side length
-      double rm;       //!< medium side length (for E3C)
-      double rs;       //!< shortest side length (for E3C and greater)
-      double xi;       //!< \f$R_{s}/R_{m}\f$ (for E3C)
-      double theta;    //!< \f$asin\sqrt(1-\frac{(R_{l}-R_{m})^{2}}{R_{s}^{2}})\f$ (for E3C)
-      double phiCollB; //!< blue collins angle: phiSpin - phiHadron
-      double phiCollY; //!< yellow collins angle: phiSpin - phiHadron
-      double phiBoerB; //!< boer-mulders angle: phiSpin - (2*phiHadron)
-      double phiBoerY; //!< boer-mulders angle: phiSpin - (2*phiHadron)
-      double spinB;    //!< blue spin y-component
-      double spinY;    //!< yellow spin y-component
-      int    pattern;  //!< spin pattern
+      double weight;     //!< energy weight
+      double rl;         //!< longest side length
+      double rm;         //!< medium side length (for E3C)
+      double rs;         //!< shortest side length (for E3C and greater)
+      double xi;         //!< \f$R_{s}/R_{m}\f$ (for E3C)
+      double theta;      //!< \f$asin\sqrt(1-\frac{(R_{l}-R_{m})^{2}}{R_{s}^{2}})\f$ (for E3C)
+      double phiCollB;   //!< blue collins angle: phiSpin - phiHadron
+      double phiCollY;   //!< yellow collins angle: phiSpin - phiHadron
+      double phiBoerB;   //!< blue boer-mulders angle: phiSpin - (2*phiHadron)
+      double phiBoerY;   //!< yellow boer-mulders angle: phiSpin - (2*phiHadron)
+      double thSpinRCB;  //!< blue DiFF angle: phiSpin - RC
+      double thSpinRCY;  //!< yellow DiFF angle: phiSpin - RC
+      double spinB;      //!< blue spin y-component
+      double spinY;      //!< yellow spin y-component
+      int    pattern;    //!< spin pattern
 
       //! default ctor/dtor
       HistContent()  {};
@@ -179,24 +181,20 @@ namespace PHEnergyCorrelator {
       HistContent(
         const double w,
         const double l,
-        const double cb = Const::DoubleDefault(),
-        const double cy = Const::DoubleDefault(),
-        const double bb = Const::DoubleDefault(),
-        const double by = Const::DoubleDefault(),
+        const double db = Const::DoubleDefault(),
+        const double dy = Const::DoubleDefault(),
         const double sb = Const::DoubleDefault(),
         const double sy = Const::DoubleDefault(),
         const int    p = Const::IntDefault()
       ) {
-        weight   = w;
-        rl       = l;
-        phiCollB = cb;
-        phiCollY = cy;
-        phiBoerB = bb;
-        phiBoerY = by;
-        spinB    = sb;
-        spinY    = sy;
-        pattern  = p;
-      }  // end ctor(double x 8, int)
+        weight    = w;
+        rl        = l;
+        thSpinRCB = db;
+        thSpinRCY = dy;
+        spinB     = sb;
+        spinY     = sy;
+        pattern   = p;
+      }  // end ctor(double x 7, int)
 
       //! ctor accepting only 3-point arguments
       HistContent(
@@ -227,24 +225,28 @@ namespace PHEnergyCorrelator {
         const double cy = Const::DoubleDefault(),
         const double bb = Const::DoubleDefault(),
         const double by = Const::DoubleDefault(),
+        const double db = Const::DoubleDefault(),
+        const double dy = Const::DoubleDefault(),
         const double sb = Const::DoubleDefault(),
         const double sy = Const::DoubleDefault(),
         const int    p = Const::IntDefault()
       ) {
-        weight   = w;
-        rl       = l;
-        rm       = m;
-        rs       = s;
-        xi       = x;
-        theta    = t;
-        phiCollB = cb;
-        phiCollY = cy;
-        phiBoerB = bb;
-        phiBoerY = by;
-        spinB    = sb;
-        spinY    = sy;
-        pattern  = p;
-      }  // end ctor(double x 11, int x 1)
+        weight    = w;
+        rl        = l;
+        rm        = m;
+        rs        = s;
+        xi        = x;
+        theta     = t;
+        phiCollB  = cb;
+        phiCollY  = cy;
+        phiBoerB  = bb;
+        phiBoerY  = by;
+        thSpinRCB = db;
+        thSpinRCY = dy;
+        spinB     = sb;
+        spinY     = sy;
+        pattern   = p;
+      }  // end ctor(double x 13, int x 1)
 
     };  // end HistContent
 

@@ -147,6 +147,116 @@ namespace PHEnergyCorrelator {
       }  // end 'GetBoerMuldersAngle(double, double)'
 
       // ----------------------------------------------------------------------
+      //! Get DiFF spin-scattering angle
+      // ----------------------------------------------------------------------
+      /*! Calculates theta_s, angle between spin and the scattering plane, the
+       *  plane defined by the beam and PC (dihadron center-of-mass).  Angle is
+       *  wrapped accordingly based on m_do_wrap and m_wrap.  For more details,
+       *  see arXiv:hep-ph/0409174.
+       *
+       *  \param unit_beam     normalized beam direction (i.e. PB or PA)
+       *  \param vec_spin      spin direction of beam (i.e. SB or SA)
+       *  \param vec_dihad_com dihadron center-of-mass (i.e. PC)
+       */
+      double GetDiFFSpinScatteringAngle(
+        const TVector3& unit_beam,
+        const TVector3& vec_spin,
+        const TVector3& vec_dihad_com
+      ) const {
+
+        // calculate cosine of theta_s
+	double costheta = (
+          unit_beam.Cross(vec_dihad_com) * (
+            1.0 / (
+              unit_beam.Cross(vec_dihad_com).Mag()
+            )
+          )
+        ).Dot(
+          unit_beam.Cross(vec_spin) * (
+            1.0 / unit_beam.Cross(vec_spin).Mag()
+          )
+        );
+
+        // calculate sine of theta_s
+	double sintheta = (
+          vec_dihad_com.Cross(vec_spin)
+        ).Dot(unit_beam) * (
+          1.0 / (
+            (unit_beam.Cross(vec_dihad_com).Mag()) *
+            (unit_beam.Cross(vec_spin).Mag())
+          )
+        );
+
+        // get thetas (thetaSB, thetaSA)
+        //   - by definition, acos only returns values
+        //     between [0, pi]
+        //   - so the sign of sintheta will determine if
+        //     angle is in [-pi, 0] or [0, pi]
+        double thetas = (sintheta > 0.0) ? acos(costheta) : -acos(costheta);
+        if (m_do_wrap) {
+          Wrap(thetas);
+        }
+        return thetas;
+
+      }  // end 'GetDiFFSpinScatteringAngle(TVector3& x 3)'
+
+      // ----------------------------------------------------------------------
+      //! Get DiFF imbalance-scattering plane angle
+      // ----------------------------------------------------------------------
+      /*! Calculates theta_rc, angle between RC (dihadron momentum
+       *  imbalance) and the scattering plane, the plane defined by the
+       *  beam and PC (dihadron center-of-mass).  Angle is wrapped
+       *  accordingly based on m_do_wrap and m_wrap.  For more details,
+       *  see arXiv:hep-ph/0409174.
+       *
+       *  \param vec_beam       beam direction (i.e. PA or PB)
+       *  \param vec_dihad_imb  dihadron momentum imbalance (i.e. RC)
+       *  \param unit_dihad_com normalized direction of dihadron center-of-
+       *                        mass (i.e. PC)
+       */
+      double GetDiFFImbalanceScatteringAngle(
+        const TVector3& vec_beam,
+        const TVector3& vec_dihad_imb,
+        const TVector3& unit_dihad_com
+      ) const {
+
+        // calculate cosine of theta_rc
+	double costheta = (
+          unit_dihad_com.Cross(vec_beam) * (
+            1.0 / (unit_dihad_com.Cross(vec_beam).Mag())
+          )
+        ).Dot(
+          unit_dihad_com.Cross(vec_dihad_imb) * (
+            1.0 / unit_dihad_com.Cross(vec_dihad_imb).Mag()
+          )
+        );
+
+        // calculate sine of theta_rc
+	double sintheta = (
+          vec_beam.Cross(vec_dihad_imb)
+        ).Dot(
+         unit_dihad_com
+        ) * (
+          1.0 / (
+            (unit_dihad_com.Cross(vec_beam).Mag()) *
+            (unit_dihad_com.Cross(vec_dihad_imb).Mag())
+          )
+        );
+
+        // get thetarc
+        //   - by definition, acos only returns values
+        //     between [0, pi]
+        //   - so the sign of sintheta will determine if
+        //     angle is in [-pi, 0] or [0, pi]
+        double thetarc = (sintheta > 0.0) ? acos(costheta) : -acos(costheta);
+        if (m_do_wrap) {
+          Wrap(thetarc);
+        }
+        return thetarc;
+
+      }  // end 'GetDiFFImbalanceScatteringAngle(TVector3& x 3)'
+
+      // ----------------------------------------------------------------------
       //! default ctor
       // ----------------------------------------------------------------------
       Angler()  {
