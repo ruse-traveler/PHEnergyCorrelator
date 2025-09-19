@@ -1,5 +1,12 @@
 # PHEnergyCorrelator
 
-A lightweight, header-only library to do EEC calculations in PHENIX analyses.
+### Authors
+Derek Anderson, John Lajoie
 
-The macros `test/jetAna.C`, `test/JetAnaSim.C` and their associated headers are by John Lajoie.
+### Description
+A header-only library to do spin-dependent EEC calculations in
+PHENIX analyses.
+
+### Dependencies
+- ROOT 5.34/36  
+- gcc version 4.8.5 20150623 
