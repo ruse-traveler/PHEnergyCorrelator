@@ -12,15 +12,10 @@
 #define PHENERGYCORRELATOR_H
 
 // analysis components
-#include "PHCorrelatorAnaTools.h"
-#include "PHCorrelatorAnaTypes.h"
-#include "PHCorrelatorAngler.h"
-#include "PHCorrelatorBinning.h"
-#include "PHCorrelatorBins.h"
-#include "PHCorrelatorCalculator.h"
-#include "PHCorrelatorConstants.h"
-#include "PHCorrelatorHistManager.h"
-#include "PHCorrelatorHistogram.h"
+#include "analysis/PHCorrelatorCalculator.h"
+#include "common/PHCorrelatorCommon.h"
+#include "core/PHCorrelatorCore.h"
+#include "hists/PHCorrelatorHistManager.h"
 
 // alias for convenience
 namespace PHEC = PHEnergyCorrelator;

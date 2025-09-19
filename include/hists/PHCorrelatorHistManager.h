@@ -25,15 +25,13 @@
 #include <TH3.h>
 #include <TString.h>
 // analysis components
-#include "PHCorrelatorAnaTools.h"
-#include "PHCorrelatorAnaTypes.h"
-#include "PHCorrelatorBins.h"
-#include "PHCorrelatorConstants.h"
-#include "PHCorrelatorHistogram.h"
+#include "common/PHCorrelatorCommon.h"
+#include "core/PHCorrelatorCore.h"
 
 //! Turns on/off width calculation.
 #define DO_WIDTH_CALC 0
  
+
 
 namespace PHEnergyCorrelator {
 

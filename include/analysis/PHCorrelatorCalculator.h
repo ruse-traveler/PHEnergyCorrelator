@@ -22,10 +22,8 @@
 #include <TMath.h>
 #include <TVector3.h>
 // analysis componenets
-#include "PHCorrelatorAnaTools.h"
-#include "PHCorrelatorAnaTypes.h"
-#include "PHCorrelatorAngler.h"
-#include "PHCorrelatorHistManager.h"
+#include "common/PHCorrelatorCommon.h"
+#include "core/PHCorrelatorCore.h"
 
 
 
